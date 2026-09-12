@@ -1,0 +1,1450 @@
+[
+  {
+    "method": "GET",
+    "path": "/",
+    "name": "root",
+    "summary": "",
+    "tags": [],
+    "auth_dep": "None (Public)",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/ai-models",
+    "name": "list_ai_models",
+    "summary": "List registered AI models",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AIModelListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/ai-models/{model_id}",
+    "name": "get_ai_model_detail",
+    "summary": "Get registered AI model detail",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "model_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AIModelResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/analytics/ai-telemetry",
+    "name": "get_ai_telemetry",
+    "summary": "Get AI inference telemetry",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AITelemetryAnalyticsResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/analytics/overview",
+    "name": "get_platform_overview",
+    "summary": "Get platform overview analytics",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "PlatformOverviewAnalyticsResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/analytics/screenings",
+    "name": "get_screening_analytics",
+    "summary": "Get screening workflow analytics",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "start_date",
+      "end_date"
+    ],
+    "body_model": null,
+    "response_model": "ClinicalScreeningAnalyticsResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/analytics/telehealth",
+    "name": "get_telehealth_analytics",
+    "summary": "Get telehealth utilization analytics",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "TelehealthAnalyticsResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/audit-logs",
+    "name": "list_audit_logs",
+    "summary": "List audit logs",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "user_id",
+      "action",
+      "resource_type",
+      "start_date",
+      "end_date",
+      "page",
+      "page_size"
+    ],
+    "body_model": null,
+    "response_model": "AdminAuditLogListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/audit-logs/{audit_log_id}",
+    "name": "get_audit_log_detail",
+    "summary": "Get audit log details",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "audit_log_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AdminAuditLogResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/dentist-verifications",
+    "name": "list_dentist_verifications",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "status_filter",
+      "page",
+      "page_size"
+    ],
+    "body_model": null,
+    "response_model": "AdminVerificationListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/dentist-verifications/{verification_id}",
+    "name": "get_dentist_verification_detail",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "verification_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AdminDentistVerificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/admin/dentist-verifications/{verification_id}/approve",
+    "name": "approve_dentist_verification",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "verification_id"
+    ],
+    "query_params": [],
+    "body_model": "Optional",
+    "response_model": "AdminDentistVerificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/admin/dentist-verifications/{verification_id}/reject",
+    "name": "reject_dentist_verification",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "verification_id"
+    ],
+    "query_params": [],
+    "body_model": "Optional",
+    "response_model": "AdminDentistVerificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/users",
+    "name": "list_users",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "role",
+      "is_active",
+      "page",
+      "page_size"
+    ],
+    "body_model": null,
+    "response_model": "AdminUserListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/admin/users/{user_id}",
+    "name": "get_user_detail",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "user_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AdminUserResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/users/{user_id}/status",
+    "name": "update_user_status",
+    "summary": "",
+    "tags": [
+      "Admin"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "user_id"
+    ],
+    "query_params": [],
+    "body_model": "UserStatusUpdate",
+    "response_model": "AdminUserResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/appointments",
+    "name": "list_appointments",
+    "summary": "List user's appointments",
+    "tags": [
+      "Appointments"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "status_filter"
+    ],
+    "body_model": null,
+    "response_model": "AppointmentListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/appointments/{appointment_id}",
+    "name": "get_appointment",
+    "summary": "Get appointment details",
+    "tags": [
+      "Appointments"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "appointment_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AppointmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/appointments/{appointment_id}/cancel",
+    "name": "cancel_appointment",
+    "summary": "Cancel appointment",
+    "tags": [
+      "Appointments"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "appointment_id"
+    ],
+    "query_params": [],
+    "body_model": "AppointmentCancel",
+    "response_model": "AppointmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/appointments/{appointment_id}/consultation",
+    "name": "get_consultation_for_appointment",
+    "summary": "Get consultation session for appointment",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "appointment_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ConsultationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/appointments/{appointment_id}/consultation",
+    "name": "create_consultation_for_appointment",
+    "summary": "Initialize consultation session for appointment",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "appointment_id"
+    ],
+    "query_params": [],
+    "body_model": "ConsultationCreate",
+    "response_model": "ConsultationResponse",
+    "status_code": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/appointments/{appointment_id}/status",
+    "name": "update_appointment_status",
+    "summary": "Update appointment status",
+    "tags": [
+      "Appointments"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "appointment_id"
+    ],
+    "query_params": [],
+    "body_model": "AppointmentStatusUpdate",
+    "response_model": "AppointmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/auth/me",
+    "name": "get_current_user_identity",
+    "summary": "",
+    "tags": [
+      "Authentication"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "AuthIdentityResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/consultations",
+    "name": "list_consultations",
+    "summary": "List consultation sessions",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "status_filter"
+    ],
+    "body_model": null,
+    "response_model": "ConsultationListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/consultations/{consultation_id}",
+    "name": "get_consultation",
+    "summary": "Get consultation session details",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "consultation_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ConsultationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/consultations/{consultation_id}/end",
+    "name": "end_consultation",
+    "summary": "End teleconsultation session",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "consultation_id"
+    ],
+    "query_params": [],
+    "body_model": "ConsultationEnd",
+    "response_model": "ConsultationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/consultations/{consultation_id}/fail",
+    "name": "fail_consultation",
+    "summary": "Mark teleconsultation session as failed",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "consultation_id"
+    ],
+    "query_params": [],
+    "body_model": "ConsultationFail",
+    "response_model": "ConsultationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/consultations/{consultation_id}/start",
+    "name": "start_consultation",
+    "summary": "Start teleconsultation session",
+    "tags": [
+      "Consultations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "consultation_id"
+    ],
+    "query_params": [],
+    "body_model": "ConsultationStart",
+    "response_model": "ConsultationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/conversations",
+    "name": "list_conversations",
+    "summary": "List conversation threads",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "is_active",
+      "patient_id",
+      "dentist_id"
+    ],
+    "body_model": null,
+    "response_model": "ConversationListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/conversations/{conversation_id}",
+    "name": "get_conversation",
+    "summary": "Get conversation thread details",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ConversationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/conversations/{conversation_id}/archive",
+    "name": "archive_conversation",
+    "summary": "Archive a conversation thread",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id"
+    ],
+    "query_params": [],
+    "body_model": "ConversationArchive",
+    "response_model": "ConversationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/conversations/{conversation_id}/messages",
+    "name": "list_messages",
+    "summary": "List messages in a conversation (chronological)",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id"
+    ],
+    "query_params": [
+      "limit",
+      "offset"
+    ],
+    "body_model": null,
+    "response_model": "MessageListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/conversations/{conversation_id}/messages",
+    "name": "send_message",
+    "summary": "Post a text message in an active conversation",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id"
+    ],
+    "query_params": [],
+    "body_model": "MessageCreate",
+    "response_model": "MessageResponse",
+    "status_code": 201
+  },
+  {
+    "method": "GET",
+    "path": "/conversations/{conversation_id}/messages/{message_id}",
+    "name": "get_message",
+    "summary": "Get single message details",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id",
+      "message_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "MessageResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/conversations/{conversation_id}/read",
+    "name": "mark_messages_read",
+    "summary": "Mark unread incoming messages as read",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "conversation_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "MessageReadResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/dentists/me",
+    "name": "get_my_dentist_profile",
+    "summary": "",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "DentistResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/dentists/me",
+    "name": "update_my_dentist_profile",
+    "summary": "",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "DentistUpdate",
+    "response_model": "DentistResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/dentists/me/availability",
+    "name": "list_my_availability",
+    "summary": "List dentist's own availability windows",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "DentistAvailabilityListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/dentists/me/availability",
+    "name": "create_my_availability",
+    "summary": "Create availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "DentistAvailabilityCreate",
+    "response_model": "DentistAvailabilityResponse",
+    "status_code": 201
+  },
+  {
+    "method": "DELETE",
+    "path": "/dentists/me/availability/{availability_id}",
+    "name": "delete_my_availability",
+    "summary": "Delete dentist's availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "availability_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/dentists/me/availability/{availability_id}",
+    "name": "update_my_availability",
+    "summary": "Update dentist's availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "availability_id"
+    ],
+    "query_params": [],
+    "body_model": "DentistAvailabilityUpdate",
+    "response_model": "DentistAvailabilityResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/dentists/me/verification",
+    "name": "get_my_verification_status",
+    "summary": "",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "DentistVerificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/dentists/me/verification",
+    "name": "submit_my_verification",
+    "summary": "",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "DentistVerificationCreate",
+    "response_model": "DentistVerificationResponse",
+    "status_code": 201
+  },
+  {
+    "method": "POST",
+    "path": "/dentists/{dentist_id}/appointments",
+    "name": "book_appointment_with_dentist",
+    "summary": "Request/book an appointment with a dentist",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "dentist_id"
+    ],
+    "query_params": [],
+    "body_model": "AppointmentCreate",
+    "response_model": "AppointmentResponse",
+    "status_code": 201
+  },
+  {
+    "method": "GET",
+    "path": "/dentists/{dentist_id}/availability",
+    "name": "get_dentist_public_availability",
+    "summary": "Discover approved dentist's active availability windows",
+    "tags": [
+      "Dentists"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "dentist_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "DentistAvailabilityListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/dentists/{dentist_id}/conversations",
+    "name": "create_conversation_with_dentist",
+    "summary": "Initiate or reactivate conversation with a dentist (Patient only)",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "dentist_id"
+    ],
+    "query_params": [],
+    "body_model": "ConversationCreate",
+    "response_model": "ConversationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "name": "health_check",
+    "summary": "",
+    "tags": [],
+    "auth_dep": "None (Public)",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/notifications",
+    "name": "list_notifications",
+    "summary": "List notifications for current user",
+    "tags": [
+      "Notifications"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "is_read",
+      "limit",
+      "offset"
+    ],
+    "body_model": null,
+    "response_model": "NotificationListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/notifications/read-all",
+    "name": "mark_all_notifications_read",
+    "summary": "Mark all unread notifications as read",
+    "tags": [
+      "Notifications"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "NotificationReadAllResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/notifications/unread-count",
+    "name": "get_unread_count",
+    "summary": "Get unread notification count",
+    "tags": [
+      "Notifications"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "NotificationUnreadCountResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/notifications/{id}",
+    "name": "get_notification",
+    "summary": "Get notification by ID",
+    "tags": [
+      "Notifications"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "NotificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/notifications/{id}/read",
+    "name": "mark_notification_read",
+    "summary": "Mark notification as read",
+    "tags": [
+      "Notifications"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "NotificationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/patients/me",
+    "name": "get_my_patient_profile",
+    "summary": "",
+    "tags": [
+      "Patients"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "PatientResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/patients/me",
+    "name": "update_my_patient_profile",
+    "summary": "",
+    "tags": [
+      "Patients"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "PatientUpdate",
+    "response_model": "PatientResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/patients/me/medical-profile",
+    "name": "get_my_medical_profile",
+    "summary": "",
+    "tags": [
+      "Patients"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "PatientMedicalProfileResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/patients/me/medical-profile",
+    "name": "update_my_medical_profile",
+    "summary": "",
+    "tags": [
+      "Patients"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "PatientMedicalProfileUpdate",
+    "response_model": "PatientMedicalProfileResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/patients/me/medical-profile",
+    "name": "create_my_medical_profile",
+    "summary": "",
+    "tags": [
+      "Patients"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "PatientMedicalProfileCreate",
+    "response_model": "PatientMedicalProfileResponse",
+    "status_code": 201
+  },
+  {
+    "method": "POST",
+    "path": "/patients/{patient_id}/conversations",
+    "name": "create_conversation_with_patient",
+    "summary": "Initiate or reactivate conversation with a patient (Dentist only)",
+    "tags": [
+      "Conversations"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "patient_id"
+    ],
+    "query_params": [],
+    "body_model": "ConversationCreate",
+    "response_model": "ConversationResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/reports/{report_id}",
+    "name": "get_report_by_id",
+    "summary": "Get clinical report by ID",
+    "tags": [
+      "reports"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "report_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ReportResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/reports/{report_id}/download",
+    "name": "download_report_pdf",
+    "summary": "Download clinical report PDF",
+    "tags": [
+      "reports"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "report_ops",
+    "path_params": [
+      "report_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings",
+    "name": "list_screenings",
+    "summary": "List patient's screenings",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [
+      "page",
+      "page_size"
+    ],
+    "body_model": null,
+    "response_model": "ScreeningListResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings",
+    "name": "create_screening",
+    "summary": "Create a new screening session",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": "ScreeningCreate",
+    "response_model": "ScreeningResponse",
+    "status_code": 201
+  },
+  {
+    "method": "DELETE",
+    "path": "/screenings/{screening_id}",
+    "name": "delete_screening",
+    "summary": "Soft-delete a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ScreeningDeleteResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}",
+    "name": "get_screening_detail",
+    "summary": "Get screening details with images",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ScreeningDetailResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}/assessment",
+    "name": "get_dentist_assessment",
+    "summary": "Get clinical dentist assessment for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "DentistAssessmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/screenings/{screening_id}/assessment",
+    "name": "update_dentist_assessment",
+    "summary": "Update or finalize an existing dentist assessment draft",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": "DentistAssessmentUpdate",
+    "response_model": "DentistAssessmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/assessment",
+    "name": "create_dentist_assessment",
+    "summary": "Create licensed dentist clinical assessment",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": "DentistAssessmentCreate",
+    "response_model": "DentistAssessmentResponse",
+    "status_code": 201
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/images",
+    "name": "upload_screening_image",
+    "summary": "Upload an oral screening image",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [
+      "is_primary"
+    ],
+    "body_model": "UploadFile",
+    "response_model": "ScreeningImageResponse",
+    "status_code": 201
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}/report",
+    "name": "get_screening_report",
+    "summary": "Get clinical report for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ReportResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/report",
+    "name": "generate_screening_report",
+    "summary": "Generate clinical report and PDF document for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "report_ops",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": "Optional",
+    "response_model": "ReportResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}/review",
+    "name": "review_screening_findings",
+    "summary": "Review complete multi-modal screening findings for professional clinical evaluation",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ScreeningReviewResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}/risk-assessment",
+    "name": "get_screening_risk_assessment",
+    "summary": "Get existing clinical risk assessment for a screening session",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "RiskAssessmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/risk-assessment",
+    "name": "generate_screening_risk_assessment",
+    "summary": "Generate or retrieve screening risk assessment and triage priority",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": "Optional",
+    "response_model": "RiskAssessmentResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/run-ai",
+    "name": "run_screening_ai_inference",
+    "summary": "Execute AI inference on screening images",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [
+      "force_recompute"
+    ],
+    "body_model": null,
+    "response_model": "ScreeningInferenceResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/screenings/{screening_id}/xai",
+    "name": "get_screening_xai",
+    "summary": "Get XAI visual explanation results for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "ScreeningXAIResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/xai",
+    "name": "generate_screening_xai",
+    "summary": "Generate XAI visual explanation heatmaps for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [
+      "screening_id"
+    ],
+    "query_params": [],
+    "body_model": "Optional",
+    "response_model": "ScreeningXAIResponse",
+    "status_code": 200
+  },
+  {
+    "method": "POST",
+    "path": "/screenings/{screening_id}/xai/{method}",
+    "name": "generate_screening_xai_method",
+    "summary": "Generate a specific XAI visual explanation method",
+    "tags": [
+      "screenings"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "ai_run",
+    "path_params": [
+      "screening_id",
+      "method"
+    ],
+    "query_params": [
+      "force_recompute"
+    ],
+    "body_model": null,
+    "response_model": "ScreeningXAIResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/users/me",
+    "name": "get_my_user_profile",
+    "summary": "",
+    "tags": [
+      "Users"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "UserResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/admin-access",
+    "name": "verify_admin_access",
+    "summary": "",
+    "tags": [
+      "Users"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/dentist-access",
+    "name": "verify_dentist_access",
+    "summary": "",
+    "tags": [
+      "Users"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/patient-access",
+    "name": "verify_patient_access",
+    "summary": "",
+    "tags": [
+      "Users"
+    ],
+    "auth_dep": "get_current_firebase_user",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "status_code": 200
+  },
+  {
+    "method": "GET",
+    "path": "/xai/methods",
+    "name": "list_xai_methods",
+    "summary": "List available XAI explanation algorithms",
+    "tags": [
+      "xai"
+    ],
+    "auth_dep": "None (Public)",
+    "rate_limit_scope": "None",
+    "path_params": [],
+    "query_params": [],
+    "body_model": null,
+    "response_model": "XAIAvailableMethodsResponse",
+    "status_code": 200
+  }
+]

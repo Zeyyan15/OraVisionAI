@@ -1,0 +1,1261 @@
+<USER_REQUEST>
+ORAVISIONAI — MASTER SYSTEM SPECIFICATION
+==========================================
+
+ROLE
+====
+
+You are the lead software architect and implementation engineer for OraVisionAI.
+
+OraVisionAI is a serious Final Year Project (FYP) involving an AI-assisted oral-health screening platform with patient, dentist, and administrator workflows.
+
+This is NOT a simple demo website.
+
+The final system must be implemented as a proper, modular, maintainable full-stack application.
+
+You must follow the specifications below as the SOURCE OF TRUTH.
+
+Do not invent a different architecture.
+Do not replace technologies without explicit approval.
+Do not simplify the system into a toy application.
+Do not generate a generic "AI vibe-coded" dashboard.
+
+IMPORTANT:
+At this stage, DO NOT start implementing the entire application immediately.
+
+First:
+1. Inspect the existing repository.
+2. Understand the current folder structure.
+3. Identify what already exists.
+4. Produce a concise implementation plan.
+5. Identify any conflicts between the existing repository and this specification.
+6. Do NOT delete, overwrite, or replace existing work.
+7. Wait for further implementation instructions after presenting the plan.
+
+
+============================================================
+1. PRODUCT
+============================================================
+
+Product name:
+
+OraVisionAI
+
+OraVisionAI is an AI-assisted oral-health screening and teleconsultation platform.
+
+The system combines:
+
+- AI-based oral condition classification
+- YOLO-based lesion detection
+- Explainable AI
+- Patient medical profiles
+- Screening history
+- AI-generated results
+- Dentist review
+- Dentist-patient communication
+- Appointment management
+- Teleconsultation
+- Administrator management
+- Secure authentication
+- Structured medical data storage
+
+
+============================================================
+2. PRIMARY USER ROLES
+============================================================
+
+There are three primary roles:
+
+1. PATIENT
+2. DENTIST
+3. ADMINISTRATOR
+
+
+============================================================
+3. PATIENT WORKFLOW
+============================================================
+
+PUBLIC LANDING PAGE
+-------------------
+
+When a visitor first enters OraVisionAI, they should see a professional full-screen landing experience explaining:
+
+- What OraVisionAI is
+- What the platform does
+- AI-assisted oral screening
+- Dentist consultation
+- Patient benefits
+- How the process works
+- Appropriate calls to action
+
+The website must look like a professionally designed medical/dental technology product.
+
+It must NOT look like an automatically generated generic dashboard.
+
+The landing page should include:
+
+- Login
+- Sign Up
+
+Use polished animations and transitions.
+
+
+AUTHENTICATION
+--------------
+
+Patients must be able to authenticate using:
+
+- Email/username + password
+- Google Login through Firebase Authentication
+
+Authentication must be handled securely.
+
+The frontend must never be trusted to determine authorization.
+
+The backend must verify the authenticated Firebase identity.
+
+
+PATIENT ONBOARDING
+------------------
+
+After registration, the patient should complete a medical profile.
+
+The profile should include appropriate patient information such as:
+
+- Name
+- Age/date of birth
+- Gender where appropriate
+- Contact information
+- Medical background
+- Medical history
+- Allergies
+- Current medications
+- Previous dental/oral health history
+- Relevant additional information
+
+Do not collect unnecessary personal information.
+
+The medical profile should be editable later.
+
+
+PATIENT DASHBOARD
+-----------------
+
+The patient dashboard should provide access to:
+
+- Profile
+- Medical profile
+- New screening
+- Screening history
+- AI results
+- Reports
+- XAI explanations
+- Dentist consultation
+- Appointments
+- Messages
+- Notifications
+- Account settings
+
+
+SCREENING
+---------
+
+Patient can upload an oral/dental image.
+
+The uploaded image must be stored securely.
+
+The backend should create a screening record.
+
+The screening pipeline is:
+
+Patient image
+    ↓
+Secure storage
+    ↓
+FastAPI
+    ↓
+OraVisionAI YOLO detector
+    ↓
+OraVisionAI EfficientNet classifier
+    ↓
+Risk assessment
+    ↓
+XAI
+    ↓
+Report generation
+    ↓
+Patient result
+
+
+AI RESULTS
+----------
+
+Patients can see their AI result after analysis.
+
+Results should clearly distinguish:
+
+- AI-generated prediction
+- Confidence
+- Detected regions
+- Risk assessment
+- Explainability
+
+The system must NOT represent an AI prediction as a definitive medical diagnosis.
+
+The interface should communicate that AI results are assistive/informational and that professional evaluation may be required.
+
+
+SCREENING HISTORY
+-----------------
+
+Patients can view previous screening records.
+
+Each screening should contain:
+
+- Image
+- Date/time
+- AI classification
+- Confidence
+- YOLO detections
+- Risk result
+- XAI visualizations
+- Report
+- Dentist assessment when available
+
+
+SCREENING DELETION
+------------------
+
+Patients may delete their own screening records.
+
+Use appropriate soft-deletion behavior at the application level.
+
+A patient must never be able to delete another patient's record.
+
+
+DENTIST CONTACT
+---------------
+
+Patients can contact dentists.
+
+Patients may:
+
+- Browse available dentists
+- View relevant dentist profile information
+- Send messages
+- Request/book consultation
+- View appointment status
+
+
+TELECONSULTATION
+----------------
+
+The system will use Stream for communication/teleconsultation functionality.
+
+Depending on the final implementation:
+
+- Video call
+- Audio call
+- Messaging
+
+should be supported.
+
+Appointments and actual consultation sessions are separate concepts.
+
+The backend should create/manage the Stream consultation session securely.
+
+Patients should only access consultations they are authorized to join.
+
+
+============================================================
+4. DENTIST WORKFLOW
+============================================================
+
+DENTIST REGISTRATION
+--------------------
+
+Dentists can register through the platform.
+
+Dentists provide professional information including appropriate fields such as:
+
+- Name
+- Contact information
+- Professional credentials
+- License information
+- Specialization
+- Experience
+- Professional bio
+- Verification documentation where required
+
+
+DENTIST VERIFICATION
+--------------------
+
+Dentists may initially have:
+
+PENDING
+
+verification status.
+
+Administrators can:
+
+- Review dentist information
+- Review verification documents
+- Approve dentist
+- Reject dentist
+- Suspend dentist where appropriate
+
+Only appropriately verified dentists should become available for patient consultations.
+
+
+DENTIST DASHBOARD
+-----------------
+
+Dentists should have access to:
+
+- Dashboard
+- Patient management
+- Patient list
+- Patient profiles
+- Screening history
+- AI results
+- XAI reports
+- Dentist assessments
+- Appointments
+- Availability
+- Messages
+- Teleconsultations
+- Notifications
+- Professional profile
+
+
+PATIENT MANAGEMENT
+------------------
+
+Dentists can manage patients associated with them.
+
+A dentist should NOT automatically have unrestricted access to every patient's private medical data.
+
+Access should follow the patient-dentist relationship and authorization rules.
+
+Dentists can view relevant patient screening history.
+
+Dentists can review screenings generated before and after consultations.
+
+
+DENTIST ASSESSMENT
+------------------
+
+Dentists can provide their own professional assessment associated with a screening.
+
+This may contain:
+
+- Clinical notes
+- Recommendations
+- Professional observations
+
+The dentist assessment must remain separate from the AI prediction.
+
+IMPORTANT:
+
+AI RESULT != DENTIST ASSESSMENT
+
+
+APPOINTMENTS
+------------
+
+Dentists should be able to:
+
+- Define availability
+- Accept/reject requests
+- View upcoming appointments
+- View past appointments
+- Cancel appointments where appropriate
+- Conduct completed consultations
+
+
+MESSAGING
+---------
+
+Dentists can communicate with authorized patients.
+
+Messaging should be associated with a patient-dentist relationship.
+
+Do not expose conversations to unrelated users.
+
+
+============================================================
+5. ADMINISTRATOR WORKFLOW
+============================================================
+
+Administrators are responsible for system-level management.
+
+Admin capabilities include:
+
+- User management
+- Patient management where appropriate
+- Dentist management
+- Dentist verification
+- Account suspension/activation
+- System monitoring
+- AI model registry management
+- Audit logs
+- System configuration
+- Platform-level reporting where appropriate
+
+Admin functionality must be protected by backend authorization.
+
+Never rely only on frontend role checks.
+
+
+============================================================
+6. AUTHENTICATION
+============================================================
+
+Use Firebase Authentication.
+
+Supported authentication:
+
+- Email/password
+- Google authentication
+
+Firebase UID is the external identity identifier.
+
+The application database stores the corresponding user record.
+
+Architecture:
+
+Firebase Authentication
+        ↓
+Firebase UID
+        ↓
+FastAPI authentication middleware/dependency
+        ↓
+Application user
+        ↓
+Role/permission
+        ↓
+Resource authorization
+
+
+============================================================
+7. STORAGE
+============================================================
+
+Use Firebase Storage for uploaded/generated file storage where appropriate.
+
+Do NOT store large image binaries directly inside PostgreSQL.
+
+Store:
+
+- Storage path
+- File metadata
+- Ownership
+- Relationships
+
+in PostgreSQL.
+
+Medical/user files must not be publicly exposed by default.
+
+
+============================================================
+8. DATABASE
+============================================================
+
+Use PostgreSQL as the main application database.
+
+Use SQLAlchemy for ORM/database interaction.
+
+The database architecture has already been conceptually finalized.
+
+Core entities include:
+
+- Users
+- Patients
+- Patient Medical Profiles
+- Dentists
+- Dentist Verifications
+- Patient-Dentist Relationships
+- Screenings
+- Screening Images
+- AI Predictions
+- Prediction Probabilities
+- YOLO Detections
+- Risk Assessments
+- XAI Results
+- AI Models
+- Reports
+- Dentist Assessments
+- Appointments
+- Dentist Availability
+- Consultations
+- Conversations
+- Messages
+- Notifications
+- Audit Logs
+
+Do not redesign these entities without first explaining why a change is necessary.
+
+
+============================================================
+9. BACKEND
+============================================================
+
+Backend framework:
+
+FastAPI
+
+Language:
+
+Python
+
+Expected architecture should be modular.
+
+Recommended conceptual structure:
+
+backend/
+    app/
+        main.py
+        core/
+        api/
+        models/
+        schemas/
+        services/
+        db/
+
+Additional modules can be introduced when justified.
+
+Use:
+
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- PostgreSQL driver
+- Firebase Admin SDK where required
+- secure environment configuration
+
+
+============================================================
+10. API PRINCIPLES
+============================================================
+
+The backend is the authority.
+
+Frontend requests should go through FastAPI for protected application operations.
+
+Examples of API domains:
+
+Authentication
+Patients
+Dentists
+Admins
+Screenings
+AI inference
+Reports
+XAI
+Appointments
+Messaging
+Consultations
+Notifications
+
+
+Conceptually:
+
+Frontend
+    ↓
+FastAPI
+    ↓
+Authorization
+    ↓
+Service layer
+    ↓
+Database / AI / Firebase / Stream
+
+
+Every protected endpoint must perform appropriate authorization.
+
+
+============================================================
+11. AI SYSTEM
+============================================================
+
+IMPORTANT:
+
+NO RETRAINING is required during application implementation.
+
+The AI models already exist.
+
+Production AI consists of the models developed and validated during the research/prototyping phase.
+
+The external pretrained dental YOLO models tested during experimentation are NOT part of production.
+
+Do not integrate:
+
+- InSmile
+- OralGuard
+
+unless explicitly instructed later.
+
+
+============================================================
+12. PRODUCTION YOLO
+============================================================
+
+Use the OraVisionAI-trained YOLO lesion detection model.
+
+This is the production YOLO model.
+
+The model should be loaded as an inference service.
+
+Do not retrain it.
+
+Do not modify its weights.
+
+The inference service should return structured detections including:
+
+- class
+- confidence
+- bounding box
+
+
+============================================================
+13. CLASSIFICATION MODEL
+============================================================
+
+Use the verified original OraVisionAI EfficientNetB0 classifier.
+
+The verified checkpoint is:
+
+/content/drive/MyDrive/10664056/OravisionAI_Multimodal_EDA/step5l_7class_metadata_multimodal/models/best_7teeth_efficientnetb0_verified.keras
+
+IMPORTANT:
+
+This path is a development/reference path from the Colab environment.
+
+The production application must NOT depend on Google Colab paths.
+
+During implementation, the model artifact must be placed/configured through a proper local/project model configuration.
+
+Do not retrain the model.
+
+Do not modify its weights.
+
+The verified model:
+
+Input:
+224 × 224 × 3
+
+Output:
+7 classes
+
+
+============================================================
+14. PREPROCESSING
+============================================================
+
+The original classifier preprocessing must be preserved.
+
+Established preprocessing:
+
+RGB
+ ↓
+224 × 224
+ ↓
+float32
+ ↓
+0–255
+ ↓
+Original Keras model
+
+Do NOT add:
+
+- external /255 normalization
+- ImageNet normalization
+- BGR conversion
+
+unless the original production model specifically requires it.
+
+
+============================================================
+15. XAI
+============================================================
+
+XAI experimentation has already been completed.
+
+The finalized primary XAI methods are:
+
+1. Occlusion Sensitivity
+2. Grad-CAM
+
+These are the primary visual explanations presented to users.
+
+Additional XAI methods may be available under:
+
+"View More XAI Reports"
+
+Additional methods already experimentally validated include:
+
+- Grad-CAM++
+- LayerCAM
+- Score-CAM
+- Integrated Gradients
+
+
+============================================================
+16. XAI TARGET LAYERS
+============================================================
+
+The experimentally validated target layers are:
+
+block6a_expand_conv
+block5c_project_conv
+block5c_dwconv
+block5c_expand_conv
+block5b_project_conv
+block5b_dwconv
+
+These are the finalized target layers from the XAI experimentation.
+
+Do not randomly select new layers.
+
+The primary UI should not overwhelm users with every XAI visualization.
+
+Use:
+
+Primary:
+- Occlusion Sensitivity
+- Grad-CAM
+
+Secondary:
+- View More XAI Reports
+
+This secondary section can expose the additional methods/layers.
+
+
+============================================================
+17. XAI DESIGN PRINCIPLE
+============================================================
+
+The purpose of XAI is to show where the AI model is focusing.
+
+The UI should make it clear that a heatmap is an explanation of model attention/importance, not a clinically validated segmentation or definitive lesion boundary.
+
+Do not label heatmaps as exact medical lesion boundaries.
+
+
+============================================================
+18. REPORTS
+============================================================
+
+A screening report can combine:
+
+- Patient screening information
+- AI classification
+- confidence
+- class probabilities
+- YOLO detections
+- risk assessment
+- primary XAI results
+- dentist assessment if available
+- timestamps
+- model/version information
+
+Reports should be professionally designed.
+
+
+============================================================
+19. SECURITY
+============================================================
+
+Security is a core requirement.
+
+Implement:
+
+- Firebase authentication verification
+- Backend authorization
+- Role-based access control
+- Resource ownership checks
+- Patient/dentist relationship checks
+- Secure file handling
+- Environment variables for secrets
+- No hardcoded API keys
+- No hardcoded passwords
+- Audit logging
+- Appropriate input validation
+- Proper error handling
+
+Never expose:
+
+- Firebase service credentials
+- database passwords
+- Stream secret
+- API keys
+- model credentials/secrets
+
+to the frontend.
+
+
+============================================================
+20. UI/UX DIRECTION
+============================================================
+
+THIS IS VERY IMPORTANT.
+
+OraVisionAI must NOT look like a generic AI-generated/vibe-coded website.
+
+The visual identity should feel like:
+
+Professional medical technology
++
+Modern dental platform
++
+Premium AI product
+
+
+DESIGN PRINCIPLES:
+
+- Clean
+- Sophisticated
+- Modern
+- Trustworthy
+- Medical
+- Dental
+- Premium
+- Accessible
+- Responsive
+
+
+Use:
+
+- Framer Motion
+- smooth transitions
+- purposeful micro-interactions
+- animated icons
+- subtle dental/medical visual elements
+- polished loading states
+- meaningful AI-processing animations
+- refined cards
+- professional typography
+- strong visual hierarchy
+
+
+Avoid:
+
+- excessive gradients
+- random glassmorphism
+- excessive glowing effects
+- generic AI purple/blue templates
+- unnecessary animations
+- overcrowded dashboards
+- template-like layouts
+- meaningless decorative components
+
+
+Animations must serve usability and storytelling.
+
+
+============================================================
+21. LANDING PAGE
+============================================================
+
+The landing page should feel like a real product.
+
+Possible structure:
+
+Hero
+    ↓
+What OraVisionAI does
+    ↓
+How AI screening works
+    ↓
+Key capabilities
+    ↓
+How consultation works
+    ↓
+Trust / safety explanation
+    ↓
+Call to action
+    ↓
+Footer
+
+
+Use appropriate dental visual storytelling and animation.
+
+Do not immediately dump users into a dashboard.
+
+
+============================================================
+22. RESPONSIVE DESIGN
+============================================================
+
+The frontend must support:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile
+
+Do not create a desktop-only interface.
+
+
+============================================================
+23. FRONTEND PRINCIPLES
+============================================================
+
+The frontend should be component-based.
+
+Use reusable:
+
+- buttons
+- cards
+- modals
+- forms
+- navigation
+- tables
+- report components
+- AI visualization components
+- appointment components
+- messaging components
+
+Avoid massive single-file components.
+
+
+============================================================
+24. ERROR HANDLING
+============================================================
+
+The application should have professional states for:
+
+- Loading
+- Empty
+- Error
+- Success
+- Unauthorized
+- Forbidden
+- Processing
+- AI analysis in progress
+- Failed analysis
+- Appointment pending
+- Appointment confirmed
+- Consultation active
+- Consultation ended
+
+
+Do not expose raw backend stack traces to users.
+
+
+============================================================
+25. AI PROCESSING UX
+============================================================
+
+When a patient submits an image, the interface should provide a polished processing experience.
+
+Conceptually:
+
+Uploading
+    ↓
+Preparing image
+    ↓
+Running AI analysis
+    ↓
+Generating explanation
+    ↓
+Generating report
+    ↓
+Complete
+
+
+This should feel like a professional AI medical workflow rather than a basic loading spinner.
+
+
+============================================================
+26. DATA PRIVACY
+============================================================
+
+Patients can only access their own records.
+
+Dentists can only access authorized patient records.
+
+Admins have controlled system-level access.
+
+Do not expose medical data through public URLs.
+
+Do not expose one patient's data to another patient.
+
+Do not expose unrelated patient information to dentists.
+
+
+============================================================
+27. DEVELOPMENT PRINCIPLES
+============================================================
+
+Build incrementally.
+
+Do not generate thousands of lines of code unnecessarily.
+
+Do not create fake functionality.
+
+If an integration is not configured yet, implement a clean service abstraction and clearly document what remains to be configured.
+
+Do not replace real AI inference with dummy/random results.
+
+Do not create fake database records pretending to be real production functionality.
+
+
+============================================================
+28. EXISTING REPOSITORY
+============================================================
+
+The current project has an initial structure similar to:
+
+OraVisionAI/
+│
+├── backend/
+│   ├── .venv/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── db/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   ├── .env
+│   └── requirements.txt
+│
+├── frontend/
+├── database/
+├── ai_models/
+├── storage/
+├── docs/
+└── README.md
+
+This structure is only the initial foundation.
+
+Improve it when necessary, but preserve the modular architecture.
+
+
+============================================================
+29. MODEL ARTIFACT HANDLING
+============================================================
+
+Do not commit large model files to Git.
+
+Use a configurable model directory/reference.
+
+For local development, models may be stored outside Git or downloaded/copied into a designated model directory.
+
+The application should use environment/configuration variables for model locations.
+
+Example conceptual configuration:
+
+AI_MODEL_DIR=...
+CLASSIFIER_MODEL_PATH=...
+YOLO_MODEL_PATH=...
+
+
+Do not hardcode machine-specific paths into application logic.
+
+
+============================================================
+30. ENVIRONMENT CONFIGURATION
+============================================================
+
+Secrets/configuration must use environment variables.
+
+Potential configuration includes:
+
+DATABASE_URL
+FIREBASE_PROJECT_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
+STREAM_API_KEY
+STREAM_API_SECRET
+YOLO_MODEL_PATH
+CLASSIFIER_MODEL_PATH
+FRONTEND_URL
+
+
+Never commit real secrets.
+
+
+============================================================
+31. CODE QUALITY
+============================================================
+
+Write production-quality code.
+
+Requirements:
+
+- Type hints
+- Clear naming
+- Modular services
+- Pydantic validation
+- Proper exception handling
+- Logging
+- Documentation where useful
+- No unnecessary duplication
+- No giant monolithic files
+- No hidden magic behavior
+
+
+============================================================
+32. TESTING
+============================================================
+
+Testing will eventually cover:
+
+- Authentication
+- Authorization
+- Patient permissions
+- Dentist permissions
+- Admin permissions
+- Database operations
+- Screening creation
+- AI inference
+- Report generation
+- XAI
+- Appointments
+- Messaging
+- Consultation
+- File handling
+
+
+Do not skip security/permission testing.
+
+
+============================================================
+33. IMPLEMENTATION ORDER
+============================================================
+
+The application should eventually be implemented in approximately this order:
+
+PHASE 1
+Repository and development configuration
+
+PHASE 2
+Backend foundation
+
+PHASE 3
+PostgreSQL database
+
+PHASE 4
+Firebase Authentication
+
+PHASE 5
+User/role system
+
+PHASE 6
+Patient module
+
+PHASE 7
+Dentist module
+
+PHASE 8
+Admin module
+
+PHASE 9
+Screening and file upload
+
+PHASE 10
+AI inference services
+
+PHASE 11
+XAI
+
+PHASE 12
+Reports
+
+PHASE 13
+Appointments
+
+PHASE 14
+Messaging
+
+PHASE 15
+Stream teleconsultation
+
+PHASE 16
+Frontend implementation
+
+PHASE 17
+Backend/frontend integration
+
+PHASE 18
+Security hardening
+
+PHASE 19
+Testing
+
+PHASE 20
+Deployment
+
+
+============================================================
+34. ANTIGRAVITY BEHAVIOR
+============================================================
+
+You are acting as an engineering agent.
+
+Before changing code:
+
+- inspect existing files
+- understand dependencies
+- identify current state
+
+When implementing:
+
+- make small coherent changes
+- explain important architectural decisions
+- do not delete working functionality without approval
+- do not silently replace technologies
+- do not create fake implementations
+- do not expose secrets
+- do not modify trained model weights
+- do not retrain models
+- do not introduce external AI models without approval
+
+
+If you encounter ambiguity:
+
+STOP and explain the ambiguity rather than making a major architectural assumption.
+
+
+============================================================
+35. CURRENT TASK
+============================================================
+
+DO NOT BUILD THE ENTIRE APPLICATION YET.
+
+Your current task is ONLY:
+
+1. Inspect the OraVisionAI repository.
+2. Inspect the existing backend structure.
+3. Inspect the existing frontend folder if anything exists.
+4. Inspect database/docs/model folders if anything exists.
+5. Identify installed dependencies.
+6. Identify existing code.
+7. Identify missing pieces.
+8. Compare the repository against this specification.
+9. Produce a structured implementation-readiness report.
+
+The report should contain:
+
+A. Current repository state
+B. Existing components
+C. Missing components
+D. Potential conflicts
+E. Recommended implementation order
+F. Files you propose to create/modify in the NEXT phase
+
+DO NOT modify application code during this task.
+
+WAIT FOR THE NEXT INSTRUCTION AFTER THE REPORT.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-01T20:26:14+05:00.
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Claude Opus 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

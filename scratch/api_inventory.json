@@ -1,0 +1,3472 @@
+[
+  {
+    "method": "GET",
+    "path": "/",
+    "operation_id": "root__get",
+    "summary": "Root",
+    "tags": [],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": []
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/ai-models",
+    "operation_id": "list_ai_models_api_admin_ai_models_get",
+    "summary": "List registered AI models",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/ai-models/{model_id}",
+    "operation_id": "get_ai_model_detail_api_admin_ai_models__model_id__get",
+    "summary": "Get registered AI model detail",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "model_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Model Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/analytics/ai-telemetry",
+    "operation_id": "get_ai_telemetry_api_admin_analytics_ai_telemetry_get",
+    "summary": "Get AI inference telemetry",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/analytics/overview",
+    "operation_id": "get_platform_overview_api_admin_analytics_overview_get",
+    "summary": "Get platform overview analytics",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/analytics/screenings",
+    "operation_id": "get_screening_analytics_api_admin_analytics_screenings_get",
+    "summary": "Get screening workflow analytics",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter cohort created on or after timestamp",
+          "title": "Start Date"
+        }
+      },
+      {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter cohort created on or before timestamp",
+          "title": "End Date"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/analytics/telehealth",
+    "operation_id": "get_telehealth_analytics_api_admin_analytics_telehealth_get",
+    "summary": "Get telehealth utilization analytics",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/audit-logs",
+    "operation_id": "list_audit_logs_api_admin_audit_logs_get",
+    "summary": "List audit logs",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "user_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by actor user ID",
+          "title": "User Id"
+        }
+      },
+      {
+        "name": "action",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by audit action",
+          "title": "Action"
+        }
+      },
+      {
+        "name": "resource_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by target resource type",
+          "title": "Resource Type"
+        }
+      },
+      {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter events on or after timestamp",
+          "title": "Start Date"
+        }
+      },
+      {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter events on or before timestamp",
+          "title": "End Date"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page number",
+          "default": 1,
+          "title": "Page"
+        }
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "description": "Items per page",
+          "default": 20,
+          "title": "Page Size"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/audit-logs/{audit_log_id}",
+    "operation_id": "get_audit_log_detail_api_admin_audit_logs__audit_log_id__get",
+    "summary": "Get audit log details",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "audit_log_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Audit Log Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/dentist-verifications",
+    "operation_id": "list_dentist_verifications_api_admin_dentist_verifications_get",
+    "summary": "List Dentist Verifications",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter verifications by status ('pending', 'approved', 'rejected')",
+          "title": "Status"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page number",
+          "default": 1,
+          "title": "Page"
+        }
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "description": "Items per page",
+          "default": 20,
+          "title": "Page Size"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/dentist-verifications/{verification_id}",
+    "operation_id": "get_dentist_verification_detail_api_admin_dentist_verifications__verification_id__get",
+    "summary": "Get Dentist Verification Detail",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "verification_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Verification Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/admin/dentist-verifications/{verification_id}/approve",
+    "operation_id": "approve_dentist_verification_api_admin_dentist_verifications__verification_id__approve_post",
+    "summary": "Approve Dentist Verification",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "verification_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Verification Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/admin/dentist-verifications/{verification_id}/reject",
+    "operation_id": "reject_dentist_verification_api_admin_dentist_verifications__verification_id__reject_post",
+    "summary": "Reject Dentist Verification",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "verification_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Verification Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/users",
+    "operation_id": "list_users_api_admin_users_get",
+    "summary": "List Users",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "role",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter users by role ('patient', 'dentist', 'admin')",
+          "title": "Role"
+        }
+      },
+      {
+        "name": "is_active",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter users by active status",
+          "title": "Is Active"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page number",
+          "default": 1,
+          "title": "Page"
+        }
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "description": "Items per page",
+          "default": 20,
+          "title": "Page Size"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/users/{user_id}",
+    "operation_id": "get_user_detail_api_admin_users__user_id__get",
+    "summary": "Get User Detail",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "user_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "User Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/admin/users/{user_id}/status",
+    "operation_id": "update_user_status_api_admin_users__user_id__status_patch",
+    "summary": "Update User Status",
+    "tags": [
+      "Admin"
+    ],
+    "parameters": [
+      {
+        "name": "user_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "User Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments",
+    "operation_id": "list_appointments_api_appointments_get",
+    "summary": "List user's appointments",
+    "tags": [
+      "Appointments"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by appointment status",
+          "title": "Status"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments/{appointment_id}",
+    "operation_id": "get_appointment_api_appointments__appointment_id__get",
+    "summary": "Get appointment details",
+    "tags": [
+      "Appointments"
+    ],
+    "parameters": [
+      {
+        "name": "appointment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Appointment Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/appointments/{appointment_id}/cancel",
+    "operation_id": "cancel_appointment_api_appointments__appointment_id__cancel_patch",
+    "summary": "Cancel appointment",
+    "tags": [
+      "Appointments"
+    ],
+    "parameters": [
+      {
+        "name": "appointment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Appointment Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/appointments/{appointment_id}/consultation",
+    "operation_id": "create_consultation_for_appointment_api_appointments__appointment_id__consultation_post",
+    "summary": "Initialize consultation session for appointment",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "appointment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Appointment Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments/{appointment_id}/consultation",
+    "operation_id": "get_consultation_for_appointment_api_appointments__appointment_id__consultation_get",
+    "summary": "Get consultation session for appointment",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "appointment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Appointment Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/appointments/{appointment_id}/status",
+    "operation_id": "update_appointment_status_api_appointments__appointment_id__status_patch",
+    "summary": "Update appointment status",
+    "tags": [
+      "Appointments"
+    ],
+    "parameters": [
+      {
+        "name": "appointment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Appointment Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/auth/me",
+    "operation_id": "get_current_user_identity_api_auth_me_get",
+    "summary": "Get Current User Identity",
+    "tags": [
+      "Authentication"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/consultations",
+    "operation_id": "list_consultations_api_consultations_get",
+    "summary": "List consultation sessions",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by consultation session status",
+          "title": "Status"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/consultations/{consultation_id}",
+    "operation_id": "get_consultation_api_consultations__consultation_id__get",
+    "summary": "Get consultation session details",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "consultation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Consultation Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/end",
+    "operation_id": "end_consultation_api_consultations__consultation_id__end_patch",
+    "summary": "End teleconsultation session",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "consultation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Consultation Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/fail",
+    "operation_id": "fail_consultation_api_consultations__consultation_id__fail_patch",
+    "summary": "Mark teleconsultation session as failed",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "consultation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Consultation Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/start",
+    "operation_id": "start_consultation_api_consultations__consultation_id__start_patch",
+    "summary": "Start teleconsultation session",
+    "tags": [
+      "Consultations"
+    ],
+    "parameters": [
+      {
+        "name": "consultation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Consultation Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations",
+    "operation_id": "list_conversations_api_conversations_get",
+    "summary": "List conversation threads",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "is_active",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by active/archived status",
+          "title": "Is Active"
+        }
+      },
+      {
+        "name": "patient_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by patient ID (Admin only)",
+          "title": "Patient Id"
+        }
+      },
+      {
+        "name": "dentist_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by dentist ID (Admin only)",
+          "title": "Dentist Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}",
+    "operation_id": "get_conversation_api_conversations__conversation_id__get",
+    "summary": "Get conversation thread details",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/conversations/{conversation_id}/archive",
+    "operation_id": "archive_conversation_api_conversations__conversation_id__archive_patch",
+    "summary": "Archive a conversation thread",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/conversations/{conversation_id}/messages",
+    "operation_id": "send_message_api_conversations__conversation_id__messages_post",
+    "summary": "Post a text message in an active conversation",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}/messages",
+    "operation_id": "list_messages_api_conversations__conversation_id__messages_get",
+    "summary": "List messages in a conversation (chronological)",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "description": "Number of messages to return",
+          "default": 50,
+          "title": "Limit"
+        }
+      },
+      {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Offset for pagination",
+          "default": 0,
+          "title": "Offset"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}/messages/{message_id}",
+    "operation_id": "get_message_api_conversations__conversation_id__messages__message_id__get",
+    "summary": "Get single message details",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      },
+      {
+        "name": "message_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Message Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/conversations/{conversation_id}/read",
+    "operation_id": "mark_messages_read_api_conversations__conversation_id__read_patch",
+    "summary": "Mark unread incoming messages as read",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "conversation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/me",
+    "operation_id": "get_my_dentist_profile_api_dentists_me_get",
+    "summary": "Get My Dentist Profile",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dentists/me",
+    "operation_id": "update_my_dentist_profile_api_dentists_me_patch",
+    "summary": "Update My Dentist Profile",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/me/availability",
+    "operation_id": "list_my_availability_api_dentists_me_availability_get",
+    "summary": "List dentist's own availability windows",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/me/availability",
+    "operation_id": "create_my_availability_api_dentists_me_availability_post",
+    "summary": "Create availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dentists/me/availability/{availability_id}",
+    "operation_id": "update_my_availability_api_dentists_me_availability__availability_id__patch",
+    "summary": "Update dentist's availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [
+      {
+        "name": "availability_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Availability Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dentists/me/availability/{availability_id}",
+    "operation_id": "delete_my_availability_api_dentists_me_availability__availability_id__delete",
+    "summary": "Delete dentist's availability window",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [
+      {
+        "name": "availability_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Availability Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/me/verification",
+    "operation_id": "get_my_verification_status_api_dentists_me_verification_get",
+    "summary": "Get My Verification Status",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/me/verification",
+    "operation_id": "submit_my_verification_api_dentists_me_verification_post",
+    "summary": "Submit My Verification",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/{dentist_id}/appointments",
+    "operation_id": "book_appointment_with_dentist_api_dentists__dentist_id__appointments_post",
+    "summary": "Request/book an appointment with a dentist",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [
+      {
+        "name": "dentist_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Dentist Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/{dentist_id}/availability",
+    "operation_id": "get_dentist_public_availability_api_dentists__dentist_id__availability_get",
+    "summary": "Discover approved dentist's active availability windows",
+    "tags": [
+      "Dentists"
+    ],
+    "parameters": [
+      {
+        "name": "dentist_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Dentist Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/{dentist_id}/conversations",
+    "operation_id": "create_conversation_with_dentist_api_dentists__dentist_id__conversations_post",
+    "summary": "Initiate or reactivate conversation with a dentist (Patient only)",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "dentist_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Dentist Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications",
+    "operation_id": "list_notifications_api_notifications_get",
+    "summary": "List notifications for current user",
+    "tags": [
+      "Notifications"
+    ],
+    "parameters": [
+      {
+        "name": "is_read",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Filter by read status (true/false)",
+          "title": "Is Read"
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "description": "Max notifications to return",
+          "default": 50,
+          "title": "Limit"
+        }
+      },
+      {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of notifications to skip",
+          "default": 0,
+          "title": "Offset"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/read-all",
+    "operation_id": "mark_all_notifications_read_api_notifications_read_all_patch",
+    "summary": "Mark all unread notifications as read",
+    "tags": [
+      "Notifications"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/unread-count",
+    "operation_id": "get_unread_count_api_notifications_unread_count_get",
+    "summary": "Get unread notification count",
+    "tags": [
+      "Notifications"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/{id}",
+    "operation_id": "get_notification_api_notifications__id__get",
+    "summary": "Get notification by ID",
+    "tags": [
+      "Notifications"
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/{id}/read",
+    "operation_id": "mark_notification_read_api_notifications__id__read_patch",
+    "summary": "Mark notification as read",
+    "tags": [
+      "Notifications"
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/patients/me",
+    "operation_id": "get_my_patient_profile_api_patients_me_get",
+    "summary": "Get My Patient Profile",
+    "tags": [
+      "Patients"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/patients/me",
+    "operation_id": "update_my_patient_profile_api_patients_me_patch",
+    "summary": "Update My Patient Profile",
+    "tags": [
+      "Patients"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/patients/me/medical-profile",
+    "operation_id": "get_my_medical_profile_api_patients_me_medical_profile_get",
+    "summary": "Get My Medical Profile",
+    "tags": [
+      "Patients"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/patients/me/medical-profile",
+    "operation_id": "create_my_medical_profile_api_patients_me_medical_profile_post",
+    "summary": "Create My Medical Profile",
+    "tags": [
+      "Patients"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/patients/me/medical-profile",
+    "operation_id": "update_my_medical_profile_api_patients_me_medical_profile_patch",
+    "summary": "Update My Medical Profile",
+    "tags": [
+      "Patients"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/patients/{patient_id}/conversations",
+    "operation_id": "create_conversation_with_patient_api_patients__patient_id__conversations_post",
+    "summary": "Initiate or reactivate conversation with a patient (Dentist only)",
+    "tags": [
+      "Conversations"
+    ],
+    "parameters": [
+      {
+        "name": "patient_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Patient Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/{report_id}",
+    "operation_id": "get_report_by_id_api_reports__report_id__get",
+    "summary": "Get clinical report by ID",
+    "tags": [
+      "reports"
+    ],
+    "parameters": [
+      {
+        "name": "report_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Report Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/{report_id}/download",
+    "operation_id": "download_report_pdf_api_reports__report_id__download_get",
+    "summary": "Download clinical report PDF",
+    "tags": [
+      "reports"
+    ],
+    "parameters": [
+      {
+        "name": "report_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Report Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings",
+    "operation_id": "create_screening_api_screenings_post",
+    "summary": "Create a new screening session",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings",
+    "operation_id": "list_screenings_api_screenings_get",
+    "summary": "List patient's screenings",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "title": "Page"
+        }
+      },
+      {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 1,
+          "default": 20,
+          "title": "Page Size"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}",
+    "operation_id": "get_screening_detail_api_screenings__screening_id__get",
+    "summary": "Get screening details with images",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/screenings/{screening_id}",
+    "operation_id": "delete_screening_api_screenings__screening_id__delete",
+    "summary": "Soft-delete a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/assessment",
+    "operation_id": "create_dentist_assessment_api_screenings__screening_id__assessment_post",
+    "summary": "Create licensed dentist clinical assessment",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}/assessment",
+    "operation_id": "get_dentist_assessment_api_screenings__screening_id__assessment_get",
+    "summary": "Get clinical dentist assessment for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/screenings/{screening_id}/assessment",
+    "operation_id": "update_dentist_assessment_api_screenings__screening_id__assessment_patch",
+    "summary": "Update or finalize an existing dentist assessment draft",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/images",
+    "operation_id": "upload_screening_image_api_screenings__screening_id__images_post",
+    "summary": "Upload an oral screening image",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      },
+      {
+        "name": "is_primary",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": true,
+          "title": "Is Primary"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "multipart/form-data"
+    ],
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/report",
+    "operation_id": "generate_screening_report_api_screenings__screening_id__report_post",
+    "summary": "Generate clinical report and PDF document for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}/report",
+    "operation_id": "get_screening_report_api_screenings__screening_id__report_get",
+    "summary": "Get clinical report for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}/review",
+    "operation_id": "review_screening_findings_api_screenings__screening_id__review_get",
+    "summary": "Review complete multi-modal screening findings for professional clinical evaluation",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/risk-assessment",
+    "operation_id": "generate_screening_risk_assessment_api_screenings__screening_id__risk_assessment_post",
+    "summary": "Generate or retrieve screening risk assessment and triage priority",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}/risk-assessment",
+    "operation_id": "get_screening_risk_assessment_api_screenings__screening_id__risk_assessment_get",
+    "summary": "Get existing clinical risk assessment for a screening session",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/run-ai",
+    "operation_id": "run_screening_ai_inference_api_screenings__screening_id__run_ai_post",
+    "summary": "Execute AI inference on screening images",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      },
+      {
+        "name": "force_recompute",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false,
+          "title": "Force Recompute"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/{screening_id}/xai",
+    "operation_id": "get_screening_xai_api_screenings__screening_id__xai_get",
+    "summary": "Get XAI visual explanation results for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/xai",
+    "operation_id": "generate_screening_xai_api_screenings__screening_id__xai_post",
+    "summary": "Generate XAI visual explanation heatmaps for a screening",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      }
+    ],
+    "request_body": true,
+    "request_body_content_types": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/{screening_id}/xai/{method}",
+    "operation_id": "generate_screening_xai_method_api_screenings__screening_id__xai__method__post",
+    "summary": "Generate a specific XAI visual explanation method",
+    "tags": [
+      "screenings"
+    ],
+    "parameters": [
+      {
+        "name": "screening_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Screening Id"
+        }
+      },
+      {
+        "name": "method",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Method"
+        }
+      },
+      {
+        "name": "force_recompute",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false,
+          "title": "Force Recompute"
+        }
+      }
+    ],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      },
+      "422": {
+        "description": "Validation Error",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/me",
+    "operation_id": "get_my_user_profile_api_users_me_get",
+    "summary": "Get My User Profile",
+    "tags": [
+      "Users"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/me/admin-access",
+    "operation_id": "verify_admin_access_api_users_me_admin_access_get",
+    "summary": "Verify Admin Access",
+    "tags": [
+      "Users"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/me/dentist-access",
+    "operation_id": "verify_dentist_access_api_users_me_dentist_access_get",
+    "summary": "Verify Dentist Access",
+    "tags": [
+      "Users"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/me/patient-access",
+    "operation_id": "verify_patient_access_api_users_me_patient_access_get",
+    "summary": "Verify Patient Access",
+    "tags": [
+      "Users"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": [
+      {
+        "FirebaseBearer": []
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/xai/methods",
+    "operation_id": "list_xai_methods_api_xai_methods_get",
+    "summary": "List available XAI explanation algorithms",
+    "tags": [
+      "xai"
+    ],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": []
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "operation_id": "health_check_health_get",
+    "summary": "Health Check",
+    "tags": [],
+    "parameters": [],
+    "request_body": false,
+    "request_body_content_types": [],
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content_types": [
+          "application/json"
+        ]
+      }
+    },
+    "security": []
+  }
+]

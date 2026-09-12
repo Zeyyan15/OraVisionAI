@@ -1,0 +1,659 @@
+<USER_REQUEST>
+IMPLEMENT ORAVISIONAI — PHASE 14
+DENTIST AVAILABILITY & APPOINTMENT SCHEDULING
+
+IMPORTANT:
+Use the existing OraVisionAI architecture as the authoritative source of truth.
+
+The current system has completed and validated Phases 3B–13.
+Phase 13 is FROZEN and must not be redesigned.
+
+Do NOT start Phase 15 or any work beyond Phase 14.
+
+============================================================
+1. PHASE 14 OBJECTIVE
+============================================================
+
+Implement the existing DentistAvailability and Appointment database
+models as production-ready backend modules.
+
+Phase 14 covers ONLY:
+
+1. Dentist Availability
+2. Appointment Scheduling
+
+Do NOT implement:
+
+- Consultation
+- Conversation
+- Messages
+- Notifications
+- Stream integration
+- Frontend
+- Any Phase 15 functionality
+
+The existing 23-table PostgreSQL schema is authoritative.
+
+============================================================
+2. DATABASE / SCHEMA RULE
+============================================================
+
+The database currently contains exactly 23 tables.
+
+PRESERVE EXACTLY 23 TABLES.
+
+Before making any schema change:
+
+1. Inspect the existing SQLAlchemy models.
+2. Inspect Base.metadata.
+3. Inspect the current PostgreSQL schema.
+4. Determine whether the existing DentistAvailability and Appointment
+   tables already contain everything required.
+
+Do NOT create a new Alembic migration if the existing schema already
+supports Phase 14.
+
+Do NOT add database columns merely for convenience.
+
+If a schema change is genuinely unavoidable:
+
+STOP IMPLEMENTATION and report:
+
+- Why the existing schema is insufficient.
+- Exactly which table/column/constraint is required.
+- Why it cannot be implemented at the service/API level.
+- The proposed migration.
+
+Do not silently create a migration.
+
+============================================================
+3. DENTIST AVAILABILITY MODULE
+============================================================
+
+Implement secure CRUD for DentistAvailability.
+
+Required behavior:
+
+A. CREATE AVAILABILITY
+
+Only an authenticated dentist may create availability.
+
+The dentist must:
+
+- Have role = dentist.
+- Be active.
+- Have verification_status = approved.
+- Create availability only for themselves.
+
+The client must NOT be able to provide or override:
+
+- dentist_id
+- created_at
+- updated_at
+
+The dentist identity must be derived server-side from the authenticated
+Firebase user and database relationship.
+
+Validate:
+
+- weekday/day-of-week
+- start time
+- end time
+- active/inactive state where supported by the existing model
+
+Reject invalid time windows where:
+
+start_time >= end_time
+
+Prevent inappropriate overlapping availability records where required
+by the existing model/business rules.
+
+B. READ AVAILABILITY
+
+Patients must be able to read appropriate dentist availability for
+appointment discovery.
+
+Dentists may read their own availability.
+
+Dentists must NOT be able to modify or access another dentist's private
+availability through ownership bypass.
+
+Admins may inspect availability according to existing admin authorization.
+
+C. UPDATE AVAILABILITY
+
+Only the owning approved/active dentist may modify their availability.
+
+Do not allow a dentist to modify another dentist's record.
+
+Validate all updated time/day fields.
+
+Preserve server-controlled timestamps.
+
+D. DELETE AVAILABILITY
+
+Only the owning approved/active dentist may delete their availability.
+
+Prevent cross-dentist deletion.
+
+Audit the deletion.
+
+============================================================
+4. APPOINTMENT MODULE
+============================================================
+
+Implement appointment creation, retrieval, status management, and
+cancellation using the EXISTING Appointment model.
+
+Do not invent a new appointment data model.
+
+============================================================
+5. APPOINTMENT CREATION
+============================================================
+
+A patient may create/request an appointment with an eligible dentist.
+
+The dentist must:
+
+- Exist.
+- Be role = dentist.
+- Be active.
+- Have verification_status = approved.
+
+The authenticated patient's identity must be derived from Firebase
+authentication.
+
+The client must NOT be able to submit or override:
+
+- patient_id
+- dentist_id
+- appointment_id
+- created_at
+- updated_at
+- server-controlled status fields
+
+Patient identity must come from the authenticated user.
+
+Dentist identity must be validated against the existing Dentist/User
+relationship.
+
+============================================================
+6. AVAILABILITY ENFORCEMENT
+============================================================
+
+Before creating an appointment:
+
+1. Verify the dentist exists.
+2. Verify dentist is active.
+3. Verify dentist is approved.
+4. Determine the requested appointment date/time.
+5. Determine the corresponding weekday.
+6. Verify that the requested appointment falls within the dentist's
+   configured availability.
+7. Reject appointments outside availability.
+
+Use the existing Appointment model fields and existing availability
+structure.
+
+Do not invent unsupported scheduling semantics.
+
+============================================================
+7. DOUBLE-BOOKING / CONFLICT PREVENTION
+============================================================
+
+Prevent conflicting appointments for the same dentist.
+
+Also prevent inappropriate conflicting appointments for the same patient.
+
+The implementation must handle overlapping/conflicting appointment
+requests safely.
+
+Do not rely solely on frontend validation.
+
+Conflict detection MUST occur server-side.
+
+Where appropriate, use database transaction/locking or another
+concurrency-safe mechanism supported by the existing PostgreSQL design
+so two simultaneous requests cannot incorrectly create the same slot.
+
+============================================================
+8. APPOINTMENT RETRIEVAL
+============================================================
+
+Implement secure appointment retrieval.
+
+PATIENT:
+
+- Can retrieve their own appointments.
+- Cannot retrieve another patient's appointments.
+
+DENTIST:
+
+- Can retrieve appointments involving themselves.
+- Cannot retrieve another dentist's appointments.
+
+ADMIN:
+
+- May inspect appointments according to existing admin authorization.
+
+All ownership checks must occur server-side.
+
+============================================================
+9. APPOINTMENT STATUS LIFECYCLE
+============================================================
+
+Inspect the existing Appointment model and its database constraints
+before implementing status transitions.
+
+Use ONLY the status values already supported by the existing model.
+
+Do NOT invent unrelated status values.
+
+Define and enforce a valid status-transition lifecycle.
+
+Reject invalid transitions with an appropriate HTTP response.
+
+The client must not be able to bypass transition rules by directly
+setting arbitrary server-controlled status values.
+
+Status changes must be authorized according to the actor:
+
+- Patient
+- Treating dentist
+- Admin
+
+Do not allow one role to perform another role's privileged action.
+
+============================================================
+10. APPOINTMENT CANCELLATION
+============================================================
+
+Implement safe appointment cancellation using the existing model.
+
+Determine the permitted cancellation behavior from the existing model
+and architecture.
+
+Enforce:
+
+- Authentication
+- Ownership/relationship
+- Valid appointment state
+- Valid cancellation transition
+
+Do not allow unauthorized users to cancel another user's appointment.
+
+Record the appropriate audit event.
+
+============================================================
+11. AUTHORIZATION / SECURITY
+============================================================
+
+Preserve all existing security architecture.
+
+Continue using:
+
+- Firebase Authentication
+- Server-side Firebase token verification
+- Existing RBAC
+- Existing patient ownership checks
+- Existing dentist verification checks
+- Existing admin authorization
+
+Never trust client-supplied identity fields.
+
+The following values must be server-derived:
+
+- patient_id
+- dentist_id
+- appointment_id
+- availability ownership
+- created_at
+- updated_at
+- finalized/server-controlled status values where applicable
+
+A malicious client must not be able to change these values through
+request payload manipulation.
+
+============================================================
+12. AUDIT LOGGING
+============================================================
+
+Implement appropriate audit events for:
+
+Dentist Availability:
+
+- availability created
+- availability viewed where appropriate
+- availability updated
+- availability deleted
+
+Appointments:
+
+- appointment created
+- appointment viewed where appropriate
+- appointment status changed
+- appointment cancelled
+
+Use the existing AuditLog architecture.
+
+Do NOT place:
+
+- Firebase tokens
+- passwords
+- authentication credentials
+- unnecessary PHI
+
+inside audit payloads.
+
+Keep audit payloads minimal and appropriate.
+
+============================================================
+13. EXISTING MODULES MUST REMAIN UNCHANGED
+============================================================
+
+DO NOT change the behavior or architecture of:
+
+- 7-class EfficientNetB0 inference
+- 7-class disease taxonomy
+- YOLO detection
+- XAI
+- Clinical Context Engine
+- Risk Assessment
+- Clinical Reports
+- Dentist Assessment / Phase 13
+- Firebase Authentication
+- Patient module
+- Dentist verification logic
+- Admin security
+
+Appointment scheduling must NOT modify:
+
+- AI predictions
+- AI probabilities
+- YOLO detections
+- XAI results
+- Clinical Context
+- Risk Assessment
+- Dentist Assessment
+- Clinical Reports
+
+Phase 14 is an independent scheduling subsystem.
+
+============================================================
+14. API DESIGN
+============================================================
+
+Follow the existing FastAPI project conventions.
+
+Use the existing router structure where appropriate.
+
+Implement clean REST endpoints for:
+
+DENTIST AVAILABILITY:
+
+- Create availability
+- List/read availability
+- Update availability
+- Delete availability
+
+APPOINTMENTS:
+
+- Create/request appointment
+- Retrieve appointment(s)
+- Retrieve individual appointment where appropriate
+- Update permitted appointment status
+- Cancel appointment
+
+Use the project's existing:
+
+- authentication dependencies
+- role dependencies
+- response conventions
+- HTTP exception conventions
+- transaction/session patterns
+- audit logging patterns
+
+Do NOT create a parallel authentication or authorization system.
+
+============================================================
+15. PYDANTIC SCHEMAS
+============================================================
+
+Create appropriate Phase 14 schemas.
+
+Separate:
+
+- Create schemas
+- Update schemas
+- Response schemas
+
+Do not expose internal/server-controlled fields as client-controlled
+input fields.
+
+Use Pydantic validation for:
+
+- required fields
+- time values
+- date values
+- status values
+- invalid combinations
+
+Business rules must still be enforced in the service layer.
+
+============================================================
+16. DOMAIN SERVICES
+============================================================
+
+Create dedicated services rather than putting substantial business
+logic directly inside FastAPI route functions.
+
+Expected service responsibilities include:
+
+DentistAvailabilityService:
+
+- authorization-aware availability operations
+- validation
+- overlap checking
+- CRUD
+- audit logging
+
+AppointmentService:
+
+- appointment creation
+- dentist eligibility
+- availability validation
+- conflict detection
+- status transitions
+- cancellation
+- ownership checks
+- audit logging
+
+Follow the architecture already used in previous phases.
+
+============================================================
+17. DOCUMENTATION
+============================================================
+
+Create:
+
+docs/backend/phase_14_availability_appointments.md
+
+Document:
+
+- architecture
+- database entities used
+- API endpoints
+- authorization rules
+- availability rules
+- appointment lifecycle
+- conflict prevention
+- cancellation
+- audit events
+- security model
+- validation results
+- confirmation that no schema migration was required, if applicable
+
+Keep the documentation consistent with the existing Phase 13 style.
+
+============================================================
+18. VALIDATION SCRIPT
+============================================================
+
+Create:
+
+scratch/validate_phase14.py
+
+It must independently validate Phase 14.
+
+At minimum test these 19 categories:
+
+1. Python syntax across Phase 14 files
+
+2. Exactly 23 database tables preserved
+
+3. FastAPI startup
+
+4. 401 Unauthorized protection on protected routes
+
+5. Dentist authentication and verification
+
+6. Dentist ownership isolation
+
+7. Availability CRUD
+
+8. Invalid availability time-window rejection
+
+9. Patient availability access
+
+10. Appointment creation
+
+11. Appointment availability enforcement
+
+12. Double-booking/conflict prevention
+
+13. Patient isolation
+
+14. Dentist isolation
+
+15. Appointment status lifecycle
+
+16. Appointment cancellation
+
+17. Admin access/oversight
+
+18. Audit logging
+
+19. Complete regression through Phase 14
+
+Add additional tests where necessary to prove security and correctness.
+
+============================================================
+19. REGRESSION REQUIREMENT
+============================================================
+
+After Phase 14 implementation:
+
+Run the complete existing regression suite:
+
+Phase 3B
+Phase 3C
+Phase 4
+Phase 5
+Phase 6
+Phase 7
+Phase 8
+Phase 9A
+Phase 9B
+Phase 10
+Phase 11
+Phase 12
+Phase 13
+
+Then run Phase 14.
+
+All previous phases must remain green.
+
+The final regression must report:
+
+Phase 3B–13: PASS
+Phase 14: PASS
+
+If any earlier phase fails because of Phase 14 changes:
+
+STOP.
+
+Do not hide, bypass, weaken, or rewrite the earlier validation merely
+to obtain a passing result.
+
+Investigate the regression and report the exact failure.
+
+============================================================
+20. FILE CHANGE CONTROL
+============================================================
+
+Before implementation, inspect the existing repository.
+
+At completion, report EXACTLY:
+
+A. Files created
+B. Files modified
+C. Files deleted, if any
+D. API endpoints added
+E. Database tables affected
+F. Alembic migrations created, if any
+G. Authorization rules implemented
+H. Appointment status lifecycle implemented
+I. Audit events implemented
+J. Validation results
+K. Complete regression results
+
+Do not claim a file or endpoint was implemented unless it actually
+exists and has been validated.
+
+============================================================
+21. HARD STOP CONDITIONS
+============================================================
+
+STOP and report instead of proceeding if:
+
+- A database migration becomes genuinely necessary.
+- Existing Phase 13 behavior must be changed.
+- Existing AI/XAI/YOLO/Risk behavior must be changed.
+- The existing Appointment model cannot support the requested lifecycle.
+- The existing DentistAvailability model cannot support the requested
+  scheduling behavior.
+- A security requirement cannot be implemented safely.
+- A previous regression fails because of Phase 14.
+
+Do not silently redesign the architecture.
+
+============================================================
+22. FINAL REQUIREMENT
+============================================================
+
+Implement ONLY Phase 14.
+
+Do not begin:
+
+- Phase 15
+- Consultation
+- Conversation
+- Messaging
+- Notifications
+- Stream integration
+- Frontend
+
+When Phase 14 is complete, validated, and regression-tested:
+
+STOP.
+
+Provide the complete Phase 14 walkthrough for review, including all
+files, endpoints, database/schema status, authorization behavior,
+appointment lifecycle, audit logging, validation results, and complete
+regression results.
+
+DO NOT START PHASE 15.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-04T22:22:17+05:00.
+</ADDITIONAL_METADATA>

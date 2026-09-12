@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+.pnpm-store/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Secrets
+*.pem
+*.key
+credentials/
+secrets/
+
+# Firebase
+firebase-service-account*.json
+serviceAccountKey*.json
+
+# AI/model files
+# Production models are intentionally tracked for the project.
+# Do not add secrets or private credentials here.
+
+# Uploaded/generated files
+storage/*
+uploads/*
+outputs/*

@@ -1,0 +1,1393 @@
+{
+  "total_operations": 82,
+  "unique_paths": 66,
+  "public_operations": 3,
+  "protected_operations": 79,
+  "methods": {
+    "GET": 47,
+    "POST": 18,
+    "PATCH": 15,
+    "DELETE": 2
+  },
+  "auth_dependencies": {
+    "None (Public)": 3,
+    "require_admin": 16,
+    "get_current_active_user": 34,
+    "get_current_firebase_user": 1,
+    "require_dentist": 11,
+    "require_patient": 16,
+    "get_current_user": 1
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/",
+      "router_module": "Root",
+      "endpoint_fn": "root",
+      "auth_dep": "None (Public)",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": null,
+      "summary": "root"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ai-models",
+      "router_module": "Admin",
+      "endpoint_fn": "list_ai_models",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AIModelListResponse",
+      "summary": "List registered AI models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ai-models/{model_id}",
+      "router_module": "Admin",
+      "endpoint_fn": "get_ai_model_detail",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "model_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AIModelResponse",
+      "summary": "Get registered AI model detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics/ai-telemetry",
+      "router_module": "Admin",
+      "endpoint_fn": "get_ai_telemetry",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AITelemetryAnalyticsResponse",
+      "summary": "Get AI inference telemetry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics/overview",
+      "router_module": "Admin",
+      "endpoint_fn": "get_platform_overview",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "PlatformOverviewAnalyticsResponse",
+      "summary": "Get platform overview analytics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics/screenings",
+      "router_module": "Admin",
+      "endpoint_fn": "get_screening_analytics",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [
+        "start_date",
+        "end_date"
+      ],
+      "body_model": null,
+      "response_model": "ClinicalScreeningAnalyticsResponse",
+      "summary": "Get screening workflow analytics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics/telehealth",
+      "router_module": "Admin",
+      "endpoint_fn": "get_telehealth_analytics",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "TelehealthAnalyticsResponse",
+      "summary": "Get telehealth utilization analytics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit-logs",
+      "router_module": "Admin",
+      "endpoint_fn": "list_audit_logs",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "page_based (page, page_size)",
+      "path_params": [],
+      "query_params": [
+        "user_id",
+        "action",
+        "resource_type",
+        "start_date",
+        "end_date",
+        "page",
+        "page_size"
+      ],
+      "body_model": null,
+      "response_model": "AdminAuditLogListResponse",
+      "summary": "List audit logs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit-logs/{audit_log_id}",
+      "router_module": "Admin",
+      "endpoint_fn": "get_audit_log_detail",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "audit_log_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AdminAuditLogResponse",
+      "summary": "Get audit log details"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/dentist-verifications",
+      "router_module": "Admin",
+      "endpoint_fn": "list_dentist_verifications",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "page_based (page, page_size)",
+      "path_params": [],
+      "query_params": [
+        "status_filter",
+        "page",
+        "page_size"
+      ],
+      "body_model": null,
+      "response_model": "AdminVerificationListResponse",
+      "summary": "list_dentist_verifications"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/dentist-verifications/{verification_id}",
+      "router_module": "Admin",
+      "endpoint_fn": "get_dentist_verification_detail",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "verification_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AdminDentistVerificationResponse",
+      "summary": "get_dentist_verification_detail"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/dentist-verifications/{verification_id}/approve",
+      "router_module": "Admin",
+      "endpoint_fn": "approve_dentist_verification",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "verification_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AdminDentistVerificationResponse",
+      "summary": "approve_dentist_verification"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/dentist-verifications/{verification_id}/reject",
+      "router_module": "Admin",
+      "endpoint_fn": "reject_dentist_verification",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "verification_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AdminDentistVerificationResponse",
+      "summary": "reject_dentist_verification"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users",
+      "router_module": "Admin",
+      "endpoint_fn": "list_users",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "page_based (page, page_size)",
+      "path_params": [],
+      "query_params": [
+        "role",
+        "is_active",
+        "page",
+        "page_size"
+      ],
+      "body_model": null,
+      "response_model": "AdminUserListResponse",
+      "summary": "list_users"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users/{user_id}",
+      "router_module": "Admin",
+      "endpoint_fn": "get_user_detail",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "user_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AdminUserResponse",
+      "summary": "get_user_detail"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin/users/{user_id}/status",
+      "router_module": "Admin",
+      "endpoint_fn": "update_user_status",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "user_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AdminUserResponse",
+      "summary": "update_user_status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/appointments",
+      "router_module": "Appointments",
+      "endpoint_fn": "list_appointments",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [
+        "status_filter"
+      ],
+      "body_model": null,
+      "response_model": "AppointmentListResponse",
+      "summary": "List user's appointments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/appointments/{appointment_id}",
+      "router_module": "Appointments",
+      "endpoint_fn": "get_appointment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "appointment_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AppointmentResponse",
+      "summary": "Get appointment details"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/appointments/{appointment_id}/cancel",
+      "router_module": "Appointments",
+      "endpoint_fn": "cancel_appointment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "appointment_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AppointmentResponse",
+      "summary": "Cancel appointment"
+    },
+    {
+      "method": "GET",
+      "path": "/api/appointments/{appointment_id}/consultation",
+      "router_module": "Consultations",
+      "endpoint_fn": "get_consultation_for_appointment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "appointment_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ConsultationResponse",
+      "summary": "Get consultation session for appointment"
+    },
+    {
+      "method": "POST",
+      "path": "/api/appointments/{appointment_id}/consultation",
+      "router_module": "Consultations",
+      "endpoint_fn": "create_consultation_for_appointment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [
+        "appointment_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConsultationResponse",
+      "summary": "Initialize consultation session for appointment"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/appointments/{appointment_id}/status",
+      "router_module": "Appointments",
+      "endpoint_fn": "update_appointment_status",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "appointment_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AppointmentResponse",
+      "summary": "Update appointment status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "router_module": "Authentication",
+      "endpoint_fn": "get_current_user_identity",
+      "auth_dep": "get_current_firebase_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "AuthIdentityResponse",
+      "summary": "get_current_user_identity"
+    },
+    {
+      "method": "GET",
+      "path": "/api/consultations",
+      "router_module": "Consultations",
+      "endpoint_fn": "list_consultations",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [
+        "status_filter"
+      ],
+      "body_model": null,
+      "response_model": "ConsultationListResponse",
+      "summary": "List consultation sessions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/consultations/{consultation_id}",
+      "router_module": "Consultations",
+      "endpoint_fn": "get_consultation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "consultation_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ConsultationResponse",
+      "summary": "Get consultation session details"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/consultations/{consultation_id}/end",
+      "router_module": "Consultations",
+      "endpoint_fn": "end_consultation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "consultation_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConsultationResponse",
+      "summary": "End teleconsultation session"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/consultations/{consultation_id}/fail",
+      "router_module": "Consultations",
+      "endpoint_fn": "fail_consultation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "consultation_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConsultationResponse",
+      "summary": "Mark teleconsultation session as failed"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/consultations/{consultation_id}/start",
+      "router_module": "Consultations",
+      "endpoint_fn": "start_consultation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "consultation_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConsultationResponse",
+      "summary": "Start teleconsultation session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations",
+      "router_module": "Conversations",
+      "endpoint_fn": "list_conversations",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [
+        "is_active",
+        "patient_id",
+        "dentist_id"
+      ],
+      "body_model": null,
+      "response_model": "ConversationListResponse",
+      "summary": "List conversation threads"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{conversation_id}",
+      "router_module": "Conversations",
+      "endpoint_fn": "get_conversation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "conversation_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ConversationResponse",
+      "summary": "Get conversation thread details"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/conversations/{conversation_id}/archive",
+      "router_module": "Conversations",
+      "endpoint_fn": "archive_conversation",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "conversation_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConversationResponse",
+      "summary": "Archive a conversation thread"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{conversation_id}/messages",
+      "router_module": "Conversations",
+      "endpoint_fn": "list_messages",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "offset_based (limit, offset)",
+      "path_params": [
+        "conversation_id"
+      ],
+      "query_params": [
+        "limit",
+        "offset"
+      ],
+      "body_model": null,
+      "response_model": "MessageListResponse",
+      "summary": "List messages in a conversation (chronological)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{conversation_id}/messages",
+      "router_module": "Conversations",
+      "endpoint_fn": "send_message",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [
+        "conversation_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "MessageResponse",
+      "summary": "Post a text message in an active conversation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{conversation_id}/messages/{message_id}",
+      "router_module": "Conversations",
+      "endpoint_fn": "get_message",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "conversation_id",
+        "message_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "MessageResponse",
+      "summary": "Get single message details"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/conversations/{conversation_id}/read",
+      "router_module": "Conversations",
+      "endpoint_fn": "mark_messages_read",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "conversation_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "MessageReadResponse",
+      "summary": "Mark unread incoming messages as read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dentists/me",
+      "router_module": "Dentists",
+      "endpoint_fn": "get_my_dentist_profile",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "DentistResponse",
+      "summary": "get_my_dentist_profile"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/dentists/me",
+      "router_module": "Dentists",
+      "endpoint_fn": "update_my_dentist_profile",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistResponse",
+      "summary": "update_my_dentist_profile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dentists/me/availability",
+      "router_module": "Dentists",
+      "endpoint_fn": "list_my_availability",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "DentistAvailabilityListResponse",
+      "summary": "List dentist's own availability windows"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dentists/me/availability",
+      "router_module": "Dentists",
+      "endpoint_fn": "create_my_availability",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistAvailabilityResponse",
+      "summary": "Create availability window"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/dentists/me/availability/{availability_id}",
+      "router_module": "Dentists",
+      "endpoint_fn": "delete_my_availability",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "availability_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": null,
+      "summary": "Delete dentist's availability window"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/dentists/me/availability/{availability_id}",
+      "router_module": "Dentists",
+      "endpoint_fn": "update_my_availability",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "availability_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistAvailabilityResponse",
+      "summary": "Update dentist's availability window"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dentists/me/verification",
+      "router_module": "Dentists",
+      "endpoint_fn": "get_my_verification_status",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "DentistVerificationResponse",
+      "summary": "get_my_verification_status"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dentists/me/verification",
+      "router_module": "Dentists",
+      "endpoint_fn": "submit_my_verification",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistVerificationResponse",
+      "summary": "submit_my_verification"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dentists/{dentist_id}/appointments",
+      "router_module": "Dentists",
+      "endpoint_fn": "book_appointment_with_dentist",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [
+        "dentist_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "AppointmentResponse",
+      "summary": "Request/book an appointment with a dentist"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dentists/{dentist_id}/availability",
+      "router_module": "Dentists",
+      "endpoint_fn": "get_dentist_public_availability",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "dentist_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "DentistAvailabilityListResponse",
+      "summary": "Discover approved dentist's active availability windows"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dentists/{dentist_id}/conversations",
+      "router_module": "Conversations",
+      "endpoint_fn": "create_conversation_with_dentist",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "dentist_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConversationResponse",
+      "summary": "Initiate or reactivate conversation with a dentist (Patient only)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "router_module": "Notifications",
+      "endpoint_fn": "list_notifications",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "offset_based (limit, offset)",
+      "path_params": [],
+      "query_params": [
+        "is_read",
+        "limit",
+        "offset"
+      ],
+      "body_model": null,
+      "response_model": "NotificationListResponse",
+      "summary": "List notifications for current user"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/notifications/read-all",
+      "router_module": "Notifications",
+      "endpoint_fn": "mark_all_notifications_read",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "NotificationReadAllResponse",
+      "summary": "Mark all unread notifications as read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/unread-count",
+      "router_module": "Notifications",
+      "endpoint_fn": "get_unread_count",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "NotificationUnreadCountResponse",
+      "summary": "Get unread notification count"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/{id}",
+      "router_module": "Notifications",
+      "endpoint_fn": "get_notification",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "NotificationResponse",
+      "summary": "Get notification by ID"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/notifications/{id}/read",
+      "router_module": "Notifications",
+      "endpoint_fn": "mark_notification_read",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "NotificationResponse",
+      "summary": "Mark notification as read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/patients/me",
+      "router_module": "Patients",
+      "endpoint_fn": "get_my_patient_profile",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "PatientResponse",
+      "summary": "get_my_patient_profile"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/patients/me",
+      "router_module": "Patients",
+      "endpoint_fn": "update_my_patient_profile",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "PatientResponse",
+      "summary": "update_my_patient_profile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/patients/me/medical-profile",
+      "router_module": "Patients",
+      "endpoint_fn": "get_my_medical_profile",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "PatientMedicalProfileResponse",
+      "summary": "get_my_medical_profile"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/patients/me/medical-profile",
+      "router_module": "Patients",
+      "endpoint_fn": "update_my_medical_profile",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "PatientMedicalProfileResponse",
+      "summary": "update_my_medical_profile"
+    },
+    {
+      "method": "POST",
+      "path": "/api/patients/me/medical-profile",
+      "router_module": "Patients",
+      "endpoint_fn": "create_my_medical_profile",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "PatientMedicalProfileResponse",
+      "summary": "create_my_medical_profile"
+    },
+    {
+      "method": "POST",
+      "path": "/api/patients/{patient_id}/conversations",
+      "router_module": "Conversations",
+      "endpoint_fn": "create_conversation_with_patient",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "patient_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ConversationResponse",
+      "summary": "Initiate or reactivate conversation with a patient (Dentist only)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/{report_id}",
+      "router_module": "reports",
+      "endpoint_fn": "get_report_by_id",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "report_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ReportResponse",
+      "summary": "Get clinical report by ID"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/{report_id}/download",
+      "router_module": "reports",
+      "endpoint_fn": "download_report_pdf",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "report_ops",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "report_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": null,
+      "summary": "Download clinical report PDF"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings",
+      "router_module": "screenings",
+      "endpoint_fn": "list_screenings",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "page_based (page, page_size)",
+      "path_params": [],
+      "query_params": [
+        "page",
+        "page_size"
+      ],
+      "body_model": null,
+      "response_model": "ScreeningListResponse",
+      "summary": "List patient's screenings"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings",
+      "router_module": "screenings",
+      "endpoint_fn": "create_screening",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ScreeningResponse",
+      "summary": "Create a new screening session"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/screenings/{screening_id}",
+      "router_module": "screenings",
+      "endpoint_fn": "delete_screening",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ScreeningDeleteResponse",
+      "summary": "Soft-delete a screening"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}",
+      "router_module": "screenings",
+      "endpoint_fn": "get_screening_detail",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ScreeningDetailResponse",
+      "summary": "Get screening details with images"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}/assessment",
+      "router_module": "screenings",
+      "endpoint_fn": "get_dentist_assessment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "DentistAssessmentResponse",
+      "summary": "Get clinical dentist assessment for a screening"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/screenings/{screening_id}/assessment",
+      "router_module": "screenings",
+      "endpoint_fn": "update_dentist_assessment",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistAssessmentResponse",
+      "summary": "Update or finalize an existing dentist assessment draft"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/assessment",
+      "router_module": "screenings",
+      "endpoint_fn": "create_dentist_assessment",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "DentistAssessmentResponse",
+      "summary": "Create licensed dentist clinical assessment"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/images",
+      "router_module": "screenings",
+      "endpoint_fn": "upload_screening_image",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 201,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [
+        "is_primary"
+      ],
+      "body_model": "None",
+      "response_model": "ScreeningImageResponse",
+      "summary": "Upload an oral screening image"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}/report",
+      "router_module": "screenings",
+      "endpoint_fn": "get_screening_report",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ReportResponse",
+      "summary": "Get clinical report for a screening"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/report",
+      "router_module": "screenings",
+      "endpoint_fn": "generate_screening_report",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "report_ops",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ReportResponse",
+      "summary": "Generate clinical report and PDF document for a screening"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}/review",
+      "router_module": "screenings",
+      "endpoint_fn": "review_screening_findings",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ScreeningReviewResponse",
+      "summary": "Review complete multi-modal screening findings for professional clinical evaluation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}/risk-assessment",
+      "router_module": "screenings",
+      "endpoint_fn": "get_screening_risk_assessment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "RiskAssessmentResponse",
+      "summary": "Get existing clinical risk assessment for a screening session"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/risk-assessment",
+      "router_module": "screenings",
+      "endpoint_fn": "generate_screening_risk_assessment",
+      "auth_dep": "get_current_active_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "RiskAssessmentResponse",
+      "summary": "Generate or retrieve screening risk assessment and triage priority"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/run-ai",
+      "router_module": "screenings",
+      "endpoint_fn": "run_screening_ai_inference",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [
+        "force_recompute"
+      ],
+      "body_model": null,
+      "response_model": "ScreeningInferenceResponse",
+      "summary": "Execute AI inference on screening images"
+    },
+    {
+      "method": "GET",
+      "path": "/api/screenings/{screening_id}/xai",
+      "router_module": "screenings",
+      "endpoint_fn": "get_screening_xai",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "ScreeningXAIResponse",
+      "summary": "Get XAI visual explanation results for a screening"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/xai",
+      "router_module": "screenings",
+      "endpoint_fn": "generate_screening_xai",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id"
+      ],
+      "query_params": [],
+      "body_model": "None",
+      "response_model": "ScreeningXAIResponse",
+      "summary": "Generate XAI visual explanation heatmaps for a screening"
+    },
+    {
+      "method": "POST",
+      "path": "/api/screenings/{screening_id}/xai/{method}",
+      "router_module": "screenings",
+      "endpoint_fn": "generate_screening_xai_method",
+      "auth_dep": "require_patient",
+      "rate_scope": "ai_run",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [
+        "screening_id",
+        "method"
+      ],
+      "query_params": [
+        "force_recompute"
+      ],
+      "body_model": null,
+      "response_model": "ScreeningXAIResponse",
+      "summary": "Generate a specific XAI visual explanation method"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me",
+      "router_module": "Users",
+      "endpoint_fn": "get_my_user_profile",
+      "auth_dep": "get_current_user",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "UserResponse",
+      "summary": "get_my_user_profile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me/admin-access",
+      "router_module": "Users",
+      "endpoint_fn": "verify_admin_access",
+      "auth_dep": "require_admin",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "RoleAccessResponse",
+      "summary": "verify_admin_access"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me/dentist-access",
+      "router_module": "Users",
+      "endpoint_fn": "verify_dentist_access",
+      "auth_dep": "require_dentist",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "RoleAccessResponse",
+      "summary": "verify_dentist_access"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me/patient-access",
+      "router_module": "Users",
+      "endpoint_fn": "verify_patient_access",
+      "auth_dep": "require_patient",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "RoleAccessResponse",
+      "summary": "verify_patient_access"
+    },
+    {
+      "method": "GET",
+      "path": "/api/xai/methods",
+      "router_module": "xai",
+      "endpoint_fn": "list_xai_methods",
+      "auth_dep": "None (Public)",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": "XAIAvailableMethodsResponse",
+      "summary": "List available XAI explanation algorithms"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "router_module": "Root",
+      "endpoint_fn": "health_check",
+      "auth_dep": "None (Public)",
+      "rate_scope": "None",
+      "status_code": 200,
+      "pagination_style": "None",
+      "path_params": [],
+      "query_params": [],
+      "body_model": null,
+      "response_model": null,
+      "summary": "health_check"
+    }
+  ]
+}

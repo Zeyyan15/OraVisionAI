@@ -1,0 +1,863 @@
+<USER_REQUEST>
+Phase 23 Stage 1 — Patient Screening & AI Clinical Results — Planning Only
+
+IMPORTANT: PLANNING ONLY — DO NOT IMPLEMENT
+
+We are beginning Phase 23 — Patient Screening & AI Clinical Results for OraVisionAI.
+
+Phase 22 is COMPLETE and FROZEN.
+
+Your task in this stage is ONLY to inspect the current repository and produce a detailed implementation plan for user review.
+
+Do not create files.
+
+Do not modify files.
+
+Do not install npm packages.
+
+Do not run implementation commands.
+
+Do not modify the backend.
+
+Do not modify the database.
+
+Do not modify any existing Phase 22 frontend files.
+
+After producing the plan, STOP and wait for explicit authorization.
+
+1. AUTHORITATIVE BASELINE
+
+Treat the following as frozen and authoritative:
+
+Backend
+Phases 3B–21 are complete and frozen.
+Backend contains exactly 23 database tables and 1 Alembic migration.
+Phase 20 security implementation is frozen.
+Phase 21 API contract is frozen.
+Do not invent or modify backend endpoints, schemas, permissions, storage behavior, or business logic.
+Frontend
+
+Phase 22 is complete and frozen.
+
+It established:
+
+React 18
+TypeScript
+Vite
+Tailwind CSS
+Firebase client foundation
+Firebase Authentication
+centralized API client
+typed API errors
+authentication context
+role-aware routing
+Patient/Dentist/Admin shells
+reusable UI primitives
+loading/error/empty states
+placeholder dashboards
+
+Before planning Phase 23, inspect the actual implemented Phase 22 code. Do not rely solely on the previous walkthrough.
+
+2. AUTHORITATIVE DOCUMENTS TO READ FIRST
+
+Inspect these files before creating the plan:
+
+docs/api_contract_reference.md
+scratch/full_endpoint_contracts.json
+frontend/package.json
+frontend/src/types/domain.ts
+frontend/src/types/api.ts
+frontend/src/api/client.ts
+frontend/src/api/endpoints.ts
+frontend/src/context/AuthContext.tsx
+frontend/src/hooks/useAuth.ts
+frontend/src/hooks/useApi.ts
+frontend/src/routes/AppRoutes.tsx
+frontend/src/routes/ProtectedRoute.tsx
+frontend/src/components/layout/PatientShell.tsx
+frontend/src/pages/patient/PatientDashboard.tsx
+scratch/validate_phase22.py
+
+Also inspect the relevant frozen backend implementation for:
+
+Screening
+ScreeningImage
+AIPrediction
+PredictionProbability
+YOLODetection
+XAIResult
+RiskAssessment
+Report
+Patient
+PatientMedicalProfile
+screening API routes
+AI inference service
+XAI service
+risk/context service
+report service
+Firebase Storage integration
+
+Use the actual source code and Phase 21 contract as the authority.
+
+3. PHASE 23 OBJECTIVE
+
+Plan the first real clinical frontend workflow:
+
+Patient → Create Screening → Upload Oral Image → Run AI → View AI Results → View Localization/XAI → View Clinical Context/Risk → Generate/View/Download Report
+
+The goal is a professional patient-facing screening workflow built on the already-frozen backend.
+
+Phase 23 should make the Patient side of OraVisionAI meaningfully functional while preserving strict separation between:
+
+AI model output
+localization evidence
+XAI explanation
+clinical context/risk tier
+professional clinical assessment
+
+The frontend must never represent the AI screening result as a definitive medical diagnosis.
+
+4. REQUIRED PHASE 23 WORKFLOW TO PLAN
+
+Plan the complete patient screening flow:
+
+A. Screening creation
+
+Patient initiates a new screening.
+
+Determine from the frozen backend contract:
+
+required request fields
+optional fields
+initial screening status
+ownership behavior
+validation rules
+error conditions
+
+Do not invent fields.
+
+B. Image selection
+
+Plan:
+
+image file selection
+accepted formats based strictly on backend validation
+file-size validation consistent with Phase 20/9A
+client-side validation only as user-experience assistance
+backend remains authoritative
+image preview
+remove/replace selected image before upload
+accessible file input
+mobile usability
+
+Do not weaken or duplicate backend security assumptions.
+
+C. Image upload
+
+Plan the frontend integration with:
+
+POST /api/screenings/{screening_id}/images
+
+Respect the frozen multipart contract.
+
+The API client must:
+
+not manually set multipart Content-Type
+preserve browser-generated multipart boundaries
+send Firebase Bearer authentication
+
+Plan appropriate UI states:
+
+selecting
+ready
+uploading
+uploaded
+failed
+
+Do not invent a backend upload-progress API if none exists.
+
+5. SCREENING LIFECYCLE
+
+Preserve the frozen screening lifecycle exactly:
+
+pending
+uploading
+processing
+completed
+failed
+
+Do not introduce new backend statuses.
+
+Plan how the frontend determines when AI processing has completed using only the existing backend contract.
+
+If polling is necessary, inspect the API contract and propose:
+
+polling endpoint
+polling interval
+maximum polling duration
+cancellation behavior
+retry/error behavior
+
+Do not implement polling yet.
+
+If the current backend does not support a required capability, explicitly identify that as a limitation rather than inventing an endpoint.
+
+6. AI RESULTS
+
+Plan the patient-facing AI results screen using the frozen 7-class taxonomy:
+
+CaS — Canker Sore
+CoS — Cold Sore
+Gum — Gum Disease
+MC — Mucocele
+OC — Oral Cancer
+OLP — Oral Lichen Planus
+OT — Oral Thrush
+
+The UI must preserve:
+
+exact backend class codes
+exact class names
+prediction confidence/probability semantics as actually defined by the backend
+all seven probability values where the contract provides them
+
+Critically:
+
+Do not call model probabilities "diagnosis certainty."
+
+Do not claim clinical validation based on model confidence.
+
+Do not invent accuracy, sensitivity, specificity, PPV, NPV, or disease probability.
+
+Clearly distinguish:
+
+AI screening result
+≠
+confirmed diagnosis
+
+Plan suitable patient-facing wording.
+
+7. AI RESULT VISUALIZATION
+
+Plan a professional visualization for:
+
+primary predicted class
+seven-class probability distribution
+confidence/value display according to the actual API contract
+class labels
+explanatory disclaimer
+
+Do not create misleading pie charts or percentages if the backend semantics do not justify them.
+
+Determine whether bars, ranked cards, or another visualization is most appropriate.
+
+Explain the academic/clinical UX rationale.
+
+8. YOLO LOCALIZATION
+
+Plan display of the existing YOLO detections.
+
+Important frozen semantic rule:
+
+YOLO is localization evidence, not diagnosis, severity scoring, or risk scoring.
+
+Plan:
+
+image display
+bounding boxes
+detection labels/confidence if actually provided
+legend
+accessibility alternative for users who cannot visually interpret overlays
+
+Do not convert YOLO detections into:
+
+disease diagnosis
+severity
+risk score
+clinical probability
+9. XAI VISUALIZATION
+
+Plan integration with the frozen XAI backend.
+
+Primary methods:
+
+occlusion_sensitivity
+grad_cam
+
+Secondary methods:
+
+grad_cam_plus_plus
+layer_cam
+score_cam
+integrated_gradients
+
+Preserve the distinction:
+
+primary XAI
+secondary XAI
+
+Plan:
+
+XAI generation trigger
+loading state
+cached-result behavior
+failure handling
+heatmap display
+overlay display
+method selector if appropriate
+explanation/disclaimer
+
+Do not claim that XAI proves causality or clinical correctness.
+
+Do not modify the XAI backend.
+
+10. FIREBASE STORAGE CONSTRAINT
+
+This is extremely important.
+
+Phase 22 established:
+
+no storage.rules currently exist in the repository
+screening and XAI storage paths use PostgreSQL UUIDs
+direct client-side Firebase Storage artifact retrieval is PENDING authorization infrastructure
+
+Therefore:
+
+DO NOT implement unrestricted getDownloadURL() access for screening images or XAI artifacts.
+
+Do not invent:
+
+Storage Rules
+signed URLs
+download tickets
+proxy endpoints
+custom claims
+new backend endpoints
+
+Determine from the existing API contract how screening/XAI artifacts are currently intended to be consumed by the frontend.
+
+If the backend exposes only storage paths and there is no authorized retrieval mechanism, explicitly identify this as a Phase 23 dependency/blocker.
+
+Reports remain accessible through:
+
+GET /api/reports/{report_id}/download
+
+via authenticated FastAPI PDF streaming.
+
+11. CLINICAL CONTEXT / RISK
+
+Plan display of the Phase 12 deterministic clinical context/risk result.
+
+Preserve exactly:
+
+low
+moderate
+high
+critical
+
+And remember:
+
+25.00
+50.00
+75.00
+100.00
+
+are technical ordinal tier indices, not:
+
+disease probability
+percentage risk
+model confidence
+calibrated clinical risk
+
+The frontend must never display:
+
+75% risk
+
+or equivalent misleading wording.
+
+Prefer terminology such as:
+
+Clinical Context Tier
+
+or another wording that accurately reflects the backend semantics.
+
+Preserve the separation:
+
+AI Prediction
+Clinical Context / Risk Tier
+Dentist Assessment
+
+These must never be merged into one "AI diagnosis" result.
+
+12. REPORT GENERATION
+
+Plan integration with the frozen report endpoints.
+
+Determine from the actual contract:
+
+report generation request
+report response
+idempotency/caching behavior
+generation status if applicable
+report retrieval
+authenticated PDF download
+
+The frontend must use:
+
+GET /api/reports/{report_id}/download
+
+for the PDF.
+
+Do not create:
+
+signed download URLs
+public PDF URLs
+Firebase direct report retrieval
+new backend download routes
+
+Plan:
+
+Generate Report button
+generation loading state
+success state
+error state
+PDF download
+appropriate patient-facing wording
+13. PATIENT SCREENING HISTORY
+
+Determine whether Phase 23 should include a basic screening-history view based strictly on existing endpoints.
+
+If included:
+
+list completed/failed/current screenings
+status
+creation date
+safe summary information
+navigation to screening details
+
+Do not expose clinical information where the backend contract does not authorize it.
+
+Do not create a second dashboard system.
+
+If history is better separated into another phase, explicitly justify deferring it.
+
+14. PATIENT DASHBOARD INTEGRATION
+
+Phase 22 created a placeholder Patient Dashboard.
+
+Inspect it and plan exactly what Phase 23 should replace/add.
+
+Possible areas:
+
+New Screening CTA
+recent screenings
+current screening status
+completed screening summaries
+safe navigation to results
+
+Do not implement unrelated patient features.
+
+15. ROUTING
+
+Plan the exact new patient routes required.
+
+For example, only if supported by the actual design:
+
+/patient/screenings
+/patient/screenings/new
+/patient/screenings/:screeningId
+/patient/screenings/:screeningId/results
+
+But do not blindly adopt these examples.
+
+Determine the minimal route structure needed from the actual workflow.
+
+Every route must remain protected by the existing patient RBAC architecture.
+
+No dentist/admin feature routes should be added in Phase 23.
+
+16. FRONTEND API CONTRACT
+
+Audit the Phase 22 API/type foundation and identify the exact endpoint callers/types required for Phase 23.
+
+Do not implement all 82 backend endpoints.
+
+Only add the feature-level API functions required by the Phase 23 screening workflow.
+
+Maintain strict separation between:
+
+API transport
+endpoint callers
+domain types
+UI components
+page-level workflow
+
+If Phase 22's endpoints.ts needs extension, list exact additions.
+
+Do not modify frozen backend contracts.
+
+17. STATE MANAGEMENT
+
+Phase 22 intentionally avoided Redux/Zustand/TanStack Query.
+
+Preserve that decision unless the actual Phase 23 requirements prove it insufficient.
+
+Plan state using:
+
+existing useApi
+React local state
+existing AuthContext
+URL parameters/search parameters where appropriate
+
+Carefully distinguish:
+
+server state
+upload state
+AI processing state
+XAI generation state
+report generation state
+local UI state
+
+Avoid building a large custom state-management framework.
+
+18. ERROR / LOADING / EMPTY STATES
+
+Plan all important states:
+
+Screening
+no screening
+creation loading
+validation error
+upload loading
+upload failure
+processing
+completed
+failed
+AI
+not started
+processing
+completed
+failed
+XAI
+unavailable
+generating
+generated
+failed
+Risk/context
+available
+unavailable
+missing medical profile/context
+Report
+not generated
+generating
+generated
+download failure
+
+Do not invent backend statuses to represent these states.
+
+19. ACCESSIBILITY
+
+Phase 23 must maintain the Phase 22 accessibility foundation.
+
+Plan:
+
+keyboard-accessible image upload
+screen-reader labels
+accessible status announcements
+alternative text for images
+meaningful descriptions for AI visualizations
+non-color-only status communication
+accessible charts/probability displays
+accessible YOLO overlay alternative
+focus management after navigation
+reduced-motion support
+
+Do not treat visual heatmaps as the only explanation.
+
+20. RESPONSIVE / MOBILE DESIGN
+
+The screening workflow must work on:
+
+mobile
+tablet
+desktop
+
+Plan responsive behavior for:
+
+image preview
+upload controls
+result cards
+probability visualization
+YOLO overlay
+XAI visualization
+report actions
+
+Do not compromise clinical readability for decorative design.
+
+21. CLINICAL UX / ACADEMIC PRESENTATION
+
+OraVisionAI is an academic/FYP clinical decision-support platform.
+
+The UI must look like a professional clinical application rather than a generic AI demo.
+
+Plan:
+
+clear information hierarchy
+explicit separation of AI output and clinical interpretation
+appropriate disclaimers
+no sensational wording
+no claims of diagnosis
+no unsupported clinical claims
+consistent terminology
+traceable data presentation
+transparent indication of when results are AI-generated
+
+Avoid:
+
+gamification
+exaggerated confidence
+"AI doctor" language
+"100% accurate" claims
+unsupported treatment recommendations
+22. SECURITY / PRIVACY
+
+Plan frontend handling so that:
+
+Firebase ID tokens are never logged
+medical images are never logged
+API responses containing clinical information are not unnecessarily persisted in localStorage
+patient IDs are not unnecessarily exposed in URLs or UI
+backend authorization remains authoritative
+frontend route guards are treated only as UX protection
+XSS-safe React rendering is preserved
+
+Do not introduce client-side storage of sensitive clinical information unless justified.
+
+23. EXACT FILE IMPACT ANALYSIS
+
+Your Stage 1 plan must contain:
+
+Files to create
+
+Exact paths, grouped by:
+
+pages
+components
+hooks
+API endpoint modules
+types
+utilities
+tests/validation
+Files to modify
+
+Exact existing Phase 22 files that must change.
+
+Files that remain untouched
+
+Explicitly list:
+
+backend models
+migrations
+backend services
+backend API
+security middleware
+Phase 21 contract
+Phase 22 validation script unless modification is genuinely necessary
+
+Do not modify frozen Phase 22 files unnecessarily.
+
+24. DEPENDENCY DISCIPLINE
+
+Before proposing any new npm package:
+
+inspect current package.json
+determine whether the existing stack is sufficient
+justify why the package is necessary
+avoid duplicate functionality
+
+Do not add:
+
+MUI
+Ant Design
+Chakra
+Redux
+Zustand
+Axios
+TanStack Query
+
+unless a concrete Phase 23 requirement proves the current architecture insufficient and the reason is explicitly presented for review.
+
+Prefer existing React/Tailwind/Firebase/browser APIs.
+
+25. VALIDATION STRATEGY
+
+Design a Phase 23 validation strategy before implementation.
+
+It must include:
+
+Structural validation
+expected file manifest
+no unexpected frontend files
+no backend modifications
+Type/build validation
+TypeScript strict typecheck
+production Vite build
+API contract validation
+
+Verify exact Phase 21 endpoints used by Phase 23.
+
+Screening workflow validation
+
+Test:
+
+screening creation
+ownership isolation
+image upload
+invalid file rejection
+lifecycle states
+AI result retrieval
+probability display
+YOLO result handling
+XAI handling
+risk/context handling
+report generation
+report download
+Security validation
+
+Test:
+
+unauthenticated access
+patient ownership
+cross-patient screening access denial
+role restrictions
+deactivated account behavior
+Error validation
+
+Test:
+
+401
+403
+404
+409
+422
+429
+500
+Accessibility validation
+
+Include practical checks for:
+
+keyboard navigation
+focus management
+labels
+ARIA
+status announcements
+non-color-only states
+Regression
+
+Run the complete established Phase 3B–22 regression suite after Phase 23 implementation.
+
+Require:
+
+100% PASS.
+
+26. IMPORTANT: IDENTIFY BACKEND CAPABILITY GAPS
+
+Do not silently work around backend limitations.
+
+If the Phase 21 contract prevents a planned patient workflow from being fully implemented, explicitly identify:
+
+Capability gap
+Existing endpoint/contract
+Why it blocks the feature
+Whether frontend-only workaround is safe
+Whether backend change would be required
+Recommended phase for resolution
+
+Do NOT modify the backend as part of Phase 23 planning.
+
+In particular, carefully investigate:
+
+screening/XAI artifact retrieval
+screening processing completion detection
+XAI artifact consumption
+report generation lifecycle
+patient screening history
+27. NO DOMAIN REDESIGN
+
+Preserve all existing architectural decisions.
+
+Do not:
+
+redesign the AI pipeline
+retrain models
+change AI taxonomy
+change XAI methods
+change risk engine
+change risk semantics
+change database schema
+add medication/prescription logic
+add diagnosis logic
+add treatment recommendation logic
+add dentist assessment functionality
+add appointments
+add consultations
+add messaging
+add notification center
+add admin analytics
+
+Phase 23 is specifically the Patient Screening + AI Results frontend workflow.
+
+28. REQUIRED OUTPUT FORMAT
+
+Return a comprehensive Stage 1 implementation plan containing exactly these sections:
+
+Repository Inspection Results
+Phase 23 Objective
+Existing Phase 22 Assets Reused
+Exact Patient Screening Workflow
+Screening Lifecycle Handling
+Image Upload Architecture
+AI Results Architecture
+Seven-Class Result Presentation
+YOLO Localization Architecture
+XAI Architecture
+Clinical Context / Risk Presentation
+Report Generation & Download
+Patient Screening History Decision
+Patient Dashboard Integration
+Routing Plan
+API Endpoint Additions
+Type Additions
+State Management Plan
+Loading/Error/Empty-State Matrix
+Accessibility Plan
+Responsive Design Plan
+Clinical UX & Academic Presentation
+Security & Privacy Plan
+Firebase Storage Capability Analysis
+Backend Capability Gaps / Blockers
+Dependencies
+Exact Files to Create
+Exact Existing Files to Modify
+Files That Must Remain Untouched
+Phase 23 Validation Strategy
+Complete Regression Strategy
+Risks & Mitigations
+Explicit Scope Exclusions
+Final Implementation Readiness Assessment
+
+At the end, provide:
+
+IMPLEMENTATION STATUS: NOT AUTHORIZED
+FILES CREATED: 0
+FILES MODIFIED: 0
+PACKAGES INSTALLED: 0
+BACKEND CHANGES: 0
+
+Then STOP.
+
+Do not implement anything until the user reviews and explicitly authorizes the Phase 23 implementation.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-06T18:56:40+05:00.
+</ADDITIONAL_METADATA>

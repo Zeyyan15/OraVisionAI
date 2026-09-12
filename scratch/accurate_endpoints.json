@@ -1,0 +1,1064 @@
+[
+  {
+    "method": "GET",
+    "path": "/",
+    "endpoint_name": "root",
+    "role": "None (Public)",
+    "scope": "default",
+    "body_model": null,
+    "response_model": null,
+    "tags": [],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "endpoint_name": "health_check",
+    "role": "None (Public)",
+    "scope": "default",
+    "body_model": null,
+    "response_model": null,
+    "tags": [],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/users",
+    "endpoint_name": "list_users",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "AdminUserListResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/users/{user_id}",
+    "endpoint_name": "get_user_detail",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "AdminUserResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/admin/admin/users/{user_id}/status",
+    "endpoint_name": "update_user_status",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AdminUserResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/dentist-verifications",
+    "endpoint_name": "list_dentist_verifications",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "AdminVerificationListResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/dentist-verifications/{verification_id}",
+    "endpoint_name": "get_dentist_verification_detail",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "AdminDentistVerificationResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/admin/admin/dentist-verifications/{verification_id}/approve",
+    "endpoint_name": "approve_dentist_verification",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AdminDentistVerificationResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/admin/admin/dentist-verifications/{verification_id}/reject",
+    "endpoint_name": "reject_dentist_verification",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AdminDentistVerificationResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/audit-logs",
+    "endpoint_name": "list_audit_logs",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AdminAuditLogListResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "List audit logs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/audit-logs/{audit_log_id}",
+    "endpoint_name": "get_audit_log_detail",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AdminAuditLogResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get audit log details"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/analytics/overview",
+    "endpoint_name": "get_platform_overview",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "PlatformOverviewAnalyticsResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get platform overview analytics"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/analytics/screenings",
+    "endpoint_name": "get_screening_analytics",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ClinicalScreeningAnalyticsResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get screening workflow analytics"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/analytics/ai-telemetry",
+    "endpoint_name": "get_ai_telemetry",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AITelemetryAnalyticsResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get AI inference telemetry"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/analytics/telehealth",
+    "endpoint_name": "get_telehealth_analytics",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "TelehealthAnalyticsResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get telehealth utilization analytics"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/ai-models",
+    "endpoint_name": "list_ai_models",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AIModelListResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "List registered AI models"
+  },
+  {
+    "method": "GET",
+    "path": "/api/admin/admin/ai-models/{model_id}",
+    "endpoint_name": "get_ai_model_detail",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AIModelResponse",
+    "tags": [
+      "Admin"
+    ],
+    "summary": "Get registered AI model detail"
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments/appointments",
+    "endpoint_name": "list_appointments",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AppointmentListResponse",
+    "tags": [
+      "Appointments"
+    ],
+    "summary": "List user's appointments"
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments/appointments/{appointment_id}",
+    "endpoint_name": "get_appointment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AppointmentResponse",
+    "tags": [
+      "Appointments"
+    ],
+    "summary": "Get appointment details"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/appointments/appointments/{appointment_id}/status",
+    "endpoint_name": "update_appointment_status",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AppointmentResponse",
+    "tags": [
+      "Appointments"
+    ],
+    "summary": "Update appointment status"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/appointments/appointments/{appointment_id}/cancel",
+    "endpoint_name": "cancel_appointment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AppointmentResponse",
+    "tags": [
+      "Appointments"
+    ],
+    "summary": "Cancel appointment"
+  },
+  {
+    "method": "GET",
+    "path": "/api/auth/auth/me",
+    "endpoint_name": "get_current_user_identity",
+    "role": "get_current_firebase_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "AuthIdentityResponse",
+    "tags": [
+      "Authentication"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/appointments/{appointment_id}/consultation",
+    "endpoint_name": "create_consultation_for_appointment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "Initialize consultation session for appointment"
+  },
+  {
+    "method": "GET",
+    "path": "/api/appointments/{appointment_id}/consultation",
+    "endpoint_name": "get_consultation_for_appointment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "Get consultation session for appointment"
+  },
+  {
+    "method": "GET",
+    "path": "/api/consultations",
+    "endpoint_name": "list_consultations",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationListResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "List consultation sessions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/consultations/{consultation_id}",
+    "endpoint_name": "get_consultation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "Get consultation session details"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/start",
+    "endpoint_name": "start_consultation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "Start teleconsultation session"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/end",
+    "endpoint_name": "end_consultation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "End teleconsultation session"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/consultations/{consultation_id}/fail",
+    "endpoint_name": "fail_consultation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConsultationResponse",
+    "tags": [
+      "Consultations"
+    ],
+    "summary": "Mark teleconsultation session as failed"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/{dentist_id}/conversations",
+    "endpoint_name": "create_conversation_with_dentist",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConversationResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Initiate or reactivate conversation with a dentist (Patient only)"
+  },
+  {
+    "method": "POST",
+    "path": "/api/patients/{patient_id}/conversations",
+    "endpoint_name": "create_conversation_with_patient",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConversationResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Initiate or reactivate conversation with a patient (Dentist only)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations",
+    "endpoint_name": "list_conversations",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConversationListResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "List conversation threads"
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}",
+    "endpoint_name": "get_conversation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConversationResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Get conversation thread details"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/conversations/{conversation_id}/archive",
+    "endpoint_name": "archive_conversation",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ConversationResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Archive a conversation thread"
+  },
+  {
+    "method": "POST",
+    "path": "/api/conversations/{conversation_id}/messages",
+    "endpoint_name": "send_message",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "MessageResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Post a text message in an active conversation"
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}/messages",
+    "endpoint_name": "list_messages",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "MessageListResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "List messages in a conversation (chronological)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/conversations/{conversation_id}/messages/{message_id}",
+    "endpoint_name": "get_message",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "MessageResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Get single message details"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/conversations/{conversation_id}/read",
+    "endpoint_name": "mark_messages_read",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "MessageReadResponse",
+    "tags": [
+      "Conversations"
+    ],
+    "summary": "Mark unread incoming messages as read"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/dentists/me",
+    "endpoint_name": "get_my_dentist_profile",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "DentistResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dentists/dentists/me",
+    "endpoint_name": "update_my_dentist_profile",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "DentistResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/dentists/me/verification",
+    "endpoint_name": "get_my_verification_status",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "DentistVerificationResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/dentists/me/verification",
+    "endpoint_name": "submit_my_verification",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "DentistVerificationResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/dentists/me/availability",
+    "endpoint_name": "create_my_availability",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAvailabilityResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "Create availability window"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/dentists/me/availability",
+    "endpoint_name": "list_my_availability",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAvailabilityListResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "List dentist's own availability windows"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dentists/dentists/me/availability/{availability_id}",
+    "endpoint_name": "update_my_availability",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAvailabilityResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "Update dentist's availability window"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dentists/dentists/me/availability/{availability_id}",
+    "endpoint_name": "delete_my_availability",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": null,
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "Delete dentist's availability window"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dentists/dentists/{dentist_id}/availability",
+    "endpoint_name": "get_dentist_public_availability",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAvailabilityListResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "Discover approved dentist's active availability windows"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dentists/dentists/{dentist_id}/appointments",
+    "endpoint_name": "book_appointment_with_dentist",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "AppointmentResponse",
+    "tags": [
+      "Dentists"
+    ],
+    "summary": "Request/book an appointment with a dentist"
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/notifications",
+    "endpoint_name": "list_notifications",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "NotificationListResponse",
+    "tags": [
+      "Notifications"
+    ],
+    "summary": "List notifications for current user"
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/notifications/unread-count",
+    "endpoint_name": "get_unread_count",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "NotificationUnreadCountResponse",
+    "tags": [
+      "Notifications"
+    ],
+    "summary": "Get unread notification count"
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/notifications/{id}",
+    "endpoint_name": "get_notification",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "NotificationResponse",
+    "tags": [
+      "Notifications"
+    ],
+    "summary": "Get notification by ID"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/notifications/{id}/read",
+    "endpoint_name": "mark_notification_read",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "NotificationResponse",
+    "tags": [
+      "Notifications"
+    ],
+    "summary": "Mark notification as read"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/notifications/read-all",
+    "endpoint_name": "mark_all_notifications_read",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "NotificationReadAllResponse",
+    "tags": [
+      "Notifications"
+    ],
+    "summary": "Mark all unread notifications as read"
+  },
+  {
+    "method": "GET",
+    "path": "/api/patients/patients/me",
+    "endpoint_name": "get_my_patient_profile",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "PatientResponse",
+    "tags": [
+      "Patients"
+    ],
+    "summary": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/patients/patients/me",
+    "endpoint_name": "update_my_patient_profile",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "PatientResponse",
+    "tags": [
+      "Patients"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/patients/patients/me/medical-profile",
+    "endpoint_name": "get_my_medical_profile",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "PatientMedicalProfileResponse",
+    "tags": [
+      "Patients"
+    ],
+    "summary": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/patients/patients/me/medical-profile",
+    "endpoint_name": "create_my_medical_profile",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "PatientMedicalProfileResponse",
+    "tags": [
+      "Patients"
+    ],
+    "summary": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/patients/patients/me/medical-profile",
+    "endpoint_name": "update_my_medical_profile",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "PatientMedicalProfileResponse",
+    "tags": [
+      "Patients"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/reports/{report_id}",
+    "endpoint_name": "get_report_by_id",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ReportResponse",
+    "tags": [
+      "reports"
+    ],
+    "summary": "Get clinical report by ID"
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/reports/{report_id}/download",
+    "endpoint_name": "download_report_pdf",
+    "role": "get_current_active_user",
+    "scope": "report_ops",
+    "body_model": "Request",
+    "response_model": null,
+    "tags": [
+      "reports"
+    ],
+    "summary": "Download clinical report PDF"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings",
+    "endpoint_name": "create_screening",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Create a new screening session"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings",
+    "endpoint_name": "list_screenings",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningListResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "List patient's screenings"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}",
+    "endpoint_name": "get_screening_detail",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningDetailResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Get screening details with images"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/images",
+    "endpoint_name": "upload_screening_image",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningImageResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Upload an oral screening image"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/screenings/screenings/{screening_id}",
+    "endpoint_name": "delete_screening",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningDeleteResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Soft-delete a screening"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/run-ai",
+    "endpoint_name": "run_screening_ai_inference",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningInferenceResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Execute AI inference on screening images"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}/xai",
+    "endpoint_name": "get_screening_xai",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ScreeningXAIResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Get XAI visual explanation results for a screening"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/xai",
+    "endpoint_name": "generate_screening_xai",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": "Optional",
+    "response_model": "ScreeningXAIResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Generate XAI visual explanation heatmaps for a screening"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/xai/{method}",
+    "endpoint_name": "generate_screening_xai_method",
+    "role": "require_patient",
+    "scope": "ai_run",
+    "body_model": "Request",
+    "response_model": "ScreeningXAIResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Generate a specific XAI visual explanation method"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/report",
+    "endpoint_name": "generate_screening_report",
+    "role": "get_current_active_user",
+    "scope": "report_ops",
+    "body_model": "Optional",
+    "response_model": "ReportResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Generate clinical report and PDF document for a screening"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}/report",
+    "endpoint_name": "get_screening_report",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "ReportResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Get clinical report for a screening"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/risk-assessment",
+    "endpoint_name": "generate_screening_risk_assessment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Optional",
+    "response_model": "RiskAssessmentResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Generate or retrieve screening risk assessment and triage priority"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}/risk-assessment",
+    "endpoint_name": "get_screening_risk_assessment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "RiskAssessmentResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Get existing clinical risk assessment for a screening session"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}/review",
+    "endpoint_name": "review_screening_findings",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "ScreeningReviewResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Review complete multi-modal screening findings for professional clinical evaluation"
+  },
+  {
+    "method": "POST",
+    "path": "/api/screenings/screenings/{screening_id}/assessment",
+    "endpoint_name": "create_dentist_assessment",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAssessmentResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Create licensed dentist clinical assessment"
+  },
+  {
+    "method": "GET",
+    "path": "/api/screenings/screenings/{screening_id}/assessment",
+    "endpoint_name": "get_dentist_assessment",
+    "role": "get_current_active_user",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAssessmentResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Get clinical dentist assessment for a screening"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/screenings/screenings/{screening_id}/assessment",
+    "endpoint_name": "update_dentist_assessment",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": "Request",
+    "response_model": "DentistAssessmentResponse",
+    "tags": [
+      "screenings"
+    ],
+    "summary": "Update or finalize an existing dentist assessment draft"
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/users/me",
+    "endpoint_name": "get_my_user_profile",
+    "role": "get_current_user",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "UserResponse",
+    "tags": [
+      "Users"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/users/me/patient-access",
+    "endpoint_name": "verify_patient_access",
+    "role": "require_patient",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "tags": [
+      "Users"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/users/me/dentist-access",
+    "endpoint_name": "verify_dentist_access",
+    "role": "require_dentist",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "tags": [
+      "Users"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/users/users/me/admin-access",
+    "endpoint_name": "verify_admin_access",
+    "role": "require_admin",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "RoleAccessResponse",
+    "tags": [
+      "Users"
+    ],
+    "summary": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/xai/xai/methods",
+    "endpoint_name": "list_xai_methods",
+    "role": "None (Public)",
+    "scope": "default",
+    "body_model": null,
+    "response_model": "XAIAvailableMethodsResponse",
+    "tags": [
+      "xai"
+    ],
+    "summary": "List available XAI explanation algorithms"
+  }
+]

@@ -6,17 +6,19 @@
  * Preserves strict patient privacy: internal storage paths are withheld from clinical content.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { XAIResultResponse } from '../../types/screening';
 import { XaiMethod } from '../../types/domain';
 import { Sparkles, Eye, Info, CheckCircle2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { getArtifactSignedUrl } from '../../api/screeningEndpoints';
 
 export interface XaiSectionProps {
   xaiResults: XAIResultResponse[];
   isGenerating?: boolean;
   onGenerateMethod: (method: string) => Promise<void>;
+  screeningId?: string;
 }
 
 interface MethodCatalogItem {
@@ -69,10 +71,12 @@ export const XaiSection: React.FC<XaiSectionProps> = ({
   xaiResults,
   isGenerating = false,
   onGenerateMethod,
+  screeningId,
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<XaiMethod>('occlusion_sensitivity');
   const [showSecondary, setShowSecondary] = useState(false);
   const [generatingMethod, setGeneratingMethod] = useState<string | null>(null);
+  const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
 
   const existingResultMap = new Map<string, XAIResultResponse>();
   xaiResults.forEach((res) => {
@@ -81,6 +85,26 @@ export const XaiSection: React.FC<XaiSectionProps> = ({
 
   const currentResult = existingResultMap.get(selectedMethod);
   const currentMethodConfig = XAI_METHODS.find((m) => m.id === selectedMethod)!;
+
+  useEffect(() => {
+    let isMounted = true;
+    const targetPath = currentResult?.overlay_image_storage_path || currentResult?.heatmap_storage_path;
+    if (screeningId && targetPath) {
+      getArtifactSignedUrl(screeningId, targetPath)
+        .then((res) => {
+          if (isMounted) setArtifactUrl(res.signed_url);
+        })
+        .catch((err) => {
+          console.warn('Could not retrieve XAI signed URL:', err);
+          if (isMounted) setArtifactUrl(null);
+        });
+    } else {
+      setArtifactUrl(null);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [screeningId, currentResult?.overlay_image_storage_path, currentResult?.heatmap_storage_path]);
 
   const handleTriggerCompute = async (method: string) => {
     setGeneratingMethod(method);
@@ -246,9 +270,19 @@ export const XaiSection: React.FC<XaiSectionProps> = ({
                 Target: {currentResult.target_layer || 'block6a_expand_conv'}
               </span>
             </div>
+            {artifactUrl && (
+              <div className='flex justify-center bg-slate-950 rounded-lg p-2 my-2'>
+                <img
+                  src={artifactUrl}
+                  alt={`${currentMethodConfig.name} feature attribution`}
+                  className='max-h-56 object-contain rounded'
+                />
+              </div>
+            )}
             <p className='text-slate-600 leading-relaxed text-[11px]'>
-              Visual explainability heatmap rendering is pending backend storage proxy infrastructure. Analytical
-              feature attribution weights and gradient parameters have been verified.
+              {artifactUrl
+                ? 'Visual explainability heatmap rendering neural network activation patterns across target layer block6a_expand_conv.'
+                : 'Visual explainability heatmap rendering is pending backend storage proxy infrastructure. Analytical feature attribution weights and gradient parameters have been verified.'}
             </p>
             <div className='pt-1 text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-100'>
               <span>Recorded: {new Date(currentResult.created_at).toLocaleString()}</span>

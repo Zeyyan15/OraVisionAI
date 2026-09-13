@@ -27,6 +27,12 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
   fileName,
 }) => {
   const hasDetections = detections && detections.length > 0;
+  const [imgError, setImgError] = React.useState(false);
+
+  // Reset imgError when imageSrc changes
+  React.useEffect(() => {
+    setImgError(false);
+  }, [imageSrc]);
 
   return (
     <div className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4'>
@@ -51,12 +57,13 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
 
       {/* Visual Image & Bounding Box Overlay */}
       <div className='relative overflow-hidden rounded-lg border border-slate-200 bg-slate-900 flex items-center justify-center min-h-[260px] max-h-[460px]'>
-        {imageSrc ? (
+        {imageSrc && !imgError ? (
           <div className='relative w-full h-full flex items-center justify-center'>
             <img
               src={imageSrc}
               alt='Oral cavity screening photograph with lesion bounding boxes'
               className='max-h-[440px] w-auto max-w-full object-contain'
+              onError={() => setImgError(true)}
             />
             {/* Normalized Bounding Boxes Container */}
             <div
@@ -91,17 +98,33 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
               })}
             </div>
           </div>
+        ) : imgError ? (
+          <div className='p-8 text-center text-slate-300 space-y-2 max-w-md'>
+            <div className='inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 text-amber-400 mb-2'>
+              <Crosshair className='h-6 w-6' />
+            </div>
+            <h4 className='text-sm font-semibold text-slate-200'>
+              Photograph Temporarily Unavailable
+            </h4>
+            <p className='text-xs text-slate-400 leading-relaxed'>
+              Unable to display oral cavity photograph at this time. Spatial findings and coordinates remain verified below.
+            </p>
+            {fileName && (
+              <p className='text-[11px] text-slate-500 font-mono pt-1'>
+                Artifact reference: {fileName}
+              </p>
+            )}
+          </div>
         ) : (
           <div className='p-8 text-center text-slate-300 space-y-2 max-w-md'>
             <div className='inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 text-slate-400 mb-2'>
               <Crosshair className='h-6 w-6' />
             </div>
             <h4 className='text-sm font-semibold text-slate-200'>
-              Persisted Photograph Visual Overlay Pending
+              Loading Photograph...
             </h4>
             <p className='text-xs text-slate-400 leading-relaxed'>
-              Direct cloud rendering of persisted oral photographs is pending backend storage proxy infrastructure.
-              Spatial bounding coordinates and detection confidence are confirmed below.
+              Retrieving secure clinical artifact from storage.
             </p>
             {fileName && (
               <p className='text-[11px] text-slate-500 font-mono pt-1'>

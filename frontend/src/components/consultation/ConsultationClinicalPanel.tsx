@@ -13,6 +13,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { getScreeningReview } from '../../api/dentistEndpoints';
+import { getArtifactSignedUrl } from '../../api/screeningEndpoints';
 import { ScreeningReviewResponse, ScreeningImageResponse } from '../../types/screening';
 import { RISK_LEVEL_CONFIG, RiskLevel } from '../../types/domain';
 import { ProbabilityDistributionChart } from '../screening/ProbabilityDistributionChart';
@@ -78,6 +79,27 @@ export const ConsultationClinicalPanel: React.FC<ConsultationClinicalPanelProps>
   const selectedImage = review?.images && review.images.length > 0
     ? review.images[selectedImageIndex] || review.images[0]
     : null;
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (screeningId && selectedImage?.storage_path) {
+      getArtifactSignedUrl(screeningId, selectedImage.storage_path)
+        .then((res) => {
+          if (isMounted) setImageUrl(res.signed_url);
+        })
+        .catch((err) => {
+          console.warn('Could not retrieve image URL for consultation panel:', err);
+          if (isMounted) setImageUrl(null);
+        });
+    } else {
+      setImageUrl(null);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [screeningId, selectedImage?.storage_path]);
 
   return (
     <Card className="h-full flex flex-col border-slate-200 shadow-sm">
@@ -185,6 +207,7 @@ export const ConsultationClinicalPanel: React.FC<ConsultationClinicalPanelProps>
                     {/* Active Image with YOLO Boxes */}
                     <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950">
                       <YoloOverlayViewer
+                        imageSrc={imageUrl || undefined}
                         detections={review.yolo_detections || []}
                         fileName={selectedImage?.file_name}
                         imageWidth={selectedImage?.image_width}

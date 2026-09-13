@@ -33,6 +33,7 @@ export interface UseScreeningState {
 
 export function useScreening(initialScreeningId?: string) {
   const [screening, setScreening] = useState<ScreeningReviewResponse | null>(null);
+  const [report, setReport] = useState<ReportResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(Boolean(initialScreeningId));
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -63,6 +64,12 @@ export function useScreening(initialScreeningId?: string) {
       if (isMountedRef.current) {
         setScreening(data);
         setLoading(false);
+      }
+      try {
+        const rep = await api.getScreeningReport(screeningId);
+        if (isMountedRef.current) setReport(rep);
+      } catch {
+        if (isMountedRef.current) setReport(null);
       }
       return data;
     } catch (err: unknown) {
@@ -190,6 +197,7 @@ export function useScreening(initialScreeningId?: string) {
     try {
       const res = await api.generateScreeningReport(screeningId);
       if (isMountedRef.current) {
+        setReport(res);
         setIsGeneratingReport(false);
       }
       return res;
@@ -213,7 +221,10 @@ export function useScreening(initialScreeningId?: string) {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+      const baseName = filename.startsWith('OraVisionAI_Report_')
+        ? filename
+        : `OraVisionAI_Report_${filename}`;
+      link.download = baseName.endsWith('.pdf') ? baseName : `${baseName}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -248,6 +259,7 @@ export function useScreening(initialScreeningId?: string) {
 
   return {
     screening,
+    report,
     loading,
     error,
     isCreating,

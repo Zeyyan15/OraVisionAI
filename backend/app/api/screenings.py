@@ -642,3 +642,110 @@ async def update_dentist_assessment(
         )
 
 
+# ===========================================================================
+# Artifact Signed-URL Retrieval (Phase 31 — Supabase Storage)
+# ===========================================================================
+
+@router.get(
+    "/{screening_id}/artifacts/signed-url",
+    status_code=status.HTTP_200_OK,
+    summary="Generate a short-lived signed URL for a screening artifact",
+)
+async def get_artifact_signed_url(
+    screening_id: uuid.UUID,
+    path: str = Query(..., description="Application storage path of the artifact"),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Returns a short-lived (15 minute) signed URL for secure frontend rendering
+    of screening images, XAI heatmaps/overlays, and report PDFs.
+
+    Authorization reuses existing screening access rules:
+    - Patient: must own the screening session.
+    - Dentist: must be verified with an active clinical relationship.
+    - Admin: platform oversight access.
+
+    Path safety: the requested path is validated against the database records
+    for this specific screening to prevent path traversal attacks.
+    """
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from app.models.screening import Screening
+    from app.models.screening_image import ScreeningImage
+    from app.models.ai_prediction import AIPrediction
+    from app.models.xai_result import XAIResult
+    from app.models.report import Report
+    from app.services.storage_service import StorageService
+
+    await enforce_rate_limit(request, scope="artifact_ops", user_id=current_user.id)
+
+    # 1. Load screening with related artifacts
+    stmt = (
+        select(Screening)
+        .where(
+            Screening.id == screening_id,
+            Screening.is_deleted.is_(False),
+        )
+        .options(
+            selectinload(Screening.images),
+            selectinload(Screening.ai_predictions).selectinload(AIPrediction.xai_results),
+            selectinload(Screening.report),
+        )
+    )
+    result = await db.execute(stmt)
+    screening = result.scalar_one_or_none()
+
+    if screening is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Screening '{screening_id}' not found.",
+        )
+
+    # 2. Authorize using existing screening access control
+    try:
+        await DentistAssessmentService.verify_assessment_view_access(db, current_user, screening)
+    except PermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+
+    # 3. Validate path against known database records for this screening
+    valid_paths = set()
+
+    # Screening image paths
+    for img in (screening.images or []):
+        if img.storage_path:
+            valid_paths.add(img.storage_path)
+
+    # XAI artifact paths
+    for pred in (screening.ai_predictions or []):
+        for xai in (pred.xai_results or []):
+            if xai.heatmap_storage_path:
+                valid_paths.add(xai.heatmap_storage_path)
+            if xai.overlay_image_storage_path:
+                valid_paths.add(xai.overlay_image_storage_path)
+
+    # Report PDF path
+    if screening.report and screening.report.pdf_storage_path:
+        valid_paths.add(screening.report.pdf_storage_path)
+
+    if path not in valid_paths:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requested artifact path is not associated with this screening.",
+        )
+
+    # 4. Generate signed URL
+    signed_url = StorageService.create_signed_url(path, expires_in=900)
+
+    if signed_url is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Storage service is not configured. Cannot generate artifact URL.",
+        )
+
+    return {
+        "signed_url": signed_url,
+        "storage_path": path,
+        "expires_in": 900,
+    }

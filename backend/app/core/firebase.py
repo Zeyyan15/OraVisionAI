@@ -2,7 +2,8 @@
 OraVisionAI — Firebase Admin SDK Integration
 
 Initializes Firebase Admin SDK using service account credentials from settings.
-Provides server-side token verification and Firebase Storage bucket access.
+Provides server-side token verification for Firebase Authentication.
+Firebase Storage has been replaced by Supabase Storage (Phase 31).
 Never logs credentials, private keys, or raw tokens.
 """
 
@@ -10,7 +11,7 @@ import logging
 from typing import Any, Dict, Optional
 
 import firebase_admin
-from firebase_admin import auth, credentials, storage
+from firebase_admin import auth, credentials
 
 from app.core.config import get_settings
 
@@ -34,12 +35,11 @@ def initialize_firebase() -> Optional[firebase_admin.App]:
     project_id = settings.firebase_project_id.strip() if settings.firebase_project_id else ""
     client_email = settings.firebase_client_email.strip() if settings.firebase_client_email else ""
     private_key = settings.firebase_private_key.strip() if settings.firebase_private_key else ""
-    storage_bucket = settings.firebase_storage_bucket.strip() if settings.firebase_storage_bucket else ""
 
     if not project_id or not client_email or not private_key:
         logger.warning(
             "Firebase credentials are not fully configured. "
-            "Firebase authentication and storage will be disabled until valid credentials are provided."
+            "Firebase authentication will be disabled until valid credentials are provided."
         )
         return None
 
@@ -55,8 +55,6 @@ def initialize_firebase() -> Optional[firebase_admin.App]:
 
         cred = credentials.Certificate(cert_dict)
         app_options = {"projectId": project_id}
-        if storage_bucket:
-            app_options["storageBucket"] = storage_bucket
 
         _firebase_app = firebase_admin.initialize_app(
             cred,
@@ -71,17 +69,6 @@ def initialize_firebase() -> Optional[firebase_admin.App]:
 
 def get_firebase_app() -> Optional[firebase_admin.App]:
     return initialize_firebase()
-
-
-def get_firebase_storage_bucket():
-    app = get_firebase_app()
-    if app is None:
-        return None
-    try:
-        return storage.bucket(app=app)
-    except Exception as exc:
-        logger.error("Failed to acquire Firebase Storage bucket: %s", exc)
-        return None
 
 
 def verify_firebase_id_token(token: str) -> Dict[str, Any]:

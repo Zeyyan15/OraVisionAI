@@ -28,6 +28,7 @@ export const API_PATHS = {
   SCREENING_XAI_METHOD: (screeningId: string, method: string) => `/api/screenings/${screeningId}/xai/${method}`,
   SCREENING_RISK: (screeningId: string) => `/api/screenings/${screeningId}/risk-assessment`,
   SCREENING_REPORT: (screeningId: string) => `/api/screenings/${screeningId}/report`,
+  SCREENING_ARTIFACT_URL: (screeningId: string) => `/api/screenings/${screeningId}/artifacts/signed-url`,
 
   // Report Download (authenticated binary streaming)
   REPORT_DOWNLOAD: (reportId: string) => `/api/reports/${reportId}/download`,

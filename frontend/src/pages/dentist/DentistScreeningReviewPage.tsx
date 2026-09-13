@@ -36,6 +36,7 @@ import {
 import { LesionClassCode, LESION_CLASSES } from '../../types/domain';
 import { RiskAssessmentResponse } from '../../types/screening';
 import { initiatePatientConversation } from '../../api/communicationEndpoints';
+import { getArtifactSignedUrl } from '../../api/screeningEndpoints';
 
 export const DentistScreeningReviewPage: React.FC = () => {
   const { screeningId = '' } = useParams<{ screeningId: string }>();
@@ -62,10 +63,54 @@ export const DentistScreeningReviewPage: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [messagingPatient, setMessagingPatient] = useState<boolean>(false);
   const [messageError, setMessageError] = useState<string | null>(null);
+  const [artifactUrls, setArtifactUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Retrieve signed URLs for oral photos and XAI overlays
+  useEffect(() => {
+    let isMounted = true;
+    if (!screeningId || !reviewPackage) return;
+
+    const pathsToFetch: string[] = [];
+    if (reviewPackage.images) {
+      for (const img of reviewPackage.images) {
+        if (img.storage_path) pathsToFetch.push(img.storage_path);
+      }
+    }
+    if (reviewPackage.xai_results) {
+      for (const xai of reviewPackage.xai_results) {
+        if (xai.overlay_image_storage_path) pathsToFetch.push(xai.overlay_image_storage_path);
+        if (xai.heatmap_storage_path) pathsToFetch.push(xai.heatmap_storage_path);
+      }
+    }
+
+    if (pathsToFetch.length === 0) return;
+
+    Promise.all(
+      pathsToFetch.map((p) =>
+        getArtifactSignedUrl(screeningId, p)
+          .then((res) => ({ path: p, url: res.signed_url }))
+          .catch((err) => {
+            console.warn(`Failed to resolve signed URL for ${p}:`, err);
+            return null;
+          }),
+      ),
+    ).then((results) => {
+      if (!isMounted) return;
+      const urlMap: Record<string, string> = {};
+      for (const r of results) {
+        if (r) urlMap[r.path] = r.url;
+      }
+      setArtifactUrls(urlMap);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [screeningId, reviewPackage]);
 
   if (loadingReview && !reviewPackage) {
     return (
@@ -243,6 +288,7 @@ export const DentistScreeningReviewPage: React.FC = () => {
           {/* Spatial Lesion Localization */}
           <div className="space-y-2">
             <YoloOverlayViewer
+              imageSrc={primaryImage?.storage_path ? artifactUrls[primaryImage.storage_path] : undefined}
               detections={reviewPackage.yolo_detections}
               fileName={primaryImage?.file_name}
               imageWidth={primaryImage?.image_width}
@@ -364,7 +410,7 @@ export const DentistScreeningReviewPage: React.FC = () => {
                       </div>
                       <div className="p-2 flex-1 flex items-center justify-center bg-slate-900 min-h-[160px]">
                         <img
-                          src={xai.overlay_image_storage_path}
+                          src={artifactUrls[xai.overlay_image_storage_path] || xai.overlay_image_storage_path}
                           alt={`${xai.method} overlay`}
                           className="max-h-48 object-contain rounded"
                         />

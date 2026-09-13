@@ -160,3 +160,22 @@ export async function generateScreeningReport(
 export async function downloadReportPdfBlob(reportId: string): Promise<Blob> {
   return apiClient.downloadBlob(API_PATHS.REPORT_DOWNLOAD(reportId));
 }
+
+/**
+ * Retrieves a short-lived signed URL for an authorized screening artifact
+ * (screening image, XAI heatmap/overlay, or report PDF).
+ */
+export async function getArtifactSignedUrl(
+  screeningId: string,
+  storagePath: string,
+): Promise<{ signed_url: string; storage_path: string; expires_in: number }> {
+  const res = await apiClient.get<{ signed_url: string; storage_path: string; expires_in: number }>(
+    API_PATHS.SCREENING_ARTIFACT_URL(screeningId),
+    { params: { path: storagePath } },
+  );
+  if (res.signed_url && res.signed_url.includes('/object/sign/') && !res.signed_url.includes('/storage/v1/object/sign/')) {
+    res.signed_url = res.signed_url.replace('/object/sign/', '/storage/v1/object/sign/');
+  }
+  return res;
+}
+

@@ -147,7 +147,10 @@ Open `backend/.env` in an editor and populate the following variables:
 | `FIREBASE_PROJECT_ID` | **Yes** | `your-project-id` | Firebase project identifier |
 | `FIREBASE_CLIENT_EMAIL`| **Yes** | `firebase-adminsdk-xxx@your-project.iam.gserviceaccount.com` | Service account email |
 | `FIREBASE_PRIVATE_KEY` | **Yes** | `"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"` | Service account private key string |
-| `FIREBASE_STORAGE_BUCKET`| **Yes**| `your-project-id.appspot.com` | Cloud Storage bucket domain |
+| `FIREBASE_STORAGE_BUCKET`| No (Deprecated)| `your-project-id.appspot.com` | Replaced by Supabase Storage in Phase 31 |
+| `SUPABASE_URL` | **Yes** | `https://your-project.supabase.co` | Supabase project API URL |
+| `SUPABASE_SERVICE_ROLE_KEY`| **Yes** | `your-service-role-key` | Supabase server-side service role secret key |
+| `SUPABASE_STORAGE_BUCKET`| **Yes** | `oravisionai` | Private Supabase Storage bucket name |
 | `MAX_UPLOAD_SIZE_BYTES`| Yes | `15728640` | 15 MiB maximum upload size limit |
 | `ALLOWED_IMAGE_MIME_TYPES`| Yes | `["image/jpeg","image/png","image/webp"]` | Permitted upload MIME formats |
 | `ALLOWED_IMAGE_EXTENSIONS`| Yes | `[".jpg",".jpeg",".png",".webp"]` | Permitted file extensions |
@@ -180,9 +183,12 @@ Open `frontend/.env` and supply your Firebase Web App configuration:
 
 ---
 
-## 6. Firebase Setup
+## 6. Authentication & Storage Setup
 
-OraVisionAI requires an active Google Firebase project to provide authentication and binary file storage.
+OraVisionAI utilizes a hybrid cloud architecture:
+- **Firebase Authentication (RETAINED)**: User account creation, email/password login, and Firebase ID-token verification.
+- **Firebase Storage (REMOVED)**: Decommissioned due to billing and bucket provisioning limitations.
+- **Supabase Storage (NEW ARTIFACT PROVIDER)**: Private cloud bucket (`oravisionai`) for storing oral screening photographs, XAI heatmaps/overlays, and clinical report PDFs.
 
 ### Step 1: Create Firebase Project
 1. Navigate to the [Firebase Console](https://console.firebase.google.com/).
@@ -198,16 +204,18 @@ OraVisionAI requires an active Google Firebase project to provide authentication
 2. Give it a nickname (e.g., `OraVision Web`).
 3. Copy the values from the generated `firebaseConfig` object into your `frontend/.env` file.
 
-### Step 4: Configure Firebase Storage
-1. In the Firebase sidebar, go to **Build > Storage** and click **Get Started**.
-2. Select **Start in test mode** for local verification.
-3. Choose a geographic bucket region closest to you.
-
-### Step 5: Generate Admin SDK Service Account Credentials
+### Step 4: Generate Admin SDK Service Account Credentials
 1. Go to **Project Settings (gear icon) > Service accounts**.
 2. Select **Python** and click **Generate new private key**.
 3. Download the JSON key file.
 4. Extract `project_id`, `client_email`, and `private_key` from the downloaded JSON file into `backend/.env`.
+
+### Step 5: Configure Supabase Storage
+Follow the complete instructions in [`docs/SUPABASE_STORAGE_SETUP.md`](./SUPABASE_STORAGE_SETUP.md):
+1. In your Supabase Dashboard, create a new **private** storage bucket named `oravisionai`.
+2. Retrieve your Supabase Project URL and `service_role` secret key.
+3. Configure `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=oravisionai` in `backend/.env`.
+4. The service role key is server-side only; never expose it to frontend or version control.
 
 ---
 

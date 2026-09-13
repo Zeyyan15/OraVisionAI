@@ -22,6 +22,7 @@ import { ClinicalRiskCard } from '../../components/screening/ClinicalRiskCard';
 import { DentistReviewCard } from '../../components/screening/DentistReviewCard';
 import { ReportActionCard } from '../../components/screening/ReportActionCard';
 import { LoadingSkeleton } from '../../components/feedback/LoadingSkeleton';
+import { getArtifactSignedUrl } from '../../api/screeningEndpoints';
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { Alert } from '../../components/ui/Alert';
 import { Badge } from '../../components/ui/Badge';
@@ -42,6 +43,7 @@ export const ScreeningResultsPage: React.FC = () => {
 
   const {
     screening,
+    report,
     loading,
     error,
     isGeneratingXai,
@@ -56,6 +58,28 @@ export const ScreeningResultsPage: React.FC = () => {
   } = useScreening(screeningId);
 
   const [pollCount, setPollCount] = useState(0);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  // Retrieve signed URL for primary oral screening photograph
+  useEffect(() => {
+    let isMounted = true;
+    const primaryImg = screening?.images?.find((img) => img.is_primary) || screening?.images?.[0];
+    if (screeningId && primaryImg?.storage_path) {
+      getArtifactSignedUrl(screeningId, primaryImg.storage_path)
+        .then((res) => {
+          if (isMounted) setImageUrl(res.signed_url);
+        })
+        .catch((err) => {
+          console.warn('Could not retrieve signed URL for screening image:', err);
+          if (isMounted) setImageUrl(null);
+        });
+    } else {
+      setImageUrl(null);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [screeningId, screening?.images]);
 
   // Polling fallback if screening status is 'processing'
   useEffect(() => {
@@ -271,6 +295,7 @@ export const ScreeningResultsPage: React.FC = () => {
         <div className='space-y-6'>
           {/* Spatial Localization */}
           <YoloOverlayViewer
+            imageSrc={imageUrl || undefined}
             detections={screening.yolo_detections || []}
             fileName={screening.images && screening.images.length > 0 ? screening.images[0].file_name : undefined}
             imageWidth={screening.images && screening.images.length > 0 ? screening.images[0].image_width : undefined}
@@ -282,6 +307,7 @@ export const ScreeningResultsPage: React.FC = () => {
             xaiResults={(screening.xai_results || []) as any}
             isGenerating={isGeneratingXai}
             onGenerateMethod={(method) => generateXai(screening.screening_id, method).then(() => {})}
+            screeningId={screening.screening_id}
           />
         </div>
 
@@ -309,10 +335,16 @@ export const ScreeningResultsPage: React.FC = () => {
 
           {/* Clinical Report Action */}
           <ReportActionCard
+            report={report}
             isScreeningCompleted={isCompleted}
             isGenerating={isGeneratingReport}
             isDownloading={isDownloadingReport}
-            onGenerateReport={() => generateReport(screening.screening_id).then(() => {})}
+            onGenerateReport={async () => {
+              const rep = await generateReport(screening.screening_id);
+              if (rep) {
+                await downloadPdf(rep.id, rep.report_number);
+              }
+            }}
             onDownloadReport={(reportId, filename) => downloadPdf(reportId, filename).then(() => {})}
           />
         </div>

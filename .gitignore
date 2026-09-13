@@ -41,3 +41,9 @@ serviceAccountKey*.json
 storage/*
 uploads/*
 outputs/*
+
+# Temporary scratch test & browser artifacts
+scratch/browser_profile/
+scratch/downloads/
+scratch/screenshots/
+scratch/test_auth_tokens.json

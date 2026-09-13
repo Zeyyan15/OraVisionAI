@@ -28,12 +28,18 @@ class Settings(BaseSettings):
 
     database_url: str = ""
 
-    # --- Firebase -------------------------------------------------------------
+    # --- Firebase Authentication ----------------------------------------------
 
     firebase_project_id: str = ""
     firebase_client_email: str = ""
     firebase_private_key: str = ""
-    firebase_storage_bucket: str = ""
+    firebase_storage_bucket: str = ""  # Deprecated: replaced by Supabase Storage
+
+    # --- Supabase Storage -----------------------------------------------------
+
+    supabase_url: str = ""
+    supabase_service_role_key: str = ""
+    supabase_storage_bucket: str = "oravisionai"
 
     # --- Screening & Uploads --------------------------------------------------
 

@@ -1,9 +1,14 @@
 """
-OraVisionAI — Firebase Storage Service
+OraVisionAI — Supabase Storage Service (Phase 31)
 
-Manages cloud storage for patient dental screenings, XAI visual explanations, and clinical PDF reports.
+Manages cloud storage for patient dental screenings, XAI visual explanations, and clinical PDF reports
+via the Supabase Storage REST API using httpx.
+
 Generates safe collision-resistant paths, performs magic byte validation, downloads screening images,
 uploads XAI heatmap artifacts and generated PDF reports, and handles transaction rollbacks.
+
+Storage Provider: Supabase Storage (private bucket, service-role key, backend-only).
+Firebase Storage has been removed. Firebase Authentication remains unchanged.
 """
 
 from __future__ import annotations
@@ -15,8 +20,9 @@ import struct
 import uuid
 from typing import Any, Dict, Optional, Tuple
 
+import httpx
+
 from app.core.config import get_settings
-from app.core.firebase import get_firebase_storage_bucket
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +32,32 @@ _SYNTHETIC_PNG_FALLBACK = (
     b"\x00\x00\x00\x02PX\xea\x00\x00\x00\x16IDATx\x9cc\xfc\xff\xff?\x03n\xc0\x84G"
     b"\x8ea\xe4J\x03\x00\xa5\xe3\x03\x11\xc7z\x1cU\x00\x00\x00\x00IEND\xaeB`\x82"
 )
+
+
+def _get_supabase_config() -> Tuple[str, str, str]:
+    """
+    Returns (supabase_url, service_role_key, bucket_name).
+    Raises RuntimeError if Supabase is not configured.
+    """
+    settings = get_settings()
+    url = (settings.supabase_url or "").strip()
+    key = (settings.supabase_service_role_key or "").strip()
+    bucket = (settings.supabase_storage_bucket or "oravisionai").strip()
+    return url, key, bucket
+
+
+def _is_supabase_configured() -> bool:
+    """Check if Supabase Storage credentials are present."""
+    url, key, _ = _get_supabase_config()
+    return bool(url) and bool(key)
+
+
+def _supabase_headers(key: str) -> Dict[str, str]:
+    """Build authorization headers for Supabase Storage REST API."""
+    return {
+        "Authorization": f"Bearer {key}",
+        "apikey": key,
+    }
 
 
 def parse_image_dimensions(file_bytes: bytes, mime_type: str) -> Tuple[Optional[int], Optional[int]]:
@@ -141,18 +173,11 @@ class StorageService:
         image_sha256 = hashlib.sha256(file_bytes).hexdigest()
         width, height = parse_image_dimensions(file_bytes, validated_mime)
 
-        bucket = get_firebase_storage_bucket()
-        if bucket is not None:
-            try:
-                blob = bucket.blob(storage_path)
-                blob.upload_from_string(file_bytes, content_type=validated_mime)
-                logger.info("Successfully uploaded image to Firebase Storage: %s", storage_path)
-            except Exception as exc:
-                logger.error("Firebase Storage upload failed for path %s: %s", storage_path, exc)
-                raise RuntimeError(f"Storage upload failed: {exc}")
+        if _is_supabase_configured():
+            StorageService._upload_to_supabase(storage_path, file_bytes, validated_mime)
         else:
             logger.warning(
-                "Firebase Storage bucket is unconfigured; saving storage reference path: %s",
+                "Supabase Storage is unconfigured; saving storage reference path only: %s",
                 storage_path,
             )
 
@@ -176,24 +201,17 @@ class StorageService:
         artifact_type: str = "heatmap",
     ) -> str:
         """
-        Uploads a generated XAI heatmap or overlay image to Firebase Storage.
+        Uploads a generated XAI heatmap or overlay image to Supabase Storage.
         Returns the safe relative storage path.
         """
         safe_hash = uuid.uuid4().hex[:8]
         storage_path = f"xai/{patient_id}/{screening_id}/{prediction_id}/{method}/{artifact_type}_{safe_hash}.png"
 
-        bucket = get_firebase_storage_bucket()
-        if bucket is not None:
-            try:
-                blob = bucket.blob(storage_path)
-                blob.upload_from_string(png_bytes, content_type="image/png")
-                logger.info("Successfully uploaded XAI artifact to Firebase Storage: %s", storage_path)
-            except Exception as exc:
-                logger.error("Failed to upload XAI artifact to path %s: %s", storage_path, exc)
-                raise RuntimeError(f"XAI artifact storage upload failed: {exc}")
+        if _is_supabase_configured():
+            StorageService._upload_to_supabase(storage_path, png_bytes, "image/png")
         else:
             logger.warning(
-                "Firebase Storage bucket is unconfigured; saving XAI storage reference path: %s",
+                "Supabase Storage is unconfigured; saving XAI storage reference path: %s",
                 storage_path,
             )
 
@@ -207,24 +225,17 @@ class StorageService:
         report_number: str,
     ) -> str:
         """
-        Uploads a generated clinical report PDF to Firebase Storage.
+        Uploads a generated clinical report PDF to Supabase Storage.
         Returns the safe relative storage path.
         """
         safe_report_num = report_number.replace("/", "_").replace(" ", "_")
         storage_path = f"reports/{patient_id}/{screening_id}/{safe_report_num}.pdf"
 
-        bucket = get_firebase_storage_bucket()
-        if bucket is not None:
-            try:
-                blob = bucket.blob(storage_path)
-                blob.upload_from_string(pdf_bytes, content_type="application/pdf")
-                logger.info("Successfully uploaded Clinical Report PDF to Firebase Storage: %s", storage_path)
-            except Exception as exc:
-                logger.error("Failed to upload Clinical Report PDF to path %s: %s", storage_path, exc)
-                raise RuntimeError(f"Report PDF storage upload failed: {exc}")
+        if _is_supabase_configured():
+            StorageService._upload_to_supabase(storage_path, pdf_bytes, "application/pdf")
         else:
             logger.warning(
-                "Firebase Storage bucket is unconfigured; saving Report PDF reference path: %s",
+                "Supabase Storage is unconfigured; saving Report PDF reference path: %s",
                 storage_path,
             )
 
@@ -232,19 +243,9 @@ class StorageService:
 
     @staticmethod
     def download_screening_image(storage_path: str) -> bytes:
-        """Download raw image bytes from Firebase Storage or local cache."""
-        bucket = get_firebase_storage_bucket()
-        if bucket is not None:
-            try:
-                blob = bucket.blob(storage_path)
-                if not blob.exists():
-                    raise FileNotFoundError(f"Storage object not found at path: {storage_path}")
-                data = blob.download_as_bytes()
-                logger.info("Successfully downloaded %d bytes from Firebase Storage: %s", len(data), storage_path)
-                return data
-            except Exception as exc:
-                logger.error("Firebase Storage download failed for path %s: %s", storage_path, exc)
-                raise RuntimeError(f"Storage download failed: {exc}")
+        """Download raw image bytes from Supabase Storage."""
+        if _is_supabase_configured():
+            return StorageService._download_from_supabase(storage_path)
 
         # Local development fallback check if file exists locally
         if os.path.exists(storage_path):
@@ -252,7 +253,7 @@ class StorageService:
                 return f.read()
 
         logger.warning(
-            "Firebase Storage is unconfigured and local file '%s' was not found. "
+            "Supabase Storage is unconfigured and local file '%s' was not found. "
             "Returning synthetic image bytes for development/testing.",
             storage_path,
         )
@@ -260,19 +261,9 @@ class StorageService:
 
     @staticmethod
     def download_report_pdf(storage_path: str) -> bytes:
-        """Download clinical report PDF bytes from Firebase Storage or local file."""
-        bucket = get_firebase_storage_bucket()
-        if bucket is not None:
-            try:
-                blob = bucket.blob(storage_path)
-                if not blob.exists():
-                    raise FileNotFoundError(f"Report PDF not found at path: {storage_path}")
-                data = blob.download_as_bytes()
-                logger.info("Successfully downloaded %d bytes Report PDF from Firebase Storage: %s", len(data), storage_path)
-                return data
-            except Exception as exc:
-                logger.error("Firebase Storage PDF download failed for path %s: %s", storage_path, exc)
-                raise RuntimeError(f"Report PDF download failed: {exc}")
+        """Download clinical report PDF bytes from Supabase Storage."""
+        if _is_supabase_configured():
+            return StorageService._download_from_supabase(storage_path)
 
         if os.path.exists(storage_path):
             with open(storage_path, "rb") as f:
@@ -282,17 +273,145 @@ class StorageService:
 
     @staticmethod
     def delete_storage_object(storage_path: str) -> bool:
-        bucket = get_firebase_storage_bucket()
-        if bucket is None:
+        """Delete an object from Supabase Storage (transaction rollback support)."""
+        if not _is_supabase_configured():
             return False
 
+        url, key, bucket = _get_supabase_config()
+        delete_url = f"{url}/storage/v1/object/{bucket}/{storage_path}"
+
         try:
-            blob = bucket.blob(storage_path)
-            if blob.exists():
-                blob.delete()
-                logger.info("Deleted orphaned storage object: %s", storage_path)
-                return True
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.delete(
+                    delete_url,
+                    headers=_supabase_headers(key),
+                )
+                if resp.status_code in (200, 204):
+                    logger.info("Deleted orphaned storage object: %s", storage_path)
+                    return True
+                elif resp.status_code == 404:
+                    logger.debug("Storage object not found for deletion: %s", storage_path)
+                    return False
+                else:
+                    logger.warning(
+                        "Supabase Storage delete returned %d for path %s: %s",
+                        resp.status_code, storage_path, resp.text[:200],
+                    )
+                    return False
         except Exception as exc:
             logger.warning("Failed to delete storage object %s: %s", storage_path, exc)
+            return False
 
-        return False
+    @staticmethod
+    def create_signed_url(storage_path: str, expires_in: int = 900) -> Optional[str]:
+        """
+        Generate a short-lived signed URL for secure artifact access.
+        Returns the full signed URL or None if Supabase is unconfigured.
+        expires_in: seconds until the signed URL expires (default: 900 = 15 minutes).
+        """
+        if not _is_supabase_configured():
+            return None
+
+        url, key, bucket = _get_supabase_config()
+        sign_url = f"{url}/storage/v1/object/sign/{bucket}/{storage_path}"
+
+        try:
+            with httpx.Client(timeout=15.0) as client:
+                resp = client.post(
+                    sign_url,
+                    headers={
+                        **_supabase_headers(key),
+                        "Content-Type": "application/json",
+                    },
+                    json={"expiresIn": expires_in},
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    signed_path = data.get("signedURL", "")
+                    if signed_path:
+                        # Supabase Kong Gateway requires /storage/v1 route prefix
+                        if not signed_path.startswith("/storage/v1"):
+                            signed_path = f"/storage/v1{signed_path if signed_path.startswith('/') else '/' + signed_path}"
+                        if signed_path.startswith("/"):
+                            return f"{url}{signed_path}"
+                        return signed_path
+                    logger.error("Supabase signed URL response missing signedURL field")
+                    return None
+                else:
+                    logger.error(
+                        "Supabase signed URL creation failed (%d) for path %s: %s",
+                        resp.status_code, storage_path, resp.text[:200],
+                    )
+                    return None
+        except Exception as exc:
+            logger.error("Failed to create signed URL for %s: %s", storage_path, exc)
+            return None
+
+    # =========================================================================
+    # Internal Supabase REST API Helpers
+    # =========================================================================
+
+    @staticmethod
+    def _upload_to_supabase(storage_path: str, file_bytes: bytes, content_type: str) -> None:
+        """Upload binary content to Supabase Storage. Raises RuntimeError on failure."""
+        url, key, bucket = _get_supabase_config()
+        upload_url = f"{url}/storage/v1/object/{bucket}/{storage_path}"
+
+        try:
+            with httpx.Client(timeout=60.0) as client:
+                resp = client.post(
+                    upload_url,
+                    headers={
+                        **_supabase_headers(key),
+                        "Content-Type": content_type,
+                        "x-upsert": "true",
+                    },
+                    content=file_bytes,
+                )
+                if resp.status_code in (200, 201):
+                    logger.info("Successfully uploaded to Supabase Storage: %s", storage_path)
+                else:
+                    error_detail = resp.text[:300] if resp.text else "No response body"
+                    logger.error(
+                        "Supabase Storage upload failed (%d) for path %s: %s",
+                        resp.status_code, storage_path, error_detail,
+                    )
+                    raise RuntimeError(
+                        f"Storage upload failed (HTTP {resp.status_code}): {error_detail}"
+                    )
+        except httpx.HTTPError as exc:
+            logger.error("Supabase Storage upload network error for path %s: %s", storage_path, exc)
+            raise RuntimeError(f"Storage upload failed: {exc}")
+
+    @staticmethod
+    def _download_from_supabase(storage_path: str) -> bytes:
+        """Download binary content from Supabase Storage. Raises RuntimeError on failure."""
+        url, key, bucket = _get_supabase_config()
+        download_url = f"{url}/storage/v1/object/authenticated/{bucket}/{storage_path}"
+
+        try:
+            with httpx.Client(timeout=60.0) as client:
+                resp = client.get(
+                    download_url,
+                    headers=_supabase_headers(key),
+                )
+                if resp.status_code == 200:
+                    logger.info(
+                        "Successfully downloaded %d bytes from Supabase Storage: %s",
+                        len(resp.content), storage_path,
+                    )
+                    return resp.content
+                elif resp.status_code == 404:
+                    raise FileNotFoundError(f"Storage object not found at path: {storage_path}")
+                else:
+                    error_detail = resp.text[:300] if resp.text else "No response body"
+                    logger.error(
+                        "Supabase Storage download failed (%d) for path %s: %s",
+                        resp.status_code, storage_path, error_detail,
+                    )
+                    raise RuntimeError(
+                        f"Storage download failed (HTTP {resp.status_code}): {error_detail}"
+                    )
+        except httpx.HTTPError as exc:
+            logger.error("Supabase Storage download network error for path %s: %s", storage_path, exc)
+            raise RuntimeError(f"Storage download failed: {exc}")

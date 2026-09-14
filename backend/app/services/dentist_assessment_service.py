@@ -36,6 +36,7 @@ from app.schemas.dentist_assessment import (
     ScreeningReviewResponse,
 )
 from app.schemas.screening import ScreeningImageResponse
+from app.services.ai_inference_service import EFFICIENTNET_CLASS_MAPPING
 from app.services.patient_service import PatientService
 
 logger = logging.getLogger(__name__)
@@ -189,9 +190,14 @@ class DentistAssessmentService:
             prob_items = []
             if getattr(pred, "probabilities", None):
                 for p in sorted(pred.probabilities, key=lambda x: x.class_index):
+                    class_code = next(
+                        (c for c, n in EFFICIENTNET_CLASS_MAPPING.items() if n == p.class_name),
+                        p.class_name[:3].upper(),
+                    )
                     prob_items.append({
                         "class_index": p.class_index,
                         "class_name": p.class_name,
+                        "class_code": class_code,
                         "probability": float(p.probability),
                     })
             primary_pred = {

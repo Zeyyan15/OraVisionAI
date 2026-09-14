@@ -25,6 +25,10 @@ import {
   TelehealthAnalyticsResponse,
   AIModelListResponse,
   AIModelResponse,
+  AdminDentistVerificationResponse,
+  AdminVerificationListResponse,
+  VerificationReviewRequest,
+  DentistVerificationQueryParams,
 } from '../types/admin';
 
 /**
@@ -114,5 +118,58 @@ export async function listAIModels(): Promise<AIModelListResponse> {
 export async function getAIModelDetail(modelId: string): Promise<AIModelResponse> {
   return apiClient.get<AIModelResponse>(
     ENDPOINTS.ADMIN_AI_MODEL_DETAIL(modelId)
+  );
+}
+
+/**
+ * 9. List dentist verification submissions with optional status filter and pagination
+ */
+export async function listDentistVerifications(
+  params?: DentistVerificationQueryParams
+): Promise<AdminVerificationListResponse> {
+  const queryParams: Record<string, string | number | boolean | undefined> = {};
+  if (params?.status && params.status !== 'all') queryParams.status = params.status;
+  if (params?.page !== undefined) queryParams.page = params.page;
+  if (params?.page_size !== undefined) queryParams.page_size = params.page_size;
+
+  return apiClient.get<AdminVerificationListResponse>(ENDPOINTS.ADMIN_DENTIST_VERIFICATIONS, {
+    params: queryParams,
+  });
+}
+
+/**
+ * 10. Retrieve individual dentist verification submission detail
+ */
+export async function getDentistVerificationDetail(
+  verificationId: string
+): Promise<AdminDentistVerificationResponse> {
+  return apiClient.get<AdminDentistVerificationResponse>(
+    ENDPOINTS.ADMIN_DENTIST_VERIFICATION_DETAIL(verificationId)
+  );
+}
+
+/**
+ * 11. Approve dentist verification submission
+ */
+export async function approveDentistVerification(
+  verificationId: string,
+  data?: VerificationReviewRequest
+): Promise<AdminDentistVerificationResponse> {
+  return apiClient.post<AdminDentistVerificationResponse>(
+    ENDPOINTS.ADMIN_DENTIST_VERIFICATION_APPROVE(verificationId),
+    data || {}
+  );
+}
+
+/**
+ * 12. Reject dentist verification submission
+ */
+export async function rejectDentistVerification(
+  verificationId: string,
+  data?: VerificationReviewRequest
+): Promise<AdminDentistVerificationResponse> {
+  return apiClient.post<AdminDentistVerificationResponse>(
+    ENDPOINTS.ADMIN_DENTIST_VERIFICATION_REJECT(verificationId),
+    data || {}
   );
 }

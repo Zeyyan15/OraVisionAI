@@ -142,3 +142,16 @@ class DentistService:
         await db.refresh(dentist)
         logger.info("Submitted verification %s for dentist %s", verification.id, dentist.id)
         return verification
+
+    @staticmethod
+    async def list_approved_dentists(
+        db: AsyncSession,
+    ) -> list[Dentist]:
+        stmt = (
+            select(Dentist)
+            .where(Dentist.verification_status == "approved")
+            .options(selectinload(Dentist.user))
+            .order_by(Dentist.created_at.desc())
+        )
+        result = await db.execute(stmt)
+        return list(result.scalars().all())

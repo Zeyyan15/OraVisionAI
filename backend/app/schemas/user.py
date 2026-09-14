@@ -27,6 +27,15 @@ class UserCreate(UserBase):
     model_config = ConfigDict(extra="forbid")
 
 
+class UserSyncRequest(BaseModel):
+    role: Optional[str] = Field(default="patient", description="Requested role: 'patient' or 'dentist'")
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
+    phone_number: Optional[str] = Field(None, max_length=30)
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class UserUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)

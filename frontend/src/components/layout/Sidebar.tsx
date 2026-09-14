@@ -2,7 +2,8 @@
  * OraVisionAI — Role-Aware Navigation Sidebar
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { listDentistVerifications } from '../../api/adminEndpoints';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -13,6 +14,7 @@ import {
   Users,
   ShieldCheck,
   Stethoscope,
+  UserCheck,
   MessageSquare,
 } from 'lucide-react';
 import { UserRole } from '../../types/domain';
@@ -35,7 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
     { name: 'Dashboard', href: '/patient/dashboard', icon: LayoutDashboard },
     { name: 'New Screening', href: '/patient/screenings/new', icon: PlusCircle },
     { name: 'My Screenings', href: '/patient/screenings', icon: FileSearch },
-    { name: 'Appointments', href: '#', icon: Calendar, badge: 'Phase 24', disabled: true },
     { name: 'Teleconsultations', href: '/patient/consultations', icon: Video },
     { name: 'Messages', href: '/patient/messages', icon: MessageSquare },
   ];
@@ -44,12 +45,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
     { name: 'Clinical Workspace', href: '/dentist/dashboard', icon: Stethoscope },
     { name: 'Appointments & Cases', href: '/dentist/appointments', icon: Calendar },
     { name: 'My Profile', href: '/dentist/profile', icon: Users },
-    { name: 'Consultation Room', href: '#', icon: Video, badge: 'Phase 25', disabled: true },
     { name: 'Messages', href: '/dentist/messages', icon: MessageSquare },
   ];
 
+  const [pendingVerificationsCount, setPendingVerificationsCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (role !== 'admin') return;
+    let isMounted = true;
+    const fetchPending = async () => {
+      try {
+        const res = await listDentistVerifications({ status: 'pending', page_size: 1 });
+        if (isMounted) setPendingVerificationsCount(res.total);
+      } catch {
+        // Non-blocking for sidebar
+      }
+    };
+    fetchPending();
+    return () => {
+      isMounted = false;
+    };
+  }, [role]);
+
   const adminNav: NavItem[] = [
     { name: 'Platform Overview', href: '/admin/dashboard', icon: LayoutDashboard },
+    {
+      name: 'Dentist Verifications',
+      href: '/admin/verifications',
+      icon: UserCheck,
+      badge: pendingVerificationsCount !== null && pendingVerificationsCount > 0 ? String(pendingVerificationsCount) : undefined,
+    },
     { name: 'Audit Logs', href: '/admin/audit-logs', icon: ShieldCheck },
     { name: 'Screening Analytics', href: '/admin/analytics/screenings', icon: FileSearch },
     { name: 'AI Telemetry', href: '/admin/analytics/ai-telemetry', icon: Stethoscope },

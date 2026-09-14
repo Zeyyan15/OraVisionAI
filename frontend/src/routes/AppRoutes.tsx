@@ -30,6 +30,7 @@ import { NotFoundPage } from '../pages/public/NotFoundPage';
 import { PatientDashboard } from '../pages/patient/PatientDashboard';
 import { DentistDashboard } from '../pages/dentist/DentistDashboard';
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
+import { AdminDentistVerificationsPage } from '../pages/admin/AdminDentistVerificationsPage';
 import { AdminAuditLogsPage } from '../pages/admin/AdminAuditLogsPage';
 import { AdminScreeningAnalyticsPage } from '../pages/admin/AdminScreeningAnalyticsPage';
 import { AdminAITelemetryPage } from '../pages/admin/AdminAITelemetryPage';
@@ -120,6 +121,7 @@ export const AppRoutes: React.FC = () => {
       >
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="verifications" element={<AdminDentistVerificationsPage />} />
         <Route path="audit-logs" element={<AdminAuditLogsPage />} />
         <Route path="analytics/screenings" element={<AdminScreeningAnalyticsPage />} />
         <Route path="analytics/ai-telemetry" element={<AdminAITelemetryPage />} />

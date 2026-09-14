@@ -344,12 +344,15 @@ class ReportService:
         )
         screening = (await db.execute(stmt)).scalar_one_or_none()
 
-        if screening is None or screening.report is None:
+        if screening is None:
             raise LookupError(f"Clinical report for screening '{screening_id}' not found.")
 
         has_access = await cls.verify_user_report_access(db, user, screening)
         if not has_access:
             raise PermissionError("User is not authorized to view this clinical report.")
+
+        if screening.report is None:
+            raise LookupError(f"Clinical report for screening '{screening_id}' not found.")
 
         # Log viewing event
         audit_entry = AuditLog(

@@ -6,6 +6,7 @@ Restricted exclusively to authenticated users in the dentist role.
 """
 
 import uuid
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -53,6 +54,18 @@ def _build_dentist_response(user: User, dentist) -> DentistResponse:
         created_at=dentist.created_at,
         updated_at=dentist.updated_at,
     )
+
+
+@router.get("", response_model=List[DentistResponse], summary="List approved dental practitioners")
+async def list_approved_dentists(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[DentistResponse]:
+    """
+    Returns list of verified, approved dental practitioners for discovery and appointment booking.
+    """
+    dentists = await DentistService.list_approved_dentists(db)
+    return [_build_dentist_response(d.user, d) for d in dentists]
 
 
 @router.get("/me", response_model=DentistResponse)

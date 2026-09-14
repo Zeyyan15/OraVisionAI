@@ -63,7 +63,7 @@ export const ProbabilityDistributionChart: React.FC<ProbabilityDistributionChart
 
             return (
               <li
-                key={item.class_code}
+                key={item.class_code || item.class_name || index}
                 className={'group rounded-lg p-2.5 transition-colors ' +
                   (isTopMatch
                     ? 'bg-clinical-50/60 border border-clinical-200/80'

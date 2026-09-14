@@ -259,3 +259,44 @@ export interface AIModelListResponse {
   items: AIModelResponse[];
   total: number;
 }
+
+// ============================================================================
+// 7. Admin Dentist Verification Review Schemas
+// ============================================================================
+
+export interface AdminDentistVerificationResponse {
+  id: string;
+  dentist_id: string;
+  dentist_user_id?: string | null;
+  dentist_name?: string | null;
+  dentist_email?: string | null;
+  license_number?: string | null;
+  specialization?: string | null;
+  document_type: string;
+  document_url: string;
+  file_name: string;
+  file_size_bytes?: number | null;
+  status: 'pending' | 'approved' | 'rejected' | string;
+  reviewer_id?: string | null;
+  review_notes?: string | null;
+  submitted_at: string;
+  reviewed_at?: string | null;
+}
+
+export interface AdminVerificationListResponse {
+  items: AdminDentistVerificationResponse[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface VerificationReviewRequest {
+  review_notes?: string | null;
+}
+
+export interface DentistVerificationQueryParams {
+  status?: string;
+  page?: number;
+  page_size?: number;
+}

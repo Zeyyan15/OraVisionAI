@@ -13,7 +13,7 @@ import { Button } from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Alert';
 
 export const LoginPage: React.FC = () => {
-  const { login, userProfile } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,16 +30,18 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      // Determine redirection target
+      const profile = await login(email, password);
+      // Determine redirection target strictly by authoritative profile role
       if (from) {
         navigate(from, { replace: true });
-      } else if (userProfile?.role === 'admin') {
+      } else if (profile.role === 'admin') {
         navigate('/admin/dashboard', { replace: true });
-      } else if (userProfile?.role === 'dentist') {
+      } else if (profile.role === 'dentist') {
         navigate('/dentist/dashboard', { replace: true });
-      } else {
+      } else if (profile.role === 'patient') {
         navigate('/patient/dashboard', { replace: true });
+      } else {
+        setErrorMessage(`Unrecognized account role: ${profile.role}`);
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Login failed. Please verify your email and password.');

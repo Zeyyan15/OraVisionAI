@@ -35,18 +35,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // 1. Unauthenticated check
-  if (!isAuthenticated || !firebaseUser) {
+  // 1. Unauthenticated or un-synced user profile check
+  if (!isAuthenticated || !firebaseUser || !userProfile) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 2. Active status check
-  if (requireActive && userProfile && !userProfile.is_active) {
+  if (requireActive && !userProfile.is_active) {
     return <Navigate to="/deactivated" replace />;
   }
 
   // 3. RBAC role match check
-  if (allowedRoles && userProfile && !allowedRoles.includes(userProfile.role)) {
+  if (allowedRoles && !allowedRoles.includes(userProfile.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

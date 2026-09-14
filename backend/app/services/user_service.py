@@ -12,7 +12,9 @@ import uuid
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.auth import FirebaseUser
 from app.models.dentist import Dentist
@@ -54,6 +56,13 @@ class UserService:
 
         if user is not None:
             updated = False
+            if first_name and user.first_name != first_name:
+                user.first_name = first_name
+                updated = True
+            if last_name and user.last_name != last_name:
+                user.last_name = last_name
+                updated = True
+
             if user.is_email_verified != firebase_user.email_verified:
                 user.is_email_verified = firebase_user.email_verified
                 updated = True
@@ -73,6 +82,33 @@ class UserService:
                         firebase_user.uid,
                         firebase_user.email,
                     )
+
+            # Role onboarding transition: if the user was just created with default 'patient' role
+            # but requested 'dentist', and has no clinical screenings, transition to dentist with pending verification.
+            if requested_role and requested_role.lower() == "dentist" and user.role == "patient":
+                stmt_p = select(Patient).where(Patient.user_id == user.id)
+                patient = (await db.execute(stmt_p)).scalar_one_or_none()
+                has_records = False
+                if patient:
+                    from app.models.screening import Screening
+                    stmt_scr = select(func.count()).select_from(Screening).where(Screening.patient_id == patient.id)
+                    scr_count = (await db.execute(stmt_scr)).scalar() or 0
+                    if scr_count > 0:
+                        has_records = True
+                if not has_records:
+                    user.role = "dentist"
+                    if patient:
+                        await db.delete(patient)
+                    dentist_profile = Dentist(
+                        id=uuid.uuid4(),
+                        user_id=user.id,
+                        license_number=f"PENDING-{uuid.uuid4().hex[:8].upper()}",
+                        specialization="General Dentistry",
+                        verification_status="pending",
+                    )
+                    db.add(dentist_profile)
+                    updated = True
+                    logger.info("Transitioned onboarding user %s to dentist role with pending status", user.id)
 
             if updated:
                 await db.commit()

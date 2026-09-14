@@ -9,7 +9,7 @@
  * - Deactivated user state capture
  */
 
-import React, { createContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   User as FirebaseUser,
   signInWithEmailAndPassword,
@@ -19,7 +19,7 @@ import {
   updateProfile as updateFirebaseProfile,
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { getCurrentUserProfile } from '../api/endpoints';
+import { getCurrentUserProfile, syncUserProfile } from '../api/endpoints';
 import { UserResponse } from '../types/api';
 
 export interface AuthContextType {
@@ -27,10 +27,10 @@ export interface AuthContextType {
   userProfile: UserResponse | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, pass: string) => Promise<void>;
-  register: (email: string, pass: string, role: 'patient' | 'dentist', firstName: string, lastName: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<UserResponse>;
+  register: (email: string, pass: string, role: 'patient' | 'dentist', firstName: string, lastName: string) => Promise<UserResponse>;
   logout: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: () => Promise<UserResponse | null>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,16 +40,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const isRegisteringRef = useRef<boolean>(false);
 
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async (): Promise<UserResponse | null> => {
     try {
       const profile = await getCurrentUserProfile();
       setUserProfile(profile);
       setError(null);
+      return profile;
     } catch (err: unknown) {
       console.error('Failed to sync application user profile:', err);
       setUserProfile(null);
       setError('Unable to load application user profile.');
+      return null;
     }
   }, []);
 
@@ -57,7 +60,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
       if (user) {
-        await fetchProfile();
+        if (!isRegisteringRef.current) {
+          await fetchProfile();
+        }
       } else {
         setUserProfile(null);
       }
@@ -67,12 +72,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, [fetchProfile]);
 
-  const login = async (email: string, pass: string) => {
+  const login = async (email: string, pass: string): Promise<UserResponse> => {
     setLoading(true);
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      await fetchProfile();
+      const profile = await fetchProfile();
+      if (!profile) {
+        throw new Error('Authentication succeeded, but application user profile could not be loaded.');
+      }
+      return profile;
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please check your credentials.');
       throw err;
@@ -87,7 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     requestedRole: 'patient' | 'dentist',
     firstName: string,
     lastName: string,
-  ) => {
+  ): Promise<UserResponse> => {
+    isRegisteringRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -97,14 +107,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const displayName = `${firstName} ${lastName}`.trim();
         await updateFirebaseProfile(cred.user, { displayName });
       }
-      // Note: requestedRole ('patient' | 'dentist') is sent to backend on user sync
-      console.info('Registered account requesting role:', requestedRole);
-      // 2. Profile will be automatically created on backend upon first GET /api/users/me
-      await fetchProfile();
+      // 2. Synchronize to PostgreSQL with explicit requestedRole
+      const profile = await syncUserProfile({
+        role: requestedRole,
+        first_name: firstName,
+        last_name: lastName,
+      });
+      setUserProfile(profile);
+      return profile;
     } catch (err: any) {
       setError(err?.message || 'Registration failed.');
       throw err;
     } finally {
+      isRegisteringRef.current = false;
       setLoading(false);
     }
   };

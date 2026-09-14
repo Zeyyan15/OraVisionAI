@@ -14,6 +14,7 @@ export const API_PATHS = {
   // Authentication & Identity
   AUTH_ME: '/api/auth/me',
   USERS_ME: '/api/users/me',
+  USERS_SYNC: '/api/users/sync',
   PATIENT_ACCESS: '/api/users/me/patient-access',
   DENTIST_ACCESS: '/api/users/me/dentist-access',
   ADMIN_ACCESS: '/api/users/me/admin-access',
@@ -58,6 +59,13 @@ export const API_PATHS = {
   ADMIN_ANALYTICS_TELEHEALTH: '/api/admin/analytics/telehealth',
   ADMIN_AI_MODELS: '/api/admin/ai-models',
   ADMIN_AI_MODEL_DETAIL: (modelId: string) => `/api/admin/ai-models/${modelId}`,
+  ADMIN_DENTIST_VERIFICATIONS: '/api/admin/dentist-verifications',
+  ADMIN_DENTIST_VERIFICATION_DETAIL: (verificationId: string) =>
+    `/api/admin/dentist-verifications/${verificationId}`,
+  ADMIN_DENTIST_VERIFICATION_APPROVE: (verificationId: string) =>
+    `/api/admin/dentist-verifications/${verificationId}/approve`,
+  ADMIN_DENTIST_VERIFICATION_REJECT: (verificationId: string) =>
+    `/api/admin/dentist-verifications/${verificationId}/reject`,
 
   // Conversations & Direct Messaging (Phase 16 & 27)
   DENTIST_CONVERSATIONS: (dentistId: string) => `/api/dentists/${dentistId}/conversations`,
@@ -92,6 +100,18 @@ export async function getAuthIdentity(): Promise<AuthIdentityResponse> {
  */
 export async function getCurrentUserProfile(): Promise<UserResponse> {
   return apiClient.get<UserResponse>(API_PATHS.USERS_ME);
+}
+
+/**
+ * Synchronizes initial onboarding profile and requested role with backend
+ */
+export async function syncUserProfile(payload: {
+  role?: 'patient' | 'dentist';
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+}): Promise<UserResponse> {
+  return apiClient.post<UserResponse>(API_PATHS.USERS_SYNC, payload);
 }
 
 /**

@@ -34,8 +34,8 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await register(email, password, role, firstName, lastName);
-      if (role === 'dentist') {
+      const profile = await register(email, password, role, firstName, lastName);
+      if (profile.role === 'dentist') {
         navigate('/dentist/dashboard', { replace: true });
       } else {
         navigate('/patient/dashboard', { replace: true });

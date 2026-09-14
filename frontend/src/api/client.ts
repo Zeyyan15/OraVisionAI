@@ -17,6 +17,7 @@ import { ValidationErrorItem } from '../types/api';
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
   params?: Record<string, string | number | boolean | undefined>;
+  _isRetry?: boolean;
 }
 
 export class ApiClient {
@@ -29,12 +30,12 @@ export class ApiClient {
   /**
    * Injects the active Firebase user ID token if authenticated.
    */
-  private async getAuthHeaders(): Promise<Record<string, string>> {
+  private async getAuthHeaders(forceRefresh: boolean = false): Promise<Record<string, string>> {
     const headers: Record<string, string> = {};
     const currentUser = auth.currentUser;
     if (currentUser) {
       try {
-        const token = await currentUser.getIdToken();
+        const token = await currentUser.getIdToken(forceRefresh);
         headers['Authorization'] = `Bearer ${token}`;
       } catch (err) {
         console.warn('Failed to retrieve Firebase ID token:', err);
@@ -98,6 +99,22 @@ export class ApiClient {
         return null as unknown as T;
       }
       return (await response.json()) as T;
+    }
+
+    // Handle HTTP 401 Unauthorized with single force-refresh retry
+    if (response.status === 401 && !options._isRetry) {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          await currentUser.getIdToken(true);
+          return await this.request<T>(endpoint, {
+            ...options,
+            _isRetry: true,
+          });
+        } catch (refreshErr) {
+          console.warn('Failed to force refresh Firebase token on 401 retry:', refreshErr);
+        }
+      }
     }
 
     // Handle HTTP 429 Rate Limit

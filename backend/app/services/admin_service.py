@@ -19,6 +19,8 @@ from app.models.audit_log import AuditLog
 from app.models.dentist import Dentist
 from app.models.dentist_verification import DentistVerification
 from app.models.user import User
+from app.services.dentist_availability_service import DentistAvailabilityService
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -225,6 +227,27 @@ class AdminService:
         await db.commit()
         await db.refresh(verification)
         await db.refresh(dentist)
+
+        # Idempotently provision default availability windows if none configured
+        try:
+            await DentistAvailabilityService.ensure_default_availability(db, dentist.id)
+        except Exception as exc:
+            logger.warning("Failed to auto-provision default availability for dentist %s: %s", dentist.id, exc)
+
+        # Notify dentist of successful verification
+        try:
+            await NotificationService.create_notification(
+                db=db,
+                user_id=dentist.user_id,
+                notification_type="dentist_verified",
+                title="Credentials Approved",
+                message="Your dental practitioner credentials have been approved. You now have full access to clinical features.",
+                action_url="/dentist/dashboard",
+                suppress_duplicates_window_seconds=300,
+            )
+            await db.commit()
+        except Exception as exc:
+            logger.warning("Failed to emit dentist_verified notification: %s", exc)
 
         await AdminService.create_audit_log(
             db=db,

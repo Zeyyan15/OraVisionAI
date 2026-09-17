@@ -71,6 +71,13 @@ class AppointmentCreate(BaseModel):
             )
         return v
 
+    @field_validator("scheduled_start", "scheduled_end", mode="after")
+    @classmethod
+    def ensure_utc_timezone(cls, v: datetime.datetime) -> datetime.datetime:
+        if v.tzinfo is None:
+            return v.replace(tzinfo=datetime.timezone.utc)
+        return v.astimezone(datetime.timezone.utc)
+
     @model_validator(mode="after")
     def validate_time(self) -> AppointmentCreate:
         if self.scheduled_end <= self.scheduled_start:
@@ -100,6 +107,17 @@ class AppointmentStatusUpdate(BaseModel):
                 f"Invalid status '{v}'. Must be one of: {sorted(VALID_STATUSES)}"
             )
         return v
+
+
+class AppointmentConfirm(BaseModel):
+    """Optional payload when confirming an appointment."""
+
+    dentist_notes: Optional[str] = Field(
+        default=None,
+        description="Optional clinical or administrative notes from treating dentist",
+    )
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class AppointmentCancel(BaseModel):

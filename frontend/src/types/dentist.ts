@@ -119,6 +119,10 @@ export interface AppointmentCancel {
   cancellation_reason: string;
 }
 
+export interface AppointmentConfirm {
+  dentist_notes?: string | null;
+}
+
 // ============================================================================
 // 3. Clinical Assessment & Screening Evaluation
 // ============================================================================
@@ -157,4 +161,76 @@ export interface DentistAssessmentUpdate {
   referral_needed?: boolean;
   referral_specialty?: string | null;
   is_finalized?: boolean;
+}
+
+// ============================================================================
+// 4. Availability & Consultation Booking
+// ============================================================================
+
+export interface DentistAvailability {
+  id: string;
+  dentist_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  slot_duration_minutes: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DentistAvailabilityListResponse {
+  items: DentistAvailability[];
+  total: number;
+}
+
+export interface AppointmentCreate {
+  scheduled_start: string;
+  scheduled_end: string;
+  appointment_type?: AppointmentType | string;
+  screening_id?: string | null;
+  patient_notes?: string | null;
+}
+
+// ============================================================================
+// 5. Clinical Reviews Queue & Requests
+// ============================================================================
+
+export interface DentistPendingReviewItem {
+  assessment_id: string;
+  screening_id: string;
+  patient_id: string;
+  patient_name: string;
+  screening_date: string;
+  requested_at: string;
+  status: string;
+  clinical_notes?: string | null;
+}
+
+export interface DentistPendingReviewListResponse {
+  items: DentistPendingReviewItem[];
+  total: number;
+}
+
+export interface ScreeningReviewRequest {
+  dentist_id: string;
+  patient_notes?: string | null;
+}
+
+export interface DentistPatientCaseItem {
+  screening_id: string;
+  patient_id: string;
+  patient_name: string;
+  screening_date: string;
+  status: string;
+  ai_class?: string | null;
+  risk_level?: 'low' | 'moderate' | 'high' | 'critical' | string | null;
+  risk_score?: number | null;
+  review_status: 'pending_review' | 'finalized' | 'consultation_linked' | string;
+  assessment_id?: string | null;
+}
+
+export interface DentistPatientCaseListResponse {
+  items: DentistPatientCaseItem[];
+  total: number;
 }

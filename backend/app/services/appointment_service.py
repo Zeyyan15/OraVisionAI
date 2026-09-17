@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Tuple
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -33,6 +34,7 @@ from app.schemas.appointment import (
     AppointmentResponse,
     AppointmentStatusUpdate,
 )
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger("oravision.services.appointment")
 
@@ -341,7 +343,49 @@ class AppointmentService:
         )
         db.add(audit_entry)
 
+        # 10. Event-Functional In-App Notifications
+        patient_name = f"{user.first_name} {user.last_name}".strip() or "Patient"
+        dentist_name = f"Dr. {dentist.user.first_name} {dentist.user.last_name}".strip()
+        time_str = data.scheduled_start.strftime("%Y-%m-%d %H:%M UTC")
+
+        # Notify dentist of incoming appointment request
+        try:
+            await NotificationService.create_notification(
+                db=db,
+                user_id=dentist.user.id,
+                notification_type="appointment_booked",
+                title="New Appointment Request",
+                message=f"Patient {patient_name} requested an appointment for {time_str}.",
+                action_url="/dentist/appointments",
+                suppress_duplicates_window_seconds=300,
+            )
+        except Exception as exc:
+            logger.warning("Failed to notify dentist of new appointment: %s", exc)
+
+        # Notify patient of appointment submission
+        try:
+            await NotificationService.create_notification(
+                db=db,
+                user_id=user.id,
+                notification_type="appointment_booked",
+                title="Appointment Requested",
+                message=f"Your appointment request with {dentist_name} for {time_str} has been submitted.",
+                action_url="/patient/appointments",
+                suppress_duplicates_window_seconds=300,
+            )
+        except Exception as exc:
+            logger.warning("Failed to notify patient of appointment request: %s", exc)
+
         await db.commit()
+        try:
+            await db.commit()
+        except IntegrityError as exc:
+            await db.rollback()
+            logger.warning("Appointment booking conflict/integrity error: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An appointment already exists or conflicts with this time slot.",
+            )
 
         # Reload with relationships for response
         stmt_reload = (
@@ -473,6 +517,298 @@ class AppointmentService:
         )
 
     @classmethod
+    async def confirm_appointment(
+        cls,
+        db: AsyncSession,
+        appointment_id: uuid.UUID,
+        user: User,
+        dentist_notes: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> AppointmentResponse:
+        """Authoritative path to confirm a requested appointment by the assigned dentist.
+
+        Enforces:
+        - Authenticated caller has active 'dentist' role (or admin)
+        - Dentist profile belongs to authenticated user
+        - Appointment exists and belongs to this dentist
+        - Current appointment status is strictly 'requested' (HTTP 409 on invalid lifecycle)
+        - Interval overlap conflict protection: ensures no other 'confirmed' or 'in_progress'
+          consultation exists on the dentist's schedule for overlapping time.
+          Adjacent appointments are permitted.
+        - Atomic status update, audit log, and patient in-app notification.
+        """
+        # 1. Role verification
+        if user.role not in ("dentist", "admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only licensed dentists may confirm appointment requests.",
+            )
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is inactive.",
+            )
+
+        dentist: Optional[Dentist] = None
+        if user.role == "dentist":
+            stmt_d = select(Dentist).where(Dentist.user_id == user.id)
+            res_d = await db.execute(stmt_d)
+            dentist = res_d.scalar_one_or_none()
+            if dentist is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Dentist profile not found for authenticated user.",
+                )
+
+        # 2. Appointment retrieval
+        stmt = (
+            select(Appointment)
+            .where(Appointment.id == appointment_id)
+            .options(
+                selectinload(Appointment.patient).selectinload(Patient.user),
+                selectinload(Appointment.dentist).selectinload(Dentist.user),
+            )
+        )
+        res = await db.execute(stmt)
+        appointment = res.scalar_one_or_none()
+        if appointment is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Appointment not found.",
+            )
+
+        # 3. Dentist ownership enforcement
+        if user.role == "dentist" and dentist is not None:
+            if appointment.dentist_id != dentist.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to confirm another dentist's appointment.",
+                )
+
+        # 4. Strict lifecycle check: appointment must be currently 'requested'
+        curr_status = appointment.status
+        if curr_status != "requested":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Cannot confirm appointment with status '{curr_status}'. Only 'requested' appointments can be confirmed.",
+            )
+
+        # 5. Overlap conflict protection: verify no other confirmed/in_progress appointment for this dentist
+        stmt_overlap = select(Appointment).where(
+            and_(
+                Appointment.dentist_id == appointment.dentist_id,
+                Appointment.id != appointment.id,
+                Appointment.status.in_(["confirmed", "in_progress"]),
+                Appointment.scheduled_start < appointment.scheduled_end,
+                Appointment.scheduled_end > appointment.scheduled_start,
+            )
+        )
+        res_overlap = await db.execute(stmt_overlap)
+        if res_overlap.scalars().first() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cannot confirm appointment: this time slot overlaps with an existing confirmed consultation on your schedule.",
+            )
+
+        # 6. Apply state transition
+        appointment.status = "confirmed"
+        if dentist_notes is not None:
+            appointment.dentist_notes = dentist_notes
+        appointment.updated_at = datetime.datetime.now(datetime.timezone.utc)
+
+        # 7. Audit log entry
+        audit_entry = AuditLog(
+            user_id=user.id,
+            action="APPOINTMENT_CONFIRMED",
+            resource_type="appointment",
+            resource_id=str(appointment.id),
+            details={
+                "from_status": curr_status,
+                "to_status": "confirmed",
+                "actor_role": user.role,
+                "appointment_id": str(appointment.id),
+                "scheduled_start": appointment.scheduled_start.isoformat(),
+                "scheduled_end": appointment.scheduled_end.isoformat(),
+            },
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        db.add(audit_entry)
+
+        # 8. In-transaction Patient Notification & Atomic Commit
+        try:
+            if appointment.patient and appointment.patient.user:
+                dentist_user = appointment.dentist.user if appointment.dentist else None
+                dentist_name = (
+                    f"Dr. {dentist_user.first_name} {dentist_user.last_name}".strip()
+                    if dentist_user
+                    else "Dentist"
+                )
+                time_str = appointment.scheduled_start.strftime("%Y-%m-%d %H:%M UTC")
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=appointment.patient.user.id,
+                    notification_type="appointment_confirmed",
+                    title="Appointment Confirmed",
+                    message=f"Your appointment with {dentist_name} has been confirmed.",
+                    action_url="/patient/appointments",
+                    suppress_duplicates_window_seconds=300,
+                )
+
+            await db.commit()
+            await db.refresh(appointment)
+        except HTTPException:
+            await db.rollback()
+            raise
+        except Exception as exc:
+            await db.rollback()
+            logger.error("Failed to commit appointment confirmation: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to confirm appointment and dispatch notification.",
+            )
+
+        logger.info("Appointment %s confirmed by dentist user %s", appointment.id, user.id)
+        return cls._build_appointment_response(appointment)
+
+    @classmethod
+    async def reject_appointment(
+        cls,
+        db: AsyncSession,
+        appointment_id: uuid.UUID,
+        user: User,
+        data: AppointmentCancel,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> AppointmentResponse:
+        """Authoritative path to reject a requested appointment by the assigned dentist.
+
+        Enforces:
+        - Authenticated caller has active 'dentist' role (or admin)
+        - Dentist profile belongs to authenticated user
+        - Appointment exists and belongs to this dentist
+        - Current appointment status is strictly 'requested' (HTTP 409 on invalid lifecycle)
+        - Transitions status to 'cancelled', records mandatory cancellation_reason and cancelled_by_id
+        - Atomic status update, audit log, and patient in-app notification.
+        """
+        # 1. Role verification
+        if user.role not in ("dentist", "admin"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only licensed dentists may reject appointment requests.",
+            )
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is inactive.",
+            )
+
+        dentist: Optional[Dentist] = None
+        if user.role == "dentist":
+            stmt_d = select(Dentist).where(Dentist.user_id == user.id)
+            res_d = await db.execute(stmt_d)
+            dentist = res_d.scalar_one_or_none()
+            if dentist is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Dentist profile not found for authenticated user.",
+                )
+
+        # 2. Appointment retrieval
+        stmt = (
+            select(Appointment)
+            .where(Appointment.id == appointment_id)
+            .options(
+                selectinload(Appointment.patient).selectinload(Patient.user),
+                selectinload(Appointment.dentist).selectinload(Dentist.user),
+            )
+        )
+        res = await db.execute(stmt)
+        appointment = res.scalar_one_or_none()
+        if appointment is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Appointment not found.",
+            )
+
+        # 3. Dentist ownership enforcement
+        if user.role == "dentist" and dentist is not None:
+            if appointment.dentist_id != dentist.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to reject another dentist's appointment.",
+                )
+
+        # 4. Strict lifecycle check: appointment must be currently 'requested'
+        curr_status = appointment.status
+        if curr_status != "requested":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Cannot reject appointment with status '{curr_status}'. Only 'requested' appointments can be rejected.",
+            )
+
+        # 5. Apply cancellation
+        appointment.status = "cancelled"
+        appointment.cancellation_reason = data.cancellation_reason
+        appointment.cancelled_by_id = user.id
+        appointment.updated_at = datetime.datetime.now(datetime.timezone.utc)
+
+        # 6. Audit log entry
+        audit_entry = AuditLog(
+            user_id=user.id,
+            action="APPOINTMENT_CANCELLED",
+            resource_type="appointment",
+            resource_id=str(appointment.id),
+            details={
+                "from_status": curr_status,
+                "to_status": "cancelled",
+                "action_type": "dentist_rejection",
+                "actor_role": user.role,
+                "cancellation_reason": data.cancellation_reason,
+            },
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        db.add(audit_entry)
+
+        # 7. In-transaction Patient Notification & Atomic Commit
+        try:
+            if appointment.patient and appointment.patient.user:
+                dentist_user = appointment.dentist.user if appointment.dentist else None
+                dentist_name = (
+                    f"Dr. {dentist_user.first_name} {dentist_user.last_name}".strip()
+                    if dentist_user
+                    else "Dentist"
+                )
+                time_str = appointment.scheduled_start.strftime("%Y-%m-%d %H:%M UTC")
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=appointment.patient.user.id,
+                    notification_type="appointment_cancelled",
+                    title="Appointment Cancelled",
+                    message=f"Your appointment with {dentist_name} was cancelled: {data.cancellation_reason}",
+                    action_url="/patient/appointments",
+                    suppress_duplicates_window_seconds=300,
+                )
+
+            await db.commit()
+            await db.refresh(appointment)
+        except HTTPException:
+            await db.rollback()
+            raise
+        except Exception as exc:
+            await db.rollback()
+            logger.error("Failed to commit appointment rejection: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to reject appointment and dispatch notification.",
+            )
+
+        logger.info("Appointment %s rejected by dentist user %s", appointment.id, user.id)
+        return cls._build_appointment_response(appointment)
+
+    @classmethod
     async def update_appointment_status(
         cls,
         db: AsyncSession,
@@ -483,6 +819,22 @@ class AppointmentService:
         user_agent: Optional[str] = None,
     ) -> AppointmentResponse:
         """Update appointment status according to the valid role-based lifecycle matrix."""
+        """Update appointment status according to the valid role-based lifecycle matrix.
+
+        Transitioning to 'confirmed' delegates authoritatively to confirm_appointment()
+        to guarantee that authorization and overlap conflict rules cannot be bypassed.
+        """
+        # When transitioning to confirmed, route through authoritative confirm_appointment
+        if data.status == "confirmed":
+            return await cls.confirm_appointment(
+                db=db,
+                appointment_id=appointment_id,
+                user=user,
+                dentist_notes=data.dentist_notes,
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
+
         stmt = (
             select(Appointment)
             .where(Appointment.id == appointment_id)
@@ -519,7 +871,7 @@ class AppointmentService:
         # Cannot transition out of terminal states
         if curr_status in TERMINAL_STATUSES:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=f"Cannot change status of an appointment in terminal state '{curr_status}'.",
             )
 
@@ -533,13 +885,14 @@ class AppointmentService:
         permitted = valid_transitions.get(curr_status, set())
         if new_status not in permitted:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=f"Invalid status transition from '{curr_status}' to '{new_status}'. Permitted: {sorted(permitted)}.",
             )
 
         appointment.status = new_status
         if data.dentist_notes is not None:
             appointment.dentist_notes = data.dentist_notes
+        appointment.updated_at = datetime.datetime.now(datetime.timezone.utc)
 
         audit_entry = AuditLog(
             user_id=user.id,
@@ -556,6 +909,24 @@ class AppointmentService:
             user_agent=user_agent,
         )
         db.add(audit_entry)
+
+        # Notify patient if appointment is confirmed by dentist
+        if new_status == "confirmed" and appointment.patient and appointment.patient.user:
+            try:
+                dentist_user = appointment.dentist.user if appointment.dentist else None
+                dentist_name = f"Dr. {dentist_user.first_name} {dentist_user.last_name}".strip() if dentist_user else "Dentist"
+                time_str = appointment.scheduled_start.strftime("%Y-%m-%d %H:%M UTC")
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=appointment.patient.user.id,
+                    notification_type="appointment_confirmed",
+                    title="Appointment Confirmed",
+                    message=f"{dentist_name} confirmed your appointment for {time_str}.",
+                    action_url="/patient/appointments",
+                    suppress_duplicates_window_seconds=300,
+                )
+            except Exception as exc:
+                logger.warning("Failed to notify patient of appointment confirmation: %s", exc)
 
         await db.commit()
         await db.refresh(appointment)
@@ -644,6 +1015,36 @@ class AppointmentService:
             user_agent=user_agent,
         )
         db.add(audit_entry)
+
+        # Notify the counterpart about the cancellation
+        try:
+            time_str = appointment.scheduled_start.strftime("%Y-%m-%d %H:%M UTC")
+            if user.role == "patient" and appointment.dentist and appointment.dentist.user:
+                # Cancelled by patient -> notify dentist
+                patient_name = f"{user.first_name} {user.last_name}".strip() or "Patient"
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=appointment.dentist.user.id,
+                    notification_type="appointment_cancelled",
+                    title="Appointment Cancelled",
+                    message=f"Appointment on {time_str} was cancelled by {patient_name}: {data.cancellation_reason}",
+                    action_url="/dentist/appointments",
+                    suppress_duplicates_window_seconds=300,
+                )
+            elif appointment.patient and appointment.patient.user:
+                # Cancelled by dentist/admin -> notify patient
+                canceller_title = f"Dr. {user.first_name} {user.last_name}".strip() if user.role == "dentist" else "Clinic Administration"
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=appointment.patient.user.id,
+                    notification_type="appointment_cancelled",
+                    title="Appointment Cancelled",
+                    message=f"Appointment on {time_str} was cancelled by {canceller_title}: {data.cancellation_reason}",
+                    action_url="/patient/appointments",
+                    suppress_duplicates_window_seconds=300,
+                )
+        except Exception as exc:
+            logger.warning("Failed to emit appointment_cancelled notification: %s", exc)
 
         await db.commit()
         await db.refresh(appointment)

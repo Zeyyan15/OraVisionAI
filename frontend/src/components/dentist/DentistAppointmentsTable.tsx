@@ -24,14 +24,23 @@ import {
   Filter,
   MessageSquare,
 } from 'lucide-react';
-import { Appointment, AppointmentStatus, AppointmentStatusUpdate, AppointmentCancel } from '../../types/dentist';
+import {
+  Appointment,
+  AppointmentStatus,
+  AppointmentStatusUpdate,
+  AppointmentCancel,
+  AppointmentConfirm,
+} from '../../types/dentist';
 import { initiatePatientConversation } from '../../api/communicationEndpoints';
+import { formatAppointmentDate, formatAppointmentTimeRange } from '../../utils/dateTimeUtils';
 
 export interface DentistAppointmentsTableProps {
   appointments: Appointment[];
   loading: boolean;
   onUpdateStatus?: (id: string, data: AppointmentStatusUpdate) => Promise<unknown>;
   onCancel?: (id: string, data: AppointmentCancel) => Promise<unknown>;
+  onConfirm?: (id: string, data?: AppointmentConfirm) => Promise<unknown>;
+  onReject?: (id: string, data: AppointmentCancel) => Promise<unknown>;
 }
 
 const STATUS_VARIANTS: Record<
@@ -52,6 +61,8 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
   loading,
   onUpdateStatus,
   onCancel,
+  onConfirm,
+  onReject,
 }) => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>('all');
@@ -59,6 +70,16 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
   const [cancelReason, setCancelReason] = useState<string>('');
   const [cancelling, setCancelling] = useState<boolean>(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const [confirmModalAppointment, setConfirmModalAppointment] = useState<Appointment | null>(null);
+  const [confirming, setConfirming] = useState<boolean>(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
+
+  const [rejectModalAppointment, setRejectModalAppointment] = useState<Appointment | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>('');
+  const [rejecting, setRejecting] = useState<boolean>(false);
+  const [rejectError, setRejectError] = useState<string | null>(null);
+
   const [launchingId, setLaunchingId] = useState<string | null>(null);
   const [messagingId, setMessagingId] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
@@ -126,6 +147,61 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
       setCancelError(msg);
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handleOpenConfirmModal = (appt: Appointment) => {
+    setConfirmModalAppointment(appt);
+    setConfirmError(null);
+  };
+
+  const handleExecuteConfirm = async () => {
+    if (!confirmModalAppointment) return;
+    setConfirming(true);
+    setConfirmError(null);
+    try {
+      if (onConfirm) {
+        await onConfirm(confirmModalAppointment.id);
+      } else if (onUpdateStatus) {
+        await onUpdateStatus(confirmModalAppointment.id, {
+          status: 'confirmed' as AppointmentStatus,
+        });
+      }
+      setConfirmModalAppointment(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to confirm appointment';
+      setConfirmError(msg);
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const handleOpenRejectModal = (appt: Appointment) => {
+    setRejectModalAppointment(appt);
+    setRejectReason('');
+    setRejectError(null);
+  };
+
+  const handleExecuteReject = async () => {
+    if (!rejectModalAppointment) return;
+    if (rejectReason.trim().length < 3) {
+      setRejectError('Please provide a cancellation/rejection reason (minimum 3 characters).');
+      return;
+    }
+    setRejecting(true);
+    setRejectError(null);
+    try {
+      if (onReject) {
+        await onReject(rejectModalAppointment.id, { cancellation_reason: rejectReason.trim() });
+      } else if (onCancel) {
+        await onCancel(rejectModalAppointment.id, { cancellation_reason: rejectReason.trim() });
+      }
+      setRejectModalAppointment(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to reject appointment';
+      setRejectError(msg);
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -224,7 +300,6 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
                     label: appt.status,
                     variant: 'neutral',
                   };
-                  const startDate = new Date(appt.scheduled_start);
 
                   return (
                     <tr key={appt.id} className="hover:bg-slate-50/75 transition-colors">
@@ -252,15 +327,12 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5 text-slate-900 font-medium text-xs">
                             <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{startDate.toLocaleDateString()}</span>
+                            <span>{formatAppointmentDate(appt.scheduled_start)}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
+                          <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-medium">
                             <Clock className="h-3 w-3 text-slate-400" />
                             <span>
-                              {startDate.toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                              {formatAppointmentTimeRange(appt.scheduled_start, appt.scheduled_end)}
                             </span>
                           </div>
                         </div>
@@ -299,6 +371,31 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* REQUESTED state actions: Confirm and Reject */}
+                          {appt.status === 'requested' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => handleOpenConfirmModal(appt)}
+                                className="text-xs flex items-center gap-1 h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-xs"
+                              >
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Confirm</span>
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOpenRejectModal(appt)}
+                                className="text-xs flex items-center gap-1 h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                              >
+                                <XCircle className="h-3.5 w-3.5" />
+                                <span>Reject</span>
+                              </Button>
+                            </>
+                          )}
+
                           {['confirmed', 'in_progress'].includes(appt.status) &&
                             ['video_teleconsultation', 'audio_teleconsultation'].includes(appt.appointment_type) && (
                               <Button
@@ -345,7 +442,7 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
                             </Button>
                           )}
 
-                          {['requested', 'confirmed'].includes(appt.status) && onCancel && (
+                          {appt.status === 'confirmed' && onCancel && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -430,6 +527,136 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
               disabled={cancelling}
             >
               {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Confirm Modal */}
+      <Modal
+        isOpen={Boolean(confirmModalAppointment)}
+        onClose={() => {
+          if (!confirming) setConfirmModalAppointment(null);
+        }}
+        title="Confirm Appointment Request"
+        maxWidth="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-600">
+            Are you sure you want to confirm the appointment request with{' '}
+            <strong>{confirmModalAppointment?.patient_name || 'Patient'}</strong>?
+          </p>
+
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1 text-xs text-slate-700">
+            <div className="flex items-center gap-1.5 font-medium text-slate-900">
+              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              <span>
+                {confirmModalAppointment
+                  ? formatAppointmentDate(confirmModalAppointment.scheduled_start)
+                  : ''}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
+              <Clock className="h-3 w-3 text-slate-400" />
+              <span>
+                {confirmModalAppointment
+                  ? formatAppointmentTimeRange(
+                      confirmModalAppointment.scheduled_start,
+                      confirmModalAppointment.scheduled_end,
+                    )
+                  : ''}
+              </span>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-500">
+            Confirming will reserve this slot on your schedule and notify the patient.
+          </p>
+
+          {confirmError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+              {confirmError}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmModalAppointment(null)}
+              disabled={confirming}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleExecuteConfirm}
+              disabled={confirming}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {confirming ? 'Confirming...' : 'Confirm Appointment'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Reject Modal */}
+      <Modal
+        isOpen={Boolean(rejectModalAppointment)}
+        onClose={() => {
+          if (!rejecting) setRejectModalAppointment(null);
+        }}
+        title="Reject Appointment Request"
+        maxWidth="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-600">
+            Please provide a mandatory reason for declining the appointment request from{' '}
+            <strong>{rejectModalAppointment?.patient_name || 'Patient'}</strong>.
+            This explanation will be shared with the patient.
+          </p>
+
+          {rejectError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+              {rejectError}
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label htmlFor="reject_reason" className="block text-xs font-semibold text-slate-700">
+              Rejection Reason <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              id="reject_reason"
+              rows={3}
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="e.g. Schedule unavailable, please choose another slot..."
+              className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-clinical-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setRejectModalAppointment(null)}
+              disabled={rejecting}
+            >
+              Back
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={handleExecuteReject}
+              disabled={rejecting}
+            >
+              {rejecting ? 'Rejecting...' : 'Reject Appointment'}
             </Button>
           </div>
         </div>

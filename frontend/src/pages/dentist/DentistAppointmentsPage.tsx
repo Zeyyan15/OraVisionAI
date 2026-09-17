@@ -19,6 +19,8 @@ export const DentistAppointmentsPage: React.FC = () => {
     fetchAppointments,
     updateStatus,
     cancelAppt,
+    confirmAppt,
+    rejectAppt,
   } = useDentist();
 
   useEffect(() => {
@@ -66,6 +68,8 @@ export const DentistAppointmentsPage: React.FC = () => {
         loading={appointmentsLoading}
         onUpdateStatus={updateStatus}
         onCancel={cancelAppt}
+        onConfirm={confirmAppt}
+        onReject={rejectAppt}
       />
     </div>
   );

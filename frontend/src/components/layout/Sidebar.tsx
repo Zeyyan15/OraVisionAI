@@ -37,6 +37,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
     { name: 'Dashboard', href: '/patient/dashboard', icon: LayoutDashboard },
     { name: 'New Screening', href: '/patient/screenings/new', icon: PlusCircle },
     { name: 'My Screenings', href: '/patient/screenings', icon: FileSearch },
+    { name: 'Find a Dentist', href: '/patient/dentists', icon: Stethoscope },
+    { name: 'Appointments', href: '/patient/appointments', icon: Calendar },
     { name: 'Teleconsultations', href: '/patient/consultations', icon: Video },
     { name: 'Messages', href: '/patient/messages', icon: MessageSquare },
   ];

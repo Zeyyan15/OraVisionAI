@@ -139,3 +139,41 @@ class ScreeningReviewResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class ScreeningReviewRequest(BaseModel):
+    """Payload for a patient requesting clinical review from an approved dentist."""
+
+    dentist_id: uuid.UUID = Field(
+        ...,
+        description="UUID of the approved dentist to review the screening",
+    )
+    patient_notes: Optional[str] = Field(
+        default=None,
+        description="Optional message or reason from patient for review request",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class DentistPendingReviewItem(BaseModel):
+    """Item in dentist's clinical review queue."""
+
+    assessment_id: uuid.UUID
+    screening_id: uuid.UUID
+    patient_id: uuid.UUID
+    patient_name: str
+    screening_date: datetime.datetime
+    requested_at: datetime.datetime
+    status: str
+    clinical_notes: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DentistPendingReviewListResponse(BaseModel):
+    """List of pending clinical reviews assigned to the dentist."""
+
+    items: List[DentistPendingReviewItem]
+    total: int
+
+    model_config = ConfigDict(from_attributes=True)

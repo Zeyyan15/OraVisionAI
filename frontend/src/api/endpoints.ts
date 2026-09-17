@@ -35,13 +35,22 @@ export const API_PATHS = {
   REPORT_DOWNLOAD: (reportId: string) => `/api/reports/${reportId}/download`,
 
   // Dentist Clinical Workspace & Appointments (Phase 24)
+  DENTISTS: '/api/dentists',
+  DENTIST_PUBLIC_AVAILABILITY: (dentistId: string) => `/api/dentists/${dentistId}/availability`,
+  DENTIST_BOOK_APPOINTMENT: (dentistId: string) => `/api/dentists/${dentistId}/appointments`,
   DENTIST_ME: '/api/dentists/me',
   DENTIST_VERIFICATION: '/api/dentists/me/verification',
   APPOINTMENTS: '/api/appointments',
   APPOINTMENT_DETAIL: (appointmentId: string) => `/api/appointments/${appointmentId}`,
   APPOINTMENT_STATUS: (appointmentId: string) => `/api/appointments/${appointmentId}/status`,
+  APPOINTMENT_CONFIRM: (appointmentId: string) => `/api/appointments/${appointmentId}/confirm`,
+  APPOINTMENT_REJECT: (appointmentId: string) => `/api/appointments/${appointmentId}/reject`,
   APPOINTMENT_CANCEL: (appointmentId: string) => `/api/appointments/${appointmentId}/cancel`,
   SCREENING_ASSESSMENT: (screeningId: string) => `/api/screenings/${screeningId}/assessment`,
+  SCREENING_REQUEST_REVIEW: (screeningId: string) => `/api/screenings/${screeningId}/request-review`,
+  DENTIST_PENDING_REVIEWS: '/api/dentists/me/reviews',
+  DENTIST_PATIENT_CASES: '/api/dentists/me/patient-cases',
+  MY_PRACTITIONERS: '/api/dentists/my-practitioners',
 
   // Teleconsultation & Session Management (Phase 25)
   APPOINTMENT_CONSULTATION: (appointmentId: string) => `/api/appointments/${appointmentId}/consultation`,

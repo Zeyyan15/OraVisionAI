@@ -23,6 +23,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.models.appointment import Appointment
 from app.models.audit_log import AuditLog
 from app.models.conversation import Conversation
 from app.models.dentist import Dentist
@@ -42,6 +43,7 @@ from app.schemas.message import (
     MessageReadResponse,
     MessageResponse,
 )
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger("oravision.services.conversation")
 
@@ -165,7 +167,7 @@ class ConversationService:
                 detail="Target dentist not found, inactive, or not approved.",
             )
 
-        # 3. Verify active PatientDentistRelationship
+        # 3. Verify active PatientDentistRelationship (or active appointment)
         stmt_rel = select(PatientDentistRelationship).where(
             and_(
                 PatientDentistRelationship.patient_id == patient.id,
@@ -176,15 +178,41 @@ class ConversationService:
         res_rel = await db.execute(stmt_rel)
         relationship = res_rel.scalar_one_or_none()
         if relationship is None:
-            logger.warning(
-                "Rejected conversation initiation: no active relationship between patient %s and dentist %s",
-                patient.id,
-                dentist.id,
+            stmt_appt = select(Appointment).where(
+                and_(
+                    Appointment.patient_id == patient.id,
+                    Appointment.dentist_id == dentist.id,
+                    Appointment.status.in_(["requested", "confirmed", "in_progress", "completed"]),
+                )
             )
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Direct conversations require an active patient-dentist relationship.",
-            )
+            res_appt = await db.execute(stmt_appt)
+            appt = res_appt.scalar_one_or_none()
+            if appt is not None:
+                relationship = PatientDentistRelationship(
+                    id=uuid.uuid4(),
+                    patient_id=patient.id,
+                    dentist_id=dentist.id,
+                    status="active",
+                    established_via="appointment",
+                )
+                db.add(relationship)
+                await db.commit()
+                logger.info(
+                    "Auto-established PatientDentistRelationship between patient %s and dentist %s via appointment %s",
+                    patient.id,
+                    dentist.id,
+                    appt.id,
+                )
+            else:
+                logger.warning(
+                    "Rejected conversation initiation: no active relationship between patient %s and dentist %s",
+                    patient.id,
+                    dentist.id,
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Direct conversations require an active patient-dentist relationship.",
+                )
 
         # 4. Check existing conversation
         stmt_conv = select(Conversation).where(
@@ -744,12 +772,31 @@ class ConversationService:
         )
         db.add(audit)
 
-        await db.commit()
-        await db.refresh(new_message)
-
         sender_name = f"{user.first_name} {user.last_name}".strip()
         if user.role == "dentist":
             sender_name = f"Dr. {sender_name}"
+
+        # Atomic Message + Audit + Notification transaction
+        try:
+            recipient_user_id = conv.dentist.user_id if user.id == conv.patient.user_id else conv.patient.user_id
+            await NotificationService.create_notification(
+                db=db,
+                user_id=recipient_user_id,
+                notification_type="new_message",
+                title="New Message",
+                message=f"{sender_name} sent you a new message.",
+                action_url=f"/conversations/{conv.id}",
+                suppress_duplicates_window_seconds=2,
+            )
+            await db.commit()
+            await db.refresh(new_message)
+        except Exception as exc:
+            await db.rollback()
+            logger.error("Failed to commit message and notification transaction: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to send message and dispatch delivery notification.",
+            )
 
         logger.info("Message %s sent in conversation %s by user %s", new_message.id, conv.id, user.id)
         return MessageResponse(

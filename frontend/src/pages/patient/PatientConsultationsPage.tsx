@@ -26,6 +26,7 @@ import {
   Shield,
   Filter,
 } from 'lucide-react';
+import { formatAppointmentDate } from '../../utils/dateTimeUtils';
 
 export const PatientConsultationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export const PatientConsultationsPage: React.FC = () => {
     try {
       const filter = statusFilter === 'all' ? undefined : statusFilter;
       const res = await listConsultations(filter);
-      setConsultations(res.consultations);
+      setConsultations(res?.items || res?.consultations || []);
     } catch (err: unknown) {
       const e = err as Error;
       setError(e.message || 'Unable to load consultations.');
@@ -172,6 +173,7 @@ export const PatientConsultationsPage: React.FC = () => {
                       {c.scheduled_start
                         ? new Date(c.scheduled_start).toLocaleDateString()
                         : new Date(c.created_at).toLocaleDateString()}
+                      {formatAppointmentDate(c.scheduled_start || c.created_at)}
                     </span>
                   </div>
                   {c.duration_seconds > 0 && (

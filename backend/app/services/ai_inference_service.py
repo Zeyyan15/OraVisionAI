@@ -26,6 +26,7 @@ from app.core.config import get_settings
 from app.models.ai_model import AIModel
 from app.models.ai_prediction import AIPrediction
 from app.models.prediction_probability import PredictionProbability
+from app.models.patient import Patient
 from app.models.screening import Screening
 from app.models.screening_image import ScreeningImage
 from app.models.yolo_detection import YOLODetection
@@ -37,6 +38,8 @@ from app.schemas.ai import (
     ProbabilityItem,
     ScreeningInferenceResponse,
 )
+from app.services.notification_service import NotificationService
+from app.services.risk_assessment_service import RiskAssessmentService
 from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
@@ -366,6 +369,7 @@ class AIInferenceService:
                 selectinload(Screening.images),
                 selectinload(Screening.ai_predictions).selectinload(AIPrediction.probabilities),
                 selectinload(Screening.yolo_detections),
+                selectinload(Screening.patient).selectinload(Patient.user),
             )
         )
         result = await db.execute(stmt)
@@ -530,6 +534,31 @@ class AIInferenceService:
             screening.status = "completed"
             await db.commit()
             logger.info("Successfully completed AI inference for screening %s", screening_id)
+
+            # Automatically assess clinical urgency tier without GET-side mutations
+            try:
+                if screening.patient and screening.patient.user:
+                    await RiskAssessmentService.assess_screening(
+                        db=db,
+                        user=screening.patient.user,
+                        screening_id=screening.id,
+                    )
+            except Exception as exc:
+                logger.warning("Failed to auto-generate risk assessment for screening %s: %s", screening_id, exc)
+
+            # Emit screening completed notification to patient
+            try:
+                if screening.patient:
+                    await NotificationService.create_notification(
+                        db=db,
+                        user_id=screening.patient.user_id,
+                        notification_type="screening_completed",
+                        title="Oral Screening Analysis Complete",
+                        message="Your oral screening AI analysis has completed. View your results and clinical urgency tier.",
+                        action_url=f"/patient/screenings/{screening.id}",
+                    )
+            except Exception as exc:
+                logger.warning("Failed to emit screening_completed notification for screening %s: %s", screening_id, exc)
 
         except Exception as exc:
             await db.rollback()

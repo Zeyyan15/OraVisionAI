@@ -49,6 +49,11 @@ export function useConversations(options: UseConversationsOptions = {}) {
   const [earliestOffset, setEarliestOffset] = useState<number>(0);
 
   const isMountedRef = useRef<boolean>(true);
+  const initialParamsRef = useRef<ConversationQueryParams>(initialParams);
+  initialParamsRef.current = initialParams;
+
+  const conversationsRef = useRef<ConversationResponse[]>(conversations);
+  conversationsRef.current = conversations;
 
   // Fetch all conversation threads
   const fetchConversations = useCallback(
@@ -56,9 +61,9 @@ export function useConversations(options: UseConversationsOptions = {}) {
       setConversationsLoading(true);
       setConversationsError(null);
       try {
-        const res = await listConversations(customParams || initialParams);
+        const res = await listConversations(customParams || initialParamsRef.current);
         if (isMountedRef.current) {
-          setConversations(res.items);
+          setConversations(res?.items || []);
         }
       } catch (err: unknown) {
         if (isMountedRef.current) {
@@ -71,7 +76,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
         }
       }
     },
-    [initialParams],
+    [],
   );
 
   // Load messages for the selected thread with reverse chronological offset alignment
@@ -144,7 +149,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
 
       let conv: ConversationResponse | null = null;
       if (typeof conversationOrId === 'string') {
-        conv = conversations.find((c) => c.id === conversationOrId) || null;
+        conv = conversationsRef.current.find((c) => c.id === conversationOrId) || null;
         if (!conv) {
           try {
             conv = await getConversation(conversationOrId);
@@ -164,7 +169,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
         }
       }
     },
-    [conversations, loadInitialMessages, markThreadRead],
+    [loadInitialMessages, markThreadRead],
   );
 
   // Load earlier messages (paginating backwards in time)
@@ -298,21 +303,23 @@ export function useConversations(options: UseConversationsOptions = {}) {
     };
   }, [fetchConversations]);
 
+  const selectedConversationId = selectedConversation?.id;
+
   // Periodic polling for active message thread while mounted and visible
   useEffect(() => {
-    if (!enableMessagePolling || !selectedConversation) return;
+    if (!enableMessagePolling || !selectedConversationId) return;
 
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const pollNewMessages = async () => {
-      if (document.visibilityState !== 'visible' || !selectedConversation) return;
+      if (document.visibilityState !== 'visible') return;
       try {
         // Check total count
-        const checkRes = await listMessages(selectedConversation.id, { limit: 10, offset: 0 });
+        const checkRes = await listMessages(selectedConversationId, { limit: 10, offset: 0 });
         if (checkRes.total > messagesTotal && isMountedRef.current) {
           // New messages have arrived
           const tailOffset = Math.max(0, checkRes.total - 50);
-          const tailRes = await listMessages(selectedConversation.id, {
+          const tailRes = await listMessages(selectedConversationId, {
             limit: 50,
             offset: tailOffset,
           });
@@ -320,7 +327,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
             setMessages(tailRes.items);
             setMessagesTotal(checkRes.total);
             setEarliestOffset(tailOffset);
-            await markThreadRead(selectedConversation.id);
+            await markThreadRead(selectedConversationId);
           }
         }
       } catch {
@@ -336,7 +343,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
   }, [
     enableMessagePolling,
     messagePollIntervalMs,
-    selectedConversation,
+    selectedConversationId,
     messagesTotal,
     markThreadRead,
   ]);

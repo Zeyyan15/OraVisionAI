@@ -12,6 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import get_current_active_user, require_dentist, require_patient
 from app.db.session import get_db
+from app.models.appointment import Appointment
+from app.models.dentist import Dentist
+from app.models.dentist_assessment import DentistAssessment
+from app.models.patient import Patient
+from app.models.patient_dentist_relationship import PatientDentistRelationship
+from app.models.screening import Screening
 from app.models.user import User
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse
 from app.schemas.dentist import (
@@ -20,15 +26,24 @@ from app.schemas.dentist import (
     DentistVerificationCreate,
     DentistVerificationResponse,
 )
+from app.schemas.dentist_assessment import DentistPendingReviewListResponse
 from app.schemas.dentist_availability import (
     DentistAvailabilityCreate,
     DentistAvailabilityListResponse,
     DentistAvailabilityResponse,
     DentistAvailabilityUpdate,
 )
+from app.schemas.dentist_case import (
+    DentistPatientCaseItem,
+    DentistPatientCaseListResponse,
+)
 from app.services.appointment_service import AppointmentService
+from app.services.dentist_assessment_service import DentistAssessmentService
 from app.services.dentist_availability_service import DentistAvailabilityService
 from app.services.dentist_service import DentistService
+from sqlalchemy import select
+from sqlalchemy import and_, select
+from sqlalchemy.orm import selectinload
 
 router = APIRouter(prefix="/dentists", tags=["Dentists"])
 
@@ -287,3 +302,210 @@ async def book_appointment_with_dentist(
         user_agent=user_agent,
     )
 
+
+# =============================================================================
+# Dentist Clinical Reviews & Practitioner Relationships
+# =============================================================================
+
+
+@router.get(
+    "/me/reviews",
+    response_model=DentistPendingReviewListResponse,
+    summary="List pending screening reviews assigned to authenticated dentist",
+)
+async def list_my_pending_reviews(
+    current_user: User = Depends(require_dentist),
+    db: AsyncSession = Depends(get_db),
+) -> DentistPendingReviewListResponse:
+    """Retrieve all pending, unfinalized clinical reviews assigned to the practitioner."""
+    return await DentistAssessmentService.get_dentist_pending_reviews(db=db, user=current_user)
+
+
+@router.get(
+    "/me/patient-cases",
+    response_model=DentistPatientCaseListResponse,
+    summary="List authorized patient screening cases for authenticated dentist",
+)
+async def list_my_patient_cases(
+    current_user: User = Depends(require_dentist),
+    db: AsyncSession = Depends(get_db),
+) -> DentistPatientCaseListResponse:
+    """Retrieve authorized patient screening cases for the authenticated dentist.
+
+    CRITICAL SECURITY FILTERING:
+    A dentist may only access screening cases that are legitimately linked to their clinical workflow:
+    1. Screenings with an explicit DentistAssessment assigned to or created by this dentist.
+    2. Screenings linked to an appointment with this dentist.
+
+    Historical appointments without an associated screening DO NOT grant access to unrelated screenings.
+    """
+    stmt_d = select(Dentist).where(Dentist.user_id == current_user.id)
+    dentist = (await db.execute(stmt_d)).scalar_one_or_none()
+    if dentist is None or dentist.verification_status != "approved":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Dentist profile is not approved.",
+        )
+
+    # 1. Screenings with explicit assessment by/assigned to this dentist
+    stmt_da = select(DentistAssessment).where(DentistAssessment.dentist_id == dentist.id)
+    res_da = await db.execute(stmt_da)
+    assessments = list(res_da.scalars().all())
+    assessment_map = {a.screening_id: a for a in assessments}
+
+    # 2. Screenings linked to an appointment with this dentist
+    stmt_appt = select(Appointment).where(
+        and_(
+            Appointment.dentist_id == dentist.id,
+            Appointment.screening_id.is_not(None),
+        )
+    )
+    res_appt = await db.execute(stmt_appt)
+    appts = list(res_appt.scalars().all())
+    appt_screening_ids = {a.screening_id for a in appts if a.screening_id}
+
+    authorized_screening_ids = set(assessment_map.keys()) | appt_screening_ids
+
+    if not authorized_screening_ids:
+        return DentistPatientCaseListResponse(items=[], total=0)
+
+    # 3. Query the authorized screenings
+    stmt_screenings = (
+        select(Screening)
+        .where(
+            and_(
+                Screening.id.in_(authorized_screening_ids),
+                Screening.is_deleted.is_(False),
+            )
+        )
+        .options(
+            selectinload(Screening.patient).selectinload(Patient.user),
+            selectinload(Screening.ai_predictions),
+            selectinload(Screening.risk_assessment),
+        )
+        .order_by(Screening.created_at.desc())
+    )
+    res_s = await db.execute(stmt_screenings)
+    screenings = list(res_s.scalars().all())
+
+    items = []
+    for s in screenings:
+        p_name = "Patient"
+        if s.patient and s.patient.user:
+            p_name = f"{s.patient.user.first_name} {s.patient.user.last_name}".strip()
+
+        # AI Prediction
+        ai_class = None
+        if s.ai_predictions:
+            ai_class = s.ai_predictions[0].primary_diagnosis
+
+        # Risk Assessment
+        risk_level = None
+        risk_score = None
+        if s.risk_assessment:
+            risk_level = s.risk_assessment.risk_level
+            risk_score = float(s.risk_assessment.risk_score) if s.risk_assessment.risk_score is not None else None
+
+        # Review status
+        da = assessment_map.get(s.id)
+        if da:
+            review_status = "finalized" if da.is_finalized else "pending_review"
+            assessment_id = da.id
+        else:
+            review_status = "consultation_linked"
+            assessment_id = None
+
+        items.append(
+            DentistPatientCaseItem(
+                screening_id=s.id,
+                patient_id=s.patient_id,
+                patient_name=p_name,
+                screening_date=s.created_at,
+                status=s.status,
+                ai_class=ai_class,
+                risk_level=risk_level,
+                risk_score=risk_score,
+                review_status=review_status,
+                assessment_id=assessment_id,
+            )
+        )
+
+    return DentistPatientCaseListResponse(items=items, total=len(items))
+
+
+@router.get(
+    "/my-practitioners",
+    response_model=List[DentistResponse],
+    summary="List approved dental practitioners with whom patient has an active relationship",
+)
+async def list_my_practitioners(
+    current_user: User = Depends(require_patient),
+    db: AsyncSession = Depends(get_db),
+) -> List[DentistResponse]:
+    """Retrieve all approved dental practitioners who maintain an active clinical relationship or appointment with the authenticated patient."""
+    stmt_p = select(Patient).where(Patient.user_id == current_user.id)
+    patient = (await db.execute(stmt_p)).scalar_one_or_none()
+    if patient is None:
+        return []
+
+    # 1. Query approved dentists with active PatientDentistRelationship
+    stmt_rel = (
+        select(Dentist)
+        .join(PatientDentistRelationship, PatientDentistRelationship.dentist_id == Dentist.id)
+        .join(User, Dentist.user_id == User.id)
+        .where(
+            PatientDentistRelationship.patient_id == patient.id,
+            PatientDentistRelationship.status == "active",
+            Dentist.verification_status == "approved",
+            User.is_active.is_(True),
+        )
+        .options(selectinload(Dentist.user))
+        .distinct()
+    )
+    res_rel = await db.execute(stmt_rel)
+    dentists_map = {d.id: d for d in res_rel.scalars().all()}
+
+    # 2. Also include approved dentists linked via non-cancelled appointments (and auto-sync relationship)
+    stmt_appt = (
+        select(Dentist)
+        .join(Appointment, Appointment.dentist_id == Dentist.id)
+        .join(User, Dentist.user_id == User.id)
+        .where(
+            Appointment.patient_id == patient.id,
+            Appointment.status.in_(["requested", "confirmed", "in_progress", "completed"]),
+            Dentist.verification_status == "approved",
+            User.is_active.is_(True),
+        )
+        .options(selectinload(Dentist.user))
+        .distinct()
+    )
+    res_appt = await db.execute(stmt_appt)
+    has_new_rel = False
+    for d in res_appt.scalars().all():
+        if d.id not in dentists_map:
+            dentists_map[d.id] = d
+            stmt_chk = select(PatientDentistRelationship).where(
+                and_(
+                    PatientDentistRelationship.patient_id == patient.id,
+                    PatientDentistRelationship.dentist_id == d.id,
+                )
+            )
+            existing_rel = (await db.execute(stmt_chk)).scalar_one_or_none()
+            if existing_rel is None:
+                new_rel = PatientDentistRelationship(
+                    id=uuid.uuid4(),
+                    patient_id=patient.id,
+                    dentist_id=d.id,
+                    status="active",
+                    established_via="appointment",
+                )
+                db.add(new_rel)
+                has_new_rel = True
+            elif existing_rel.status != "active":
+                existing_rel.status = "active"
+                has_new_rel = True
+
+    if has_new_rel:
+        await db.commit()
+
+    return [_build_dentist_response(d.user, d) for d in dentists_map.values()]

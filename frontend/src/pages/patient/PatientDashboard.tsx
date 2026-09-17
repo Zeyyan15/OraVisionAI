@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { listPatientScreenings } from '../../api/screeningEndpoints';
+import { listAppointments } from '../../api/dentistEndpoints';
 import { ScreeningResponse } from '../../types/screening';
 import { ScreeningStatus } from '../../types/domain';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
@@ -19,26 +20,36 @@ export const PatientDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [recentScreenings, setRecentScreenings] = useState<ScreeningResponse[]>([]);
   const [totalScreenings, setTotalScreenings] = useState<number>(0);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
-    async function loadScreenings() {
+    async function loadDashboardData() {
       try {
-        const data = await listPatientScreenings(1, 3);
+        const [screeningsData, apptsData] = await Promise.all([
+          listPatientScreenings(1, 3).catch(() => ({ items: [], total: 0 })),
+          listAppointments().catch(() => ({ items: [], total: 0 })),
+        ]);
         if (isMounted) {
-          setRecentScreenings(data.items || []);
-          setTotalScreenings(data.total || 0);
+          setRecentScreenings(screeningsData.items || []);
+          setTotalScreenings(screeningsData.total || 0);
+
+          const upcoming = (apptsData.items || []).filter(
+            (a: any) =>
+              a.status === 'requested' || a.status === 'confirmed' || a.status === 'in_progress',
+          ).length;
+          setUpcomingAppointments(upcoming);
         }
       } catch (err) {
-        console.error('Failed to load recent screenings for dashboard:', err);
+        console.error('Failed to load dashboard data:', err);
       } finally {
         if (isMounted) {
           setLoading(false);
         }
       }
     }
-    loadScreenings();
+    loadDashboardData();
     return () => {
       isMounted = false;
     };
@@ -120,16 +131,31 @@ export const PatientDashboard: React.FC = () => {
               <CardTitle className="text-base">Appointments</CardTitle>
               <Calendar className="h-5 w-5 text-clinical-600" />
             </div>
-            <CardDescription>Scheduled clinic visits</CardDescription>
+            <CardDescription>Scheduled consultations & visits</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm py-2 border-b border-slate-100">
               <span className="text-slate-600">Upcoming Visits</span>
-              <span className="font-semibold text-slate-900">0</span>
+              <span className="font-semibold text-slate-900">
+                {loading ? '...' : upcomingAppointments}
+              </span>
             </div>
-            <Button disabled className="w-full text-xs" variant="outline">
-              Book Appointment (Phase 24)
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => navigate('/patient/dentists')}
+                className="w-full text-xs"
+                variant="primary"
+              >
+                Find a Dentist
+              </Button>
+              <Button
+                onClick={() => navigate('/patient/appointments')}
+                className="w-full text-xs"
+                variant="outline"
+              >
+                My Visits
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

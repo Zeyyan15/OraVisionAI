@@ -77,10 +77,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      setFirebaseUser(cred.user);
       const profile = await fetchProfile();
       if (!profile) {
         throw new Error('Authentication succeeded, but application user profile could not be loaded.');
       }
+      setUserProfile(profile);
       return profile;
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please check your credentials.');

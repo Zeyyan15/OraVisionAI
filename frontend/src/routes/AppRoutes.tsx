@@ -42,6 +42,10 @@ import { NewScreeningPage } from '../pages/patient/NewScreeningPage';
 import { ScreeningResultsPage } from '../pages/patient/ScreeningResultsPage';
 import { ScreeningsListPage } from '../pages/patient/ScreeningsListPage';
 
+// Patient Practitioner Directory & Appointments
+import { PatientDentistDirectoryPage } from '../pages/patient/PatientDentistDirectoryPage';
+import { PatientAppointmentsPage } from '../pages/patient/PatientAppointmentsPage';
+
 // Patient Teleconsultation Pages (Phase 25)
 import { PatientConsultationsPage } from '../pages/patient/PatientConsultationsPage';
 import { PatientConsultationRoomPage } from '../pages/patient/PatientConsultationRoomPage';
@@ -83,6 +87,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="screenings" element={<ScreeningsListPage />} />
         <Route path="screenings/new" element={<NewScreeningPage />} />
         <Route path="screenings/:screeningId" element={<ScreeningResultsPage />} />
+        <Route path="dentists" element={<PatientDentistDirectoryPage />} />
+        <Route path="appointments" element={<PatientAppointmentsPage />} />
         <Route path="consultations" element={<PatientConsultationsPage />} />
         <Route path="consultations/:consultationId" element={<PatientConsultationRoomPage />} />
         <Route path="messages" element={<PatientMessagesPage />} />

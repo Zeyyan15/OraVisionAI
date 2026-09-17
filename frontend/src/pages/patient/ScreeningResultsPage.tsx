@@ -331,6 +331,8 @@ export const ScreeningResultsPage: React.FC = () => {
           {/* Licensed Dentist Clinical Review */}
           <DentistReviewCard
             dentistAssessments={screening.dentist_assessments || []}
+            screeningId={screening.screening_id}
+            onRequestReviewSuccess={() => fetchScreening(screening.screening_id)}
           />
 
           {/* Clinical Report Action */}

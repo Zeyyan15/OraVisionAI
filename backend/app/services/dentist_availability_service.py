@@ -227,6 +227,9 @@ class DentistAvailabilityService:
         res = await db.execute(stmt)
         items = list(res.scalars().all())
 
+        if not items:
+            items = await cls.ensure_default_availability(db, dentist_id)
+
         audit_entry = AuditLog(
             user_id=user.id,
             action="DENTIST_AVAILABILITY_VIEWED",
@@ -388,3 +391,53 @@ class DentistAvailabilityService:
         logger.info("Deleted availability slot %s for dentist %s", availability_id, dentist.id)
         return {"message": "Availability window successfully deleted.", "id": str(availability_id)}
 
+    @classmethod
+    async def ensure_default_availability(
+        cls,
+        db: AsyncSession,
+        dentist_id: uuid.UUID,
+    ) -> List[DentistAvailability]:
+        """Idempotently provisions default Monday-Friday 09:00-17:00 availability windows
+        for any weekdays where no availability record (active or inactive) exists yet.
+        Never overwrites or duplicates existing availability windows.
+        """
+        stmt = select(DentistAvailability).where(
+            DentistAvailability.dentist_id == dentist_id,
+        ).order_by(DentistAvailability.day_of_week, DentistAvailability.start_time)
+        res = await db.execute(stmt)
+        existing = list(res.scalars().all())
+        existing_days = {win.day_of_week for win in existing}
+
+        new_windows = []
+        for day in range(1, 6):
+            if day not in existing_days:
+                win = DentistAvailability(
+                    id=uuid.uuid4(),
+                    dentist_id=dentist_id,
+                    day_of_week=day,
+                    start_time=datetime.time(9, 0, 0),
+                    end_time=datetime.time(17, 0, 0),
+                    slot_duration_minutes=30,
+                    is_active=True,
+                )
+                db.add(win)
+                new_windows.append(win)
+
+        if new_windows:
+            await db.commit()
+            for win in new_windows:
+                await db.refresh(win)
+            logger.info(
+                "Idempotently provisioned %d default availability windows for dentist %s",
+                len(new_windows),
+                dentist_id,
+            )
+            stmt_active = select(DentistAvailability).where(
+                and_(
+                    DentistAvailability.dentist_id == dentist_id,
+                    DentistAvailability.is_active.is_(True),
+                )
+            ).order_by(DentistAvailability.day_of_week, DentistAvailability.start_time)
+            return list((await db.execute(stmt_active)).scalars().all())
+
+        return [win for win in existing if win.is_active]

@@ -24,6 +24,24 @@ export const LoginPage: React.FC = () => {
 
   const from = (location.state as any)?.from?.pathname;
 
+  const isPathAllowedForRole = (path: string, role: string): boolean => {
+    if (!path || typeof path !== 'string') return false;
+    if (['/unauthorized', '/deactivated', '/login', '/register', '/'].includes(path)) {
+      return false;
+    }
+    if (role === 'admin') return path.startsWith('/admin');
+    if (role === 'dentist') return path.startsWith('/dentist');
+    if (role === 'patient') return path.startsWith('/patient');
+    return false;
+  };
+
+  const getRoleDashboard = (role: string): string => {
+    if (role === 'admin') return '/admin/dashboard';
+    if (role === 'dentist') return '/dentist/dashboard';
+    if (role === 'patient') return '/patient/dashboard';
+    return '/unauthorized';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -32,16 +50,10 @@ export const LoginPage: React.FC = () => {
     try {
       const profile = await login(email, password);
       // Determine redirection target strictly by authoritative profile role
-      if (from) {
+      if (from && isPathAllowedForRole(from, profile.role)) {
         navigate(from, { replace: true });
-      } else if (profile.role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else if (profile.role === 'dentist') {
-        navigate('/dentist/dashboard', { replace: true });
-      } else if (profile.role === 'patient') {
-        navigate('/patient/dashboard', { replace: true });
       } else {
-        setErrorMessage(`Unrecognized account role: ${profile.role}`);
+        navigate(getRoleDashboard(profile.role), { replace: true });
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Login failed. Please verify your email and password.');

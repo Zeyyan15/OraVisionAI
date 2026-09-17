@@ -24,6 +24,7 @@ from app.schemas.dentist_assessment import (
     DentistAssessmentCreate,
     DentistAssessmentResponse,
     DentistAssessmentUpdate,
+    ScreeningReviewRequest,
     ScreeningReviewResponse,
 )
 from app.schemas.report import ReportGenerateRequest, ReportResponse
@@ -533,6 +534,32 @@ async def review_screening_findings(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except PermissionError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+
+
+@router.post(
+    "/{screening_id}/request-review",
+    response_model=DentistAssessmentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Patient requests clinical review from an approved dentist",
+)
+async def request_screening_review(
+    screening_id: uuid.UUID,
+    review_request: ScreeningReviewRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_patient),
+) -> DentistAssessmentResponse:
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    return await DentistAssessmentService.request_screening_review(
+        db=db,
+        user=current_user,
+        screening_id=screening_id,
+        data=review_request,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
 
 
 @router.post(

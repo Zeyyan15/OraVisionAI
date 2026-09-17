@@ -18,6 +18,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.appointment import (
     AppointmentCancel,
+    AppointmentConfirm,
     AppointmentListResponse,
     AppointmentResponse,
     AppointmentStatusUpdate,
@@ -132,6 +133,74 @@ async def cancel_appointment(
         appointment_id=appointment_id,
         user=current_user,
         data=cancel_data,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.post(
+    "/{appointment_id}/confirm",
+    response_model=AppointmentResponse,
+    summary="Confirm requested appointment",
+)
+async def confirm_appointment(
+    appointment_id: uuid.UUID,
+    request: Request,
+    confirm_data: Optional[AppointmentConfirm] = None,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> AppointmentResponse:
+    """Confirm a requested consultation appointment by the assigned dentist.
+
+    Enforces:
+    - Caller must be an active dentist (or admin)
+    - Dentist must own the appointment
+    - Appointment must be currently in 'requested' state (HTTP 409 Conflict if not)
+    - Overlap conflict check: ensures no existing confirmed/in-progress appointment
+      overlaps with this interval on the dentist's schedule (HTTP 409 Conflict if conflict)
+    - Emits in-app notification to the patient.
+    """
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    notes = confirm_data.dentist_notes if confirm_data else None
+    return await AppointmentService.confirm_appointment(
+        db=db,
+        appointment_id=appointment_id,
+        user=current_user,
+        dentist_notes=notes,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.post(
+    "/{appointment_id}/reject",
+    response_model=AppointmentResponse,
+    summary="Reject requested appointment",
+)
+async def reject_appointment(
+    appointment_id: uuid.UUID,
+    reject_data: AppointmentCancel,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> AppointmentResponse:
+    """Reject a requested consultation appointment with a mandatory cancellation reason.
+
+    Enforces:
+    - Caller must be an active dentist (or admin)
+    - Dentist must own the appointment
+    - Appointment must be currently in 'requested' state (HTTP 409 Conflict if not)
+    - Status transitions to 'cancelled' with cancellation_reason recorded
+    - Emits in-app notification to the patient.
+    """
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return await AppointmentService.reject_appointment(
+        db=db,
+        appointment_id=appointment_id,
+        user=current_user,
+        data=reject_data,
         ip_address=ip_address,
         user_agent=user_agent,
     )

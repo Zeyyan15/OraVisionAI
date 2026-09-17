@@ -18,10 +18,12 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import desc, select
+from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.ai_prediction import AIPrediction
+from app.models.appointment import Appointment
 from app.models.audit_log import AuditLog
 from app.models.dentist import Dentist
 from app.models.dentist_assessment import DentistAssessment
@@ -33,10 +35,14 @@ from app.schemas.dentist_assessment import (
     DentistAssessmentCreate,
     DentistAssessmentResponse,
     DentistAssessmentUpdate,
+    DentistPendingReviewItem,
+    DentistPendingReviewListResponse,
+    ScreeningReviewRequest,
     ScreeningReviewResponse,
 )
 from app.schemas.screening import ScreeningImageResponse
 from app.services.ai_inference_service import EFFICIENTNET_CLASS_MAPPING
+from app.services.notification_service import NotificationService
 from app.services.patient_service import PatientService
 
 logger = logging.getLogger(__name__)
@@ -100,6 +106,32 @@ class DentistAssessmentService:
                 screening.patient_id,
             )
             raise PermissionError("Access denied: No active relationship exists with this patient.")
+
+        # Verify case-level clinical authorization:
+        # Dentist must have an assigned review/assessment OR an appointment specifically linked to this screening
+        stmt_da = select(DentistAssessment).where(
+            and_(
+                DentistAssessment.screening_id == screening.id,
+                DentistAssessment.dentist_id == dentist.id,
+            )
+        )
+        has_assessment = (await db.execute(stmt_da)).scalar_one_or_none() is not None
+
+        stmt_appt = select(Appointment).where(
+            and_(
+                Appointment.screening_id == screening.id,
+                Appointment.dentist_id == dentist.id,
+            )
+        )
+        has_appt = (await db.execute(stmt_appt)).scalars().first() is not None
+
+        if not (has_assessment or has_appt):
+            logger.warning(
+                "Access denied: Dentist %s is not authorized for screening %s (no assigned review or linked appointment)",
+                dentist.id,
+                screening.id,
+            )
+            raise PermissionError("Access denied: You are not authorized to evaluate this screening session.")
 
         return dentist
 
@@ -378,6 +410,24 @@ class DentistAssessmentService:
         await db.commit()
         await db.refresh(new_assessment)
 
+        # Notify patient if assessment is finalized
+        if new_assessment.is_finalized:
+            try:
+                stmt_p = select(Patient).where(Patient.id == screening.patient_id)
+                patient = (await db.execute(stmt_p)).scalar_one_or_none()
+                if patient:
+                    dentist_name = f"Dr. {user.first_name} {user.last_name}".strip()
+                    await NotificationService.create_notification(
+                        db=db,
+                        user_id=patient.user_id,
+                        notification_type="dentist_assessment_added",
+                        title="Clinical Assessment Completed",
+                        message=f"{dentist_name} has finalized a clinical assessment for your screening.",
+                        action_url=f"/patient/screenings/{screening.id}",
+                    )
+            except Exception as exc:
+                logger.warning("Failed to emit dentist_assessment_added notification: %s", exc)
+
         logger.info(
             "Created dentist assessment %s for screening %s by dentist %s (finalized: %s)",
             new_assessment.id,
@@ -477,6 +527,24 @@ class DentistAssessmentService:
 
         await db.commit()
         await db.refresh(assessment)
+
+        # Notify patient if assessment was finalized
+        if update_in.is_finalized is True:
+            try:
+                stmt_p = select(Patient).where(Patient.id == screening.patient_id)
+                patient = (await db.execute(stmt_p)).scalar_one_or_none()
+                if patient:
+                    dentist_name = f"Dr. {user.first_name} {user.last_name}".strip()
+                    await NotificationService.create_notification(
+                        db=db,
+                        user_id=patient.user_id,
+                        notification_type="dentist_assessment_added",
+                        title="Clinical Assessment Completed",
+                        message=f"{dentist_name} has finalized a clinical assessment for your screening.",
+                        action_url=f"/patient/screenings/{screening.id}",
+                    )
+            except Exception as exc:
+                logger.warning("Failed to emit dentist_assessment_added notification: %s", exc)
 
         return cls._build_assessment_response(assessment, dentist=dentist, dentist_user=user)
 
@@ -586,3 +654,228 @@ class DentistAssessmentService:
             dentist_clinic=d_clinic,
             dentist_license=d_license,
         )
+
+    @classmethod
+    async def request_screening_review(
+        cls,
+        db: AsyncSession,
+        user: User,
+        screening_id: uuid.UUID,
+        data: ScreeningReviewRequest,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> DentistAssessmentResponse:
+        """Patient initiates or checks an idempotent clinical review request for a screening.
+
+        Establishes active PatientDentistRelationship, provisions initial unfinalized
+        DentistAssessment draft, emits event notifications, and logs compliance audit record.
+        """
+        if user.role != "patient":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only patients can request clinical reviews.",
+            )
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is inactive.",
+            )
+
+        # 1. Resolve patient profile
+        stmt_p = select(Patient).where(Patient.user_id == user.id)
+        patient = (await db.execute(stmt_p)).scalar_one_or_none()
+        if patient is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Patient profile not found.",
+            )
+
+        # 2. Resolve screening and verify ownership
+        stmt_s = select(Screening).where(
+            Screening.id == screening_id,
+            Screening.is_deleted.is_(False),
+        )
+        screening = (await db.execute(stmt_s)).scalar_one_or_none()
+        if screening is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Screening session not found.",
+            )
+        if screening.patient_id != patient.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not own this screening session.",
+            )
+
+        # 3. Resolve target dentist and verify approved status
+        stmt_d = (
+            select(Dentist)
+            .join(User, Dentist.user_id == User.id)
+            .where(
+                Dentist.id == data.dentist_id,
+                Dentist.verification_status == "approved",
+                User.is_active.is_(True),
+            )
+            .options(selectinload(Dentist.user))
+        )
+        dentist = (await db.execute(stmt_d)).scalar_one_or_none()
+        if dentist is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Target dentist not found, inactive, or not approved.",
+            )
+
+        # 4. Idempotently establish or reactivate PatientDentistRelationship
+        stmt_rel = select(PatientDentistRelationship).where(
+            and_(
+                PatientDentistRelationship.patient_id == patient.id,
+                PatientDentistRelationship.dentist_id == dentist.id,
+            )
+        )
+        rel = (await db.execute(stmt_rel)).scalar_one_or_none()
+        if rel is None:
+            rel = PatientDentistRelationship(
+                id=uuid.uuid4(),
+                patient_id=patient.id,
+                dentist_id=dentist.id,
+                status="active",
+                established_via="screening_share",
+            )
+            db.add(rel)
+            logger.info("Established new PatientDentistRelationship via review request (%s -> %s)", patient.id, dentist.id)
+        elif rel.status != "active":
+            rel.status = "active"
+            logger.info("Reactivated existing PatientDentistRelationship via review request (%s -> %s)", patient.id, dentist.id)
+
+        # 5. Idempotently provision or return existing DentistAssessment draft
+        stmt_da = select(DentistAssessment).where(
+            and_(
+                DentistAssessment.screening_id == screening.id,
+                DentistAssessment.dentist_id == dentist.id,
+            )
+        )
+        da = (await db.execute(stmt_da)).scalar_one_or_none()
+        is_new_request = False
+
+        if da is None:
+            is_new_request = True
+            notes = f"Patient notes: {data.patient_notes.strip()}" if data.patient_notes and data.patient_notes.strip() else "Review requested by patient."
+            da = DentistAssessment(
+                id=uuid.uuid4(),
+                screening_id=screening.id,
+                dentist_id=dentist.id,
+                clinical_observations=notes,
+                diagnosis_notes="Pending professional clinical evaluation.",
+                treatment_recommendation="Pending professional clinical evaluation.",
+                referral_needed=False,
+                is_finalized=False,
+            )
+            db.add(da)
+
+        # 6. Audit Logging
+        audit_entry = AuditLog(
+            user_id=user.id,
+            action="DENTIST_REVIEW_REQUESTED",
+            resource_type="screening",
+            resource_id=str(screening.id),
+            details={
+                "screening_id": str(screening.id),
+                "dentist_id": str(dentist.id),
+                "is_new_request": is_new_request,
+            },
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        db.add(audit_entry)
+
+        # 7. Notifications (emitted when a new request is created)
+        if is_new_request:
+            patient_name = f"{user.first_name} {user.last_name}".strip() or "Patient"
+            dentist_name = f"Dr. {dentist.user.first_name} {dentist.user.last_name}".strip()
+
+            try:
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=dentist.user.id,
+                    notification_type="system_alert",
+                    title="New Clinical Review Request",
+                    message=f"Patient {patient_name} requested a clinical evaluation for screening.",
+                    action_url=f"/dentist/screenings/{screening.id}/review",
+                    suppress_duplicates_window_seconds=300,
+                )
+            except Exception as exc:
+                logger.warning("Failed to notify dentist of review request: %s", exc)
+
+            try:
+                await NotificationService.create_notification(
+                    db=db,
+                    user_id=user.id,
+                    notification_type="system_alert",
+                    title="Review Request Submitted",
+                    message=f"Your screening review request has been sent to {dentist_name}.",
+                    action_url=f"/patient/screenings/{screening.id}",
+                    suppress_duplicates_window_seconds=300,
+                )
+            except Exception as exc:
+                logger.warning("Failed to notify patient of review request: %s", exc)
+
+        await db.commit()
+        await db.refresh(da)
+
+        return cls._build_assessment_response(da, dentist=dentist, dentist_user=dentist.user)
+
+    @classmethod
+    async def get_dentist_pending_reviews(
+        cls,
+        db: AsyncSession,
+        user: User,
+    ) -> DentistPendingReviewListResponse:
+        """Retrieves list of pending screening reviews assigned to the authenticated dentist."""
+        stmt_d = select(Dentist).where(Dentist.user_id == user.id)
+        dentist = (await db.execute(stmt_d)).scalar_one_or_none()
+        if dentist is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Dentist profile not found.",
+            )
+
+        stmt = (
+            select(DentistAssessment)
+            .join(Screening, DentistAssessment.screening_id == Screening.id)
+            .join(Patient, Screening.patient_id == Patient.id)
+            .join(User, Patient.user_id == User.id)
+            .where(
+                and_(
+                    DentistAssessment.dentist_id == dentist.id,
+                    DentistAssessment.is_finalized.is_(False),
+                    Screening.is_deleted.is_(False),
+                )
+            )
+            .options(
+                selectinload(DentistAssessment.screening).selectinload(Screening.patient).selectinload(Patient.user)
+            )
+            .order_by(DentistAssessment.created_at.desc())
+        )
+        res = await db.execute(stmt)
+        assessments = res.scalars().all()
+
+        items = []
+        for da in assessments:
+            s = da.screening
+            p = s.patient if s else None
+            pu = p.user if p else None
+            p_name = f"{pu.first_name} {pu.last_name}".strip() if pu else "Patient"
+            items.append(
+                DentistPendingReviewItem(
+                    assessment_id=da.id,
+                    screening_id=da.screening_id,
+                    patient_id=p.id if p else uuid.UUID(int=0),
+                    patient_name=p_name,
+                    screening_date=s.created_at if s else da.created_at,
+                    requested_at=da.created_at,
+                    status="pending",
+                    clinical_notes=s.clinical_notes if s else None,
+                )
+            )
+
+        return DentistPendingReviewListResponse(items=items, total=len(items))

@@ -28,6 +28,7 @@ import {
   XCircle,
   MessageSquare,
 } from 'lucide-react';
+import { formatAppointmentDateTime } from '../../utils/dateTimeUtils';
 
 export const PatientConsultationRoomPage: React.FC = () => {
   const { consultationId } = useParams<{ consultationId: string }>();
@@ -146,7 +147,7 @@ export const PatientConsultationRoomPage: React.FC = () => {
                 <span className="text-slate-400">Scheduled Date</span>
                 <span className="font-medium text-slate-800">
                   {consultation.scheduled_start
-                    ? new Date(consultation.scheduled_start).toLocaleString()
+                    ? formatAppointmentDateTime(consultation.scheduled_start)
                     : 'Scheduled by Clinic'}
                 </span>
               </div>

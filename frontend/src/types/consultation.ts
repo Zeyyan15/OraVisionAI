@@ -46,6 +46,7 @@ export interface ConsultationEnd {
 export type ConsultationFail = Record<string, never>;
 
 export interface ConsultationListResponse {
-  consultations: ConsultationResponse[];
+  items: ConsultationResponse[];
+  consultations?: ConsultationResponse[];
   total: number;
 }

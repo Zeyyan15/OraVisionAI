@@ -25,9 +25,14 @@ import {
   AppointmentListResponse,
   AppointmentStatusUpdate,
   AppointmentCancel,
+  AppointmentConfirm,
   DentistAssessment,
   DentistAssessmentCreate,
   DentistAssessmentUpdate,
+  DentistAvailabilityListResponse,
+  AppointmentCreate,
+  DentistPendingReviewListResponse,
+  DentistPatientCaseListResponse,
 } from '../types/dentist';
 import { ReportResponse, ScreeningReviewResponse } from '../types/screening';
 
@@ -110,6 +115,26 @@ export async function cancelAppointment(
   return apiClient.patch<Appointment>(API_PATHS.APPOINTMENT_CANCEL(appointmentId), data);
 }
 
+/**
+ * Confirms a requested consultation appointment by the assigned dentist.
+ */
+export async function confirmAppointment(
+  appointmentId: string,
+  data?: AppointmentConfirm,
+): Promise<Appointment> {
+  return apiClient.post<Appointment>(API_PATHS.APPOINTMENT_CONFIRM(appointmentId), data || {});
+}
+
+/**
+ * Rejects a requested appointment with a mandatory cancellation reason.
+ */
+export async function rejectAppointment(
+  appointmentId: string,
+  data: AppointmentCancel,
+): Promise<Appointment> {
+  return apiClient.post<Appointment>(API_PATHS.APPOINTMENT_REJECT(appointmentId), data);
+}
+
 // ============================================================================
 // 3. Clinical Assessment & Screening Evaluation
 // ============================================================================
@@ -167,4 +192,57 @@ export async function generateScreeningReport(
  */
 export async function downloadReportPdfBlob(reportId: string): Promise<Blob> {
   return apiClient.downloadBlob(API_PATHS.REPORT_DOWNLOAD(reportId));
+}
+
+// ============================================================================
+// 4. Public Dentist Discovery & Consultation Booking
+// ============================================================================
+
+/**
+ * Lists all approved, verified dental practitioners available for patient discovery and booking.
+ */
+export async function listApprovedDentists(): Promise<DentistProfile[]> {
+  return apiClient.get<DentistProfile[]>(API_PATHS.DENTISTS);
+}
+
+/**
+ * Discovers active consultation availability windows for a verified dentist.
+ */
+export async function getDentistPublicAvailability(
+  dentistId: string,
+): Promise<DentistAvailabilityListResponse> {
+  return apiClient.get<DentistAvailabilityListResponse>(
+    API_PATHS.DENTIST_PUBLIC_AVAILABILITY(dentistId),
+  );
+}
+
+/**
+ * Books/requests a consultation appointment with an approved dentist.
+ */
+export async function bookAppointmentWithDentist(
+  dentistId: string,
+  data: AppointmentCreate,
+): Promise<Appointment> {
+  return apiClient.post<Appointment>(API_PATHS.DENTIST_BOOK_APPOINTMENT(dentistId), data);
+}
+
+/**
+ * Lists all pending screening evaluations assigned to the authenticated dentist.
+ */
+export async function getDentistPendingReviews(): Promise<DentistPendingReviewListResponse> {
+  return apiClient.get<DentistPendingReviewListResponse>(API_PATHS.DENTIST_PENDING_REVIEWS);
+}
+
+/**
+ * Lists approved dental practitioners with whom the authenticated patient has an established clinical relationship.
+ */
+export async function getMyPractitioners(): Promise<DentistProfile[]> {
+  return apiClient.get<DentistProfile[]>(API_PATHS.MY_PRACTITIONERS);
+}
+
+/**
+ * Lists authorized patient screening cases for the authenticated dentist.
+ */
+export async function getMyPatientCases(): Promise<DentistPatientCaseListResponse> {
+  return apiClient.get<DentistPatientCaseListResponse>(API_PATHS.DENTIST_PATIENT_CASES);
 }

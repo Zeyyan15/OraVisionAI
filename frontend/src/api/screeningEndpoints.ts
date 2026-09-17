@@ -179,3 +179,16 @@ export async function getArtifactSignedUrl(
   return res;
 }
 
+/**
+ * Requests a clinical evaluation review from an approved dentist for a screening session.
+ */
+export async function requestScreeningReview(
+  screeningId: string,
+  dentistId: string,
+  patientNotes?: string,
+): Promise<any> {
+  return apiClient.post(API_PATHS.SCREENING_REQUEST_REVIEW(screeningId), {
+    dentist_id: dentistId,
+    patient_notes: patientNotes || null,
+  });
+}

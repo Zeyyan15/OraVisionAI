@@ -14,6 +14,8 @@ import {
   listAppointments,
   updateAppointmentStatus,
   cancelAppointment,
+  confirmAppointment,
+  rejectAppointment,
 } from '../api/dentistEndpoints';
 import {
   DentistProfile,
@@ -23,6 +25,7 @@ import {
   Appointment,
   AppointmentStatusUpdate,
   AppointmentCancel,
+  AppointmentConfirm,
 } from '../types/dentist';
 
 export function useDentist() {
@@ -143,6 +146,30 @@ export function useDentist() {
     [],
   );
 
+  // Confirm appointment
+  const confirmAppt = useCallback(
+    async (appointmentId: string, confirmData?: AppointmentConfirm): Promise<Appointment> => {
+      const confirmed = await confirmAppointment(appointmentId, confirmData);
+      setAppointments((prev) =>
+        prev.map((item) => (item.id === appointmentId ? confirmed : item)),
+      );
+      return confirmed;
+    },
+    [],
+  );
+
+  // Reject appointment
+  const rejectAppt = useCallback(
+    async (appointmentId: string, cancelData: AppointmentCancel): Promise<Appointment> => {
+      const rejected = await rejectAppointment(appointmentId, cancelData);
+      setAppointments((prev) =>
+        prev.map((item) => (item.id === appointmentId ? rejected : item)),
+      );
+      return rejected;
+    },
+    [],
+  );
+
   useEffect(() => {
     fetchProfile();
     fetchVerification();
@@ -172,6 +199,8 @@ export function useDentist() {
     fetchAppointments,
     updateStatus,
     cancelAppt,
+    confirmAppt,
+    rejectAppt,
 
     isApproved,
     isPending,

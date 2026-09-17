@@ -363,6 +363,7 @@ async def list_my_patient_cases(
     res_appt = await db.execute(stmt_appt)
     appts = list(res_appt.scalars().all())
     appt_screening_ids = {a.screening_id for a in appts if a.screening_id}
+    appt_map = {a.screening_id: a.id for a in appts if a.screening_id}
 
     authorized_screening_ids = set(assessment_map.keys()) | appt_screening_ids
 
@@ -397,7 +398,8 @@ async def list_my_patient_cases(
         # AI Prediction
         ai_class = None
         if s.ai_predictions:
-            ai_class = s.ai_predictions[0].primary_diagnosis
+            prediction = s.ai_predictions[0]
+            ai_class = prediction.predicted_class if prediction else None
 
         # Risk Assessment
         risk_level = None
@@ -427,6 +429,7 @@ async def list_my_patient_cases(
                 risk_score=risk_score,
                 review_status=review_status,
                 assessment_id=assessment_id,
+                appointment_id=appt_map.get(s.id),
             )
         )
 

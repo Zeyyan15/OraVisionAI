@@ -56,6 +56,14 @@ const STATUS_VARIANTS: Record<
   no_show: { label: 'No Show', variant: 'danger' },
 };
 
+const PREDEFINED_REJECTION_REASONS = [
+  'Schedule unavailable — please select another slot.',
+  'Existing schedule conflict — please choose another time.',
+  'Dentist unavailable at this time.',
+  'Please select another available appointment slot.',
+  'Other',
+];
+
 export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> = ({
   appointments,
   loading,
@@ -76,7 +84,8 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
   const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const [rejectModalAppointment, setRejectModalAppointment] = useState<Appointment | null>(null);
-  const [rejectReason, setRejectReason] = useState<string>('');
+  const [selectedPredefinedReason, setSelectedPredefinedReason] = useState<string>(PREDEFINED_REJECTION_REASONS[0]);
+  const [customRejectReason, setCustomRejectReason] = useState<string>('');
   const [rejecting, setRejecting] = useState<boolean>(false);
   const [rejectError, setRejectError] = useState<string | null>(null);
 
@@ -178,23 +187,33 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
 
   const handleOpenRejectModal = (appt: Appointment) => {
     setRejectModalAppointment(appt);
-    setRejectReason('');
+    setSelectedPredefinedReason(PREDEFINED_REJECTION_REASONS[0]);
+    setCustomRejectReason('');
     setRejectError(null);
   };
 
   const handleExecuteReject = async () => {
     if (!rejectModalAppointment) return;
-    if (rejectReason.trim().length < 3) {
-      setRejectError('Please provide a cancellation/rejection reason (minimum 3 characters).');
-      return;
+
+    let finalReason = '';
+    if (selectedPredefinedReason === 'Other') {
+      const trimmed = customRejectReason.trim();
+      if (trimmed.length < 3) {
+        setRejectError('Please provide a specific rejection reason (minimum 3 characters).');
+        return;
+      }
+      finalReason = trimmed;
+    } else {
+      finalReason = selectedPredefinedReason;
     }
+
     setRejecting(true);
     setRejectError(null);
     try {
       if (onReject) {
-        await onReject(rejectModalAppointment.id, { cancellation_reason: rejectReason.trim() });
+        await onReject(rejectModalAppointment.id, { cancellation_reason: finalReason });
       } else if (onCancel) {
-        await onCancel(rejectModalAppointment.id, { cancellation_reason: rejectReason.trim() });
+        await onCancel(rejectModalAppointment.id, { cancellation_reason: finalReason });
       }
       setRejectModalAppointment(null);
     } catch (err: unknown) {
@@ -316,6 +335,11 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
                             {appt.patient_notes && (
                               <span className="text-[11px] text-slate-400 block max-w-xs truncate">
                                 "{appt.patient_notes}"
+                              </span>
+                            )}
+                            {appt.status === 'cancelled' && appt.cancellation_reason && (
+                              <span className="text-[11px] text-rose-600 block max-w-sm mt-1 font-medium">
+                                <span className="font-semibold text-rose-700">Cancellation Reason:</span> {appt.cancellation_reason}
                               </span>
                             )}
                           </div>
@@ -610,11 +634,11 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
           if (!rejecting) setRejectModalAppointment(null);
         }}
         title="Reject Appointment Request"
-        maxWidth="sm"
+        maxWidth="md"
       >
         <div className="space-y-4">
           <p className="text-xs text-slate-600">
-            Please provide a mandatory reason for declining the appointment request from{' '}
+            Please select a reason for declining the appointment request from{' '}
             <strong>{rejectModalAppointment?.patient_name || 'Patient'}</strong>.
             This explanation will be shared with the patient.
           </p>
@@ -625,18 +649,54 @@ export const DentistAppointmentsTable: React.FC<DentistAppointmentsTableProps> =
             </div>
           )}
 
-          <div className="space-y-1">
-            <label htmlFor="reject_reason" className="block text-xs font-semibold text-slate-700">
-              Rejection Reason <span className="text-rose-500">*</span>
+          <div className="space-y-2.5">
+            <label className="block text-xs font-semibold text-slate-700">
+              Select Rejection Reason <span className="text-rose-500">*</span>
             </label>
-            <textarea
-              id="reject_reason"
-              rows={3}
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="e.g. Schedule unavailable, please choose another slot..."
-              className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-clinical-500 focus:outline-none"
-            />
+            <div className="space-y-2">
+              {PREDEFINED_REJECTION_REASONS.map((reason) => (
+                <label
+                  key={reason}
+                  className={`flex items-start gap-2.5 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${
+                    selectedPredefinedReason === reason
+                      ? 'border-clinical-500 bg-clinical-50/50 text-slate-900 font-medium'
+                      : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="rejection_reason"
+                    value={reason}
+                    checked={selectedPredefinedReason === reason}
+                    onChange={() => {
+                      setSelectedPredefinedReason(reason);
+                      setRejectError(null);
+                    }}
+                    className="mt-0.5 text-clinical-600 focus:ring-clinical-500"
+                  />
+                  <span>{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            {selectedPredefinedReason === 'Other' && (
+              <div className="mt-3 space-y-1.5 pt-2 border-t border-slate-100">
+                <label htmlFor="custom_reject_reason" className="block text-xs font-semibold text-slate-700">
+                  Custom Reason Description <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  id="custom_reject_reason"
+                  rows={3}
+                  value={customRejectReason}
+                  onChange={(e) => {
+                    setCustomRejectReason(e.target.value);
+                    if (rejectError) setRejectError(null);
+                  }}
+                  placeholder="Enter detailed reason for declining this request (minimum 3 characters)..."
+                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs focus:border-clinical-500 focus:outline-none"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">

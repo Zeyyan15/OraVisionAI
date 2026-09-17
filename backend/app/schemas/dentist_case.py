@@ -24,6 +24,7 @@ class DentistPatientCaseItem(BaseModel):
     risk_score: Optional[float] = None
     review_status: str  # "pending_review", "finalized", "consultation_linked"
     assessment_id: Optional[uuid.UUID] = None
+    appointment_id: Optional[uuid.UUID] = None
 
     model_config = ConfigDict(from_attributes=True)
 

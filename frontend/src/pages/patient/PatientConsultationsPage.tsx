@@ -169,12 +169,7 @@ export const PatientConsultationsPage: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                    <span>
-                      {c.scheduled_start
-                        ? new Date(c.scheduled_start).toLocaleDateString()
-                        : new Date(c.created_at).toLocaleDateString()}
-                      {formatAppointmentDate(c.scheduled_start || c.created_at)}
-                    </span>
+                    <span>{formatAppointmentDate(c.scheduled_start || c.created_at)}</span>
                   </div>
                   {c.duration_seconds > 0 && (
                     <div className="flex items-center space-x-1.5 col-span-2 text-slate-500">

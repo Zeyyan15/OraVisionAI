@@ -228,6 +228,7 @@ export interface DentistPatientCaseItem {
   risk_score?: number | null;
   review_status: 'pending_review' | 'finalized' | 'consultation_linked' | string;
   assessment_id?: string | null;
+  appointment_id?: string | null;
 }
 
 export interface DentistPatientCaseListResponse {

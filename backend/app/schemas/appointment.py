@@ -132,6 +132,14 @@ class AppointmentCancel(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    @field_validator("cancellation_reason")
+    @classmethod
+    def validate_cancellation_reason(cls, v: str) -> str:
+        s = v.strip()
+        if len(s) < 3:
+            raise ValueError("Cancellation reason must be at least 3 characters after trimming whitespace.")
+        return s
+
 
 class AppointmentResponse(BaseModel):
     """Complete representation of an appointment record."""

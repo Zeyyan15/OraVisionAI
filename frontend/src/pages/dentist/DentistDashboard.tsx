@@ -380,7 +380,14 @@ export const DentistDashboard: React.FC = () => {
                         {getRiskBadge(c.risk_level, c.risk_score)}
                       </td>
                       <td className="px-4 py-3">
-                        {getReviewStatusBadge(c.review_status)}
+                        <div className="flex flex-col gap-1 items-start">
+                          {getReviewStatusBadge(c.review_status)}
+                          {c.appointment_id && (
+                            <span className="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded border border-sky-200 font-medium">
+                              Appt Linked
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-3 text-right">
                         <Button
@@ -390,7 +397,7 @@ export const DentistDashboard: React.FC = () => {
                           onClick={() => navigate(`/dentist/screenings/${c.screening_id}/review`)}
                         >
                           <FileSearch className="h-3 w-3" />
-                          <span>Open Case</span>
+                          <span>Review Case</span>
                         </Button>
                       </td>
                     </tr>

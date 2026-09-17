@@ -247,4 +247,22 @@ export interface ScreeningReviewResponse {
     contributing_factors: ContributingFactorItem[];
   } | null;
   dentist_assessments: DentistAssessmentSummary[];
+  patient_lifestyle?: PatientLifestyleContext | null;
+  linked_appointment?: AppointmentReviewContext | null;
+}
+
+export interface PatientLifestyleContext {
+  smoking_status?: string | null;
+  alcohol_consumption?: string | null;
+  betel_quid_user?: boolean | null;
+}
+
+export interface AppointmentReviewContext {
+  id: string;
+  status: string;
+  appointment_type: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  cancellation_reason?: string | null;
+  consultation_id?: string | null;
 }

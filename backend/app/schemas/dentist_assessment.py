@@ -114,6 +114,30 @@ class DentistAssessmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PatientLifestyleContext(BaseModel):
+    """Documented patient lifestyle and risk exposures from existing patient medical profile."""
+
+    smoking_status: Optional[str] = None
+    alcohol_consumption: Optional[str] = None
+    betel_quid_user: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AppointmentReviewContext(BaseModel):
+    """Clinical context for an appointment linked to this screening session."""
+
+    id: uuid.UUID
+    status: str
+    appointment_type: str
+    scheduled_start: datetime.datetime
+    scheduled_end: datetime.datetime
+    cancellation_reason: Optional[str] = None
+    consultation_id: Optional[uuid.UUID] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ScreeningReviewResponse(BaseModel):
     """Consolidated clinical review package for an authorized treating dentist."""
 
@@ -136,6 +160,10 @@ class ScreeningReviewResponse(BaseModel):
 
     # Existing dentist assessments
     dentist_assessments: List[DentistAssessmentResponse] = Field(default_factory=list)
+
+    # Clinical context enhancements (Phase 32)
+    patient_lifestyle: Optional[PatientLifestyleContext] = None
+    linked_appointment: Optional[AppointmentReviewContext] = None
 
     model_config = ConfigDict(from_attributes=True)
 

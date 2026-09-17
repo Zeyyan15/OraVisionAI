@@ -32,11 +32,13 @@ from app.models.patient_dentist_relationship import PatientDentistRelationship
 from app.models.screening import Screening
 from app.models.user import User
 from app.schemas.dentist_assessment import (
+    AppointmentReviewContext,
     DentistAssessmentCreate,
     DentistAssessmentResponse,
     DentistAssessmentUpdate,
     DentistPendingReviewItem,
     DentistPendingReviewListResponse,
+    PatientLifestyleContext,
     ScreeningReviewRequest,
     ScreeningReviewResponse,
 )
@@ -193,6 +195,7 @@ class DentistAssessmentService:
                 selectinload(Screening.risk_assessment),
                 selectinload(Screening.dentist_assessments).selectinload(DentistAssessment.dentist).selectinload(Dentist.user),
                 selectinload(Screening.patient).selectinload(Patient.user),
+                selectinload(Screening.patient).selectinload(Patient.medical_profile),
             )
         )
         result = await db.execute(stmt)
@@ -289,6 +292,50 @@ class DentistAssessmentService:
             for da in (screening.dentist_assessments or [])
         ]
 
+        # Documented patient lifestyle context (from existing PatientMedicalProfile)
+        lifestyle_ctx: Optional[PatientLifestyleContext] = None
+        if patient and getattr(patient, "medical_profile", None):
+            mp = patient.medical_profile
+            lifestyle_ctx = PatientLifestyleContext(
+                smoking_status=mp.smoking_status,
+                alcohol_consumption=mp.alcohol_consumption,
+                betel_quid_user=mp.betel_quid_user,
+            )
+
+        # Linked appointment & teleconsultation context
+        linked_appt_ctx: Optional[AppointmentReviewContext] = None
+        dentist_id: Optional[uuid.UUID] = None
+        if user.role == "dentist":
+            d_stmt = select(Dentist.id).where(Dentist.user_id == user.id)
+            d_res = await db.execute(d_stmt)
+            dentist_id = d_res.scalar_one_or_none()
+
+        appt_query = (
+            select(Appointment)
+            .where(
+                Appointment.screening_id == screening.id,
+            )
+            .options(selectinload(Appointment.consultation))
+            .order_by(Appointment.scheduled_start.desc())
+        )
+        if dentist_id:
+            appt_query = appt_query.where(Appointment.dentist_id == dentist_id)
+
+        appt_res = await db.execute(appt_query)
+        linked_appt = appt_res.scalars().first()
+
+        if linked_appt:
+            consultation_id = linked_appt.consultation.id if getattr(linked_appt, "consultation", None) else None
+            linked_appt_ctx = AppointmentReviewContext(
+                id=linked_appt.id,
+                status=linked_appt.status,
+                appointment_type=linked_appt.appointment_type,
+                scheduled_start=linked_appt.scheduled_start,
+                scheduled_end=linked_appt.scheduled_end,
+                cancellation_reason=linked_appt.cancellation_reason,
+                consultation_id=consultation_id,
+            )
+
         # Audit log for screening review
         audit_entry = AuditLog(
             user_id=user.id,
@@ -322,6 +369,8 @@ class DentistAssessmentService:
             xai_results=xai_list,
             risk_assessment=risk_data,
             dentist_assessments=d_assessments,
+            patient_lifestyle=lifestyle_ctx,
+            linked_appointment=linked_appt_ctx,
         )
 
     # =========================================================================

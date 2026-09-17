@@ -109,6 +109,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="dashboard" element={<DentistDashboard />} />
         <Route path="appointments" element={<DentistAppointmentsPage />} />
         <Route path="screenings/:screeningId/review" element={<DentistScreeningReviewPage />} />
+        <Route path="screenings/:screeningId" element={<DentistScreeningReviewPage />} />
         <Route path="consultations/:consultationId" element={<DentistConsultationRoomPage />} />
         <Route path="profile" element={<DentistProfilePage />} />
         <Route path="messages" element={<DentistMessagesPage />} />

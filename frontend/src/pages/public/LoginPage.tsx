@@ -9,6 +9,7 @@ import { Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Button } from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Alert';
 
@@ -91,9 +92,8 @@ export const LoginPage: React.FC = () => {
               placeholder="user@example.com"
               autoComplete="email"
             />
-            <Input
+            <PasswordInput
               label="Password"
-              type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}

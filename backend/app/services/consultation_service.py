@@ -24,6 +24,7 @@ from app.models.consultation import Consultation
 from app.models.dentist import Dentist
 from app.models.patient import Patient
 from app.models.user import User
+from app.core.config import get_settings
 from app.schemas.appointment import AppointmentStatusUpdate
 from app.schemas.consultation import (
     ConsultationCreate,
@@ -32,8 +33,10 @@ from app.schemas.consultation import (
     ConsultationListResponse,
     ConsultationResponse,
     ConsultationStart,
+    StreamTokenResponse,
 )
 from app.services.appointment_service import AppointmentService
+from app.services.stream_service import StreamService
 
 logger = logging.getLogger("oravision.services.consultation")
 
@@ -152,13 +155,14 @@ class ConsultationService:
                 detail="A consultation session has already been initialized for this appointment.",
             )
 
-        # 5. Server-generate identifiers reserved for future Stream integration
-        stream_call_id = f"call_{uuid.uuid4().hex}"
+        # 5. Server-generate deterministic identifiers for Stream integration
+        consultation_id = uuid.uuid4()
+        stream_call_id = StreamService.get_stream_call_id(consultation_id)
         stream_channel_id = f"channel_{uuid.uuid4().hex}"
         now_utc = datetime.datetime.now(datetime.timezone.utc)
 
         consultation = Consultation(
-            id=uuid.uuid4(),
+            id=consultation_id,
             appointment_id=appointment.id,
             patient_id=appointment.patient_id,
             dentist_id=appointment.dentist_id,
@@ -703,3 +707,123 @@ class ConsultationService:
             user.id,
         )
         return cls._build_consultation_response(consultation)
+
+    @classmethod
+    async def get_stream_token_for_consultation(
+        cls,
+        db: AsyncSession,
+        consultation_id: uuid.UUID,
+        user: User,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> StreamTokenResponse:
+        """Issue an authoritative, short-lived Stream user token for an authorized consultation session.
+
+        Enforces:
+        - Authenticated user belongs to the consultation session (booking patient or assigned dentist).
+        - Session is not concluded or terminated in failure (HTTP 409).
+        - Call ID is canonicalized to deterministic pattern: oravisionai-consultation-{consultation_id}.
+        - User ID is canonicalized to deterministic pattern: oravisionai-user-{user_id}.
+        - Server-side user identity is safely synced with Stream (name, role) strictly excluding PHI.
+        - Immutable audit logging without leaking tokens or secrets.
+        """
+        # 1. Fetch consultation with relations
+        stmt = (
+            select(Consultation)
+            .where(Consultation.id == consultation_id)
+            .options(
+                selectinload(Consultation.patient).selectinload(Patient.user),
+                selectinload(Consultation.dentist).selectinload(Dentist.user),
+                selectinload(Consultation.appointment),
+            )
+        )
+        res = await db.execute(stmt)
+        consultation = res.scalar_one_or_none()
+
+        if consultation is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Consultation not found.",
+            )
+
+        # 2. Strict participant ownership check
+        if user.role == "patient":
+            if consultation.patient.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to access video for another patient's consultation.",
+                )
+        elif user.role == "dentist":
+            if consultation.dentist.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to access video for another dentist's consultation.",
+                )
+        elif user.role != "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Unauthorized role.",
+            )
+
+        # 3. Status check: cannot join terminal sessions
+        if consultation.session_status in TERMINAL_SESSION_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Cannot join video consultation in terminal state '{consultation.session_status}'.",
+            )
+
+        # 4. Canonicalize deterministic Call ID and ensure DB reflects it
+        canonical_call_id = StreamService.get_stream_call_id(consultation.id)
+        if consultation.stream_call_id != canonical_call_id:
+            consultation.stream_call_id = canonical_call_id
+            await db.commit()
+            await db.refresh(consultation)
+
+        # 5. Derive deterministic user ID and format display name
+        stream_user_id = StreamService.get_stream_user_id(user.id)
+        if user.role == "dentist":
+            display_name = f"Dr. {user.first_name} {user.last_name}".strip()
+        else:
+            display_name = f"{user.first_name} {user.last_name}".strip() or "Patient"
+
+        # 6. Basic non-PHI profile sync with Stream
+        StreamService.upsert_user(
+            user_id=stream_user_id,
+            name=display_name,
+            role="user",
+        )
+
+        # 7. Generate official Stream token (1 hour validity)
+        token = StreamService.create_user_token(
+            user_id=stream_user_id,
+            expiration_seconds=3600,
+        )
+
+        # 8. Immutable audit log (never logs tokens or secrets)
+        audit_entry = AuditLog(
+            user_id=user.id,
+            action="CONSULTATION_STREAM_TOKEN_ISSUED",
+            resource_type="consultation",
+            resource_id=str(consultation.id),
+            details={
+                "stream_user_id": stream_user_id,
+                "stream_call_id": canonical_call_id,
+                "call_type": StreamService.get_stream_call_type(),
+                "actor_role": user.role,
+                "consultation_id": str(consultation.id),
+            },
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        db.add(audit_entry)
+        await db.commit()
+
+        settings = get_settings()
+        return StreamTokenResponse(
+            token=token,
+            user_id=stream_user_id,
+            api_key=settings.stream_api_key,
+            call_id=canonical_call_id,
+            call_type=StreamService.get_stream_call_type(),
+            consultation_id=consultation.id,
+        )

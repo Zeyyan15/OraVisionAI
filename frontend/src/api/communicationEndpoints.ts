@@ -18,6 +18,9 @@ import {
   MessageQueryParams,
   MessageCreate,
   MessageReadResponse,
+  AttachmentUrlResponse,
+  ReportShareRequest,
+  ShareableReportItem,
   NotificationResponse,
   NotificationListResponse,
   NotificationUnreadCountResponse,
@@ -123,6 +126,62 @@ export async function getMessage(
  */
 export async function markMessagesRead(conversationId: string): Promise<MessageReadResponse> {
   return apiClient.patch<MessageReadResponse>(API_PATHS.CONVERSATION_READ(conversationId));
+}
+
+/**
+ * Send a message with one or more file attachments (images or PDFs).
+ */
+export async function sendMessageWithAttachments(
+  conversationId: string,
+  files: File[],
+  content?: string,
+): Promise<MessageResponse> {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file);
+  }
+  if (content && content.trim()) {
+    formData.append('content', content.trim());
+  }
+  return apiClient.post<MessageResponse>(
+    API_PATHS.CONVERSATION_UPLOAD_ATTACHMENTS(conversationId),
+    formData,
+  );
+}
+
+/**
+ * Get short-lived (15-min) signed URL for downloading or viewing a chat attachment.
+ */
+export async function getAttachmentSignedUrl(
+  attachmentId: string,
+): Promise<AttachmentUrlResponse> {
+  return apiClient.get<AttachmentUrlResponse>(
+    API_PATHS.ATTACHMENT_SIGNED_URL(attachmentId),
+  );
+}
+
+/**
+ * Share a clinical report directly in an active conversation (Dentist only).
+ */
+export async function shareReport(
+  conversationId: string,
+  data: ReportShareRequest,
+): Promise<MessageResponse> {
+  return apiClient.post<MessageResponse>(
+    API_PATHS.CONVERSATION_SHARE_REPORT(conversationId),
+    data,
+  );
+}
+
+/**
+ * List shareable reports for the patient in this conversation (Dentist only).
+ */
+export async function getShareableReports(
+  conversationId: string,
+): Promise<ShareableReportItem[]> {
+  return apiClient.get<ShareableReportItem[]>(
+    API_PATHS.CONVERSATION_SHAREABLE_REPORTS(conversationId),
+  );
 }
 
 // ============================================================================

@@ -16,6 +16,7 @@ import {
   getConversation,
   listMessages,
   sendMessage as apiSendMessage,
+  sendMessageWithAttachments as apiSendMessageWithAttachments,
   archiveConversation as apiArchiveConversation,
   markMessagesRead as apiMarkMessagesRead,
   initiateDentistConversation,
@@ -250,6 +251,64 @@ export function useConversations(options: UseConversationsOptions = {}) {
     [selectedConversation],
   );
 
+  // Send a message with file attachments (images / PDFs)
+  const sendMessageWithAttachments = useCallback(
+    async (files: File[], content?: string): Promise<MessageResponse | null> => {
+      if (!selectedConversation) return null;
+      if (!selectedConversation.is_active) {
+        throw new Error('Cannot send messages in an archived conversation.');
+      }
+
+      setSending(true);
+      try {
+        const sent = await apiSendMessageWithAttachments(selectedConversation.id, files, content);
+        if (isMountedRef.current) {
+          setMessages((prev) => [...prev, sent]);
+          setMessagesTotal((prev) => prev + 1);
+
+          const updatedConv = {
+            ...selectedConversation,
+            last_message_at: sent.created_at,
+          };
+          setSelectedConversation(updatedConv);
+          setConversations((prev) => {
+            const others = prev.filter((c) => c.id !== selectedConversation.id);
+            return [updatedConv, ...others];
+          });
+        }
+        return sent;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to send message with attachments';
+        throw new Error(msg);
+      } finally {
+        if (isMountedRef.current) {
+          setSending(false);
+        }
+      }
+    },
+    [selectedConversation],
+  );
+
+  // Optimistically/reactively append a shared clinical report message
+  const appendSharedReportMessage = useCallback(
+    (sent: MessageResponse) => {
+      if (!selectedConversation) return;
+      setMessages((prev) => [...prev, sent]);
+      setMessagesTotal((prev) => prev + 1);
+
+      const updatedConv = {
+        ...selectedConversation,
+        last_message_at: sent.created_at,
+      };
+      setSelectedConversation(updatedConv);
+      setConversations((prev) => {
+        const others = prev.filter((c) => c.id !== selectedConversation.id);
+        return [updatedConv, ...others];
+      });
+    },
+    [selectedConversation],
+  );
+
   // Archive current conversation thread
   const archiveCurrentConversation = useCallback(async () => {
     if (!selectedConversation) return;
@@ -364,6 +423,8 @@ export function useConversations(options: UseConversationsOptions = {}) {
     selectConversation,
     loadEarlierMessages,
     sendMessage,
+    sendMessageWithAttachments,
+    appendSharedReportMessage,
     archiveCurrentConversation,
     reactivateCurrentConversation,
     markThreadRead,

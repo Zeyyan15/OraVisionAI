@@ -28,8 +28,11 @@ from app.models.audit_log import AuditLog
 from app.models.conversation import Conversation
 from app.models.dentist import Dentist
 from app.models.message import Message
+from app.models.message_attachment import MessageAttachment
 from app.models.patient import Patient
 from app.models.patient_dentist_relationship import PatientDentistRelationship
+from app.models.report import Report
+from app.models.screening import Screening
 from app.models.user import User
 from app.schemas.conversation import (
     ConversationArchive,
@@ -38,12 +41,18 @@ from app.schemas.conversation import (
     ConversationResponse,
 )
 from app.schemas.message import (
+    AttachmentUrlResponse,
+    MessageAttachmentResponse,
     MessageCreate,
     MessageListResponse,
     MessageReadResponse,
     MessageResponse,
+    ReportShareRequest,
+    ShareableReportItem,
 )
 from app.services.notification_service import NotificationService
+from app.services.report_service import ReportService
+from app.services.storage_service import StorageService
 
 logger = logging.getLogger("oravision.services.conversation")
 
@@ -110,6 +119,58 @@ class ConversationService:
             dentist_name=d_name,
             clinic_name=clinic_name,
             unread_count=unread_count,
+        )
+
+    @classmethod
+    def _format_message_response(
+        cls,
+        msg: Message,
+        sender_name: Optional[str] = None,
+        sender_role: Optional[str] = None,
+    ) -> MessageResponse:
+        """Format a Message model into MessageResponse with attachments and shared report metadata."""
+        from sqlalchemy import inspect as sa_inspect
+
+        insp = sa_inspect(msg)
+        attachments_resp: list[MessageAttachmentResponse] = []
+        if "attachments" not in insp.unloaded:
+            for att in (msg.attachments or []):
+                attachments_resp.append(
+                    MessageAttachmentResponse(
+                        id=att.id,
+                        message_id=att.message_id,
+                        original_filename=att.original_filename,
+                        mime_type=att.mime_type,
+                        file_size=att.file_size,
+                        attachment_type=att.attachment_type,
+                        created_at=att.created_at,
+                    )
+                )
+
+        report_id = msg.report_id
+        report_number = None
+        report_title = None
+        if "report" not in insp.unloaded and msg.report:
+            report_number = msg.report.report_number
+            report_title = msg.report.report_title
+
+        return MessageResponse(
+            id=msg.id,
+            conversation_id=msg.conversation_id,
+            sender_id=msg.sender_id,
+            stream_message_id=msg.stream_message_id,
+            message_type=msg.message_type,
+            content=msg.content,
+            attachment_storage_path=msg.attachment_storage_path,
+            is_read=msg.is_read,
+            read_at=msg.read_at,
+            created_at=msg.created_at,
+            sender_name=sender_name,
+            sender_role=sender_role,
+            report_id=report_id,
+            report_number=report_number,
+            report_title=report_title,
+            attachments=attachments_resp,
         )
 
     @classmethod
@@ -799,20 +860,7 @@ class ConversationService:
             )
 
         logger.info("Message %s sent in conversation %s by user %s", new_message.id, conv.id, user.id)
-        return MessageResponse(
-            id=new_message.id,
-            conversation_id=new_message.conversation_id,
-            sender_id=new_message.sender_id,
-            stream_message_id=new_message.stream_message_id,
-            message_type=new_message.message_type,
-            content=new_message.content,
-            attachment_storage_path=new_message.attachment_storage_path,
-            is_read=new_message.is_read,
-            read_at=new_message.read_at,
-            created_at=new_message.created_at,
-            sender_name=sender_name,
-            sender_role=user.role,
-        )
+        return cls._format_message_response(new_message, sender_name, user.role)
 
     @classmethod
     async def list_messages(
@@ -869,10 +917,15 @@ class ConversationService:
         total = res_count.scalar() or 0
 
         # Paginated messages query ordered by created_at ASC
+        # Paginated messages query ordered by created_at ASC with eager-loaded attachments & report
         stmt_msgs = (
             select(Message, User.first_name, User.last_name, User.role)
             .join(User, Message.sender_id == User.id)
             .where(Message.conversation_id == conversation_id)
+            .options(
+                selectinload(Message.attachments),
+                selectinload(Message.report),
+            )
             .order_by(Message.created_at.asc())
             .offset(offset)
             .limit(limit)
@@ -886,22 +939,7 @@ class ConversationService:
             if sender_role == "dentist":
                 sender_name = f"Dr. {sender_name}"
 
-            items.append(
-                MessageResponse(
-                    id=msg.id,
-                    conversation_id=msg.conversation_id,
-                    sender_id=msg.sender_id,
-                    stream_message_id=msg.stream_message_id,
-                    message_type=msg.message_type,
-                    content=msg.content,
-                    attachment_storage_path=msg.attachment_storage_path,
-                    is_read=msg.is_read,
-                    read_at=msg.read_at,
-                    created_at=msg.created_at,
-                    sender_name=sender_name,
-                    sender_role=sender_role,
-                )
-            )
+            items.append(cls._format_message_response(msg, sender_name, sender_role))
 
         audit = AuditLog(
             id=uuid.uuid4(),
@@ -984,6 +1022,10 @@ class ConversationService:
                     Message.conversation_id == conversation_id,
                 )
             )
+            .options(
+                selectinload(Message.attachments),
+                selectinload(Message.report),
+            )
         )
         res_msg = await db.execute(stmt_msg)
         row = res_msg.first()
@@ -998,20 +1040,7 @@ class ConversationService:
         if sender_role == "dentist":
             sender_name = f"Dr. {sender_name}"
 
-        return MessageResponse(
-            id=msg.id,
-            conversation_id=msg.conversation_id,
-            sender_id=msg.sender_id,
-            stream_message_id=msg.stream_message_id,
-            message_type=msg.message_type,
-            content=msg.content,
-            attachment_storage_path=msg.attachment_storage_path,
-            is_read=msg.is_read,
-            read_at=msg.read_at,
-            created_at=msg.created_at,
-            sender_name=sender_name,
-            sender_role=sender_role,
-        )
+        return cls._format_message_response(msg, sender_name, sender_role)
 
     @classmethod
     async def mark_messages_read(
@@ -1099,3 +1128,562 @@ class ConversationService:
             marked_read_count=marked_count,
             conversation_id=conversation_id,
         )
+
+    # =========================================================================
+    # Phase 34: Chat File Attachments & Report Sharing
+    # =========================================================================
+
+    @classmethod
+    async def send_message_with_attachments(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user: User,
+        files: List[Tuple[str, bytes, str]],  # (original_filename, file_bytes, content_type)
+        content: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> MessageResponse:
+        """Send a message with one or more file attachments (images or PDFs)."""
+        if user.role == "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Administrators cannot post messages in clinical conversations.",
+            )
+
+        stmt = (
+            select(Conversation)
+            .options(
+                selectinload(Conversation.patient),
+                selectinload(Conversation.dentist),
+            )
+            .where(Conversation.id == conversation_id)
+        )
+        res = await db.execute(stmt)
+        conv = res.scalar_one_or_none()
+        if conv is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found.",
+            )
+
+        # Participant check
+        is_participant = (
+            conv.patient.user_id == user.id or conv.dentist.user_id == user.id
+        )
+        if not is_participant:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden: you are not a participant in this conversation.",
+            )
+
+        # Active conversation check
+        if not conv.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Conversation is archived. New messages cannot be sent.",
+            )
+
+        # File count validation (1 to 5)
+        if not files or len(files) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least one file attachment is required.",
+            )
+        if len(files) > 5:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Maximum of 5 attachments allowed per message.",
+            )
+
+        # Validate all files before starting uploads
+        validated_files = []
+        for orig_name, file_bytes, ctype in files:
+            try:
+                ext, detected_mime, att_type = StorageService.validate_chat_attachment(
+                    file_bytes=file_bytes,
+                    filename=orig_name,
+                    content_type=ctype,
+                )
+                validated_files.append({
+                    "bytes": file_bytes,
+                    "filename": orig_name,
+                    "content_type": ctype,
+                    "detected_mime": detected_mime,
+                    "attachment_type": att_type,
+                    "ext": ext,
+                })
+            except ValueError as err:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Attachment validation failed for '{orig_name}': {str(err)}",
+                )
+
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        message_id = uuid.uuid4()
+
+        # Upload files to Supabase Storage
+        uploaded_paths: List[str] = []
+        attachments_meta = []
+        try:
+            for v_file in validated_files:
+                meta = StorageService.upload_chat_attachment(
+                    file_bytes=v_file["bytes"],
+                    conversation_id=conv.id,
+                    message_id=message_id,
+                    original_filename=v_file["filename"],
+                    content_type=v_file["content_type"],
+                )
+                uploaded_paths.append(meta["storage_path"])
+                attachments_meta.append(meta)
+        except Exception as exc:
+            # Storage rollback: delete already uploaded files
+            for path in uploaded_paths:
+                try:
+                    StorageService.delete_file(path)
+                except Exception:
+                    pass
+            logger.error("Failed uploading chat attachment: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to upload attachment: {str(exc)}",
+            )
+
+        # Determine message_type
+        if len(attachments_meta) == 1 and attachments_meta[0]["attachment_type"] == "image":
+            message_type = "image"
+        else:
+            message_type = "attachment"
+
+        content_clean = content.strip() if (content and content.strip()) else ""
+        first_storage_path = attachments_meta[0]["storage_path"] if attachments_meta else None
+
+        new_message = Message(
+            id=message_id,
+            conversation_id=conv.id,
+            sender_id=user.id,
+            stream_message_id=f"msg_{uuid.uuid4().hex}",
+            message_type=message_type,
+            content=content_clean,
+            attachment_storage_path=first_storage_path,
+            is_read=False,
+            read_at=None,
+            created_at=now_dt,
+        )
+        db.add(new_message)
+
+        # Add MessageAttachment records
+        created_attachments = []
+        for meta in attachments_meta:
+            att = MessageAttachment(
+                id=uuid.uuid4(),
+                message_id=message_id,
+                storage_path=meta["storage_path"],
+                original_filename=meta["original_filename"],
+                mime_type=meta["mime_type"],
+                file_size=meta["file_size"],
+                attachment_type=meta["attachment_type"],
+                created_at=now_dt,
+            )
+            db.add(att)
+            created_attachments.append(att)
+
+        # Update parent conversation activity timestamp
+        conv.last_message_at = now_dt
+        conv.updated_at = now_dt
+
+        audit = AuditLog(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            action="MESSAGE_SENT",
+            resource_type="message",
+            resource_id=str(new_message.id),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details={
+                "conversation_id": str(conv.id),
+                "sender_id": str(user.id),
+                "message_type": message_type,
+                "attachment_count": len(created_attachments),
+                "has_caption": bool(content_clean),
+            },
+        )
+        db.add(audit)
+
+        sender_name = f"{user.first_name} {user.last_name}".strip()
+        if user.role == "dentist":
+            sender_name = f"Dr. {sender_name}"
+
+        # Atomic commit + notification
+        try:
+            recipient_user_id = conv.dentist.user_id if user.id == conv.patient.user_id else conv.patient.user_id
+            await NotificationService.create_notification(
+                db=db,
+                user_id=recipient_user_id,
+                notification_type="new_message",
+                title="New Message",
+                message=f"{sender_name} sent you an attachment.",
+                action_url=f"/conversations/{conv.id}",
+                suppress_duplicates_window_seconds=2,
+            )
+            await db.commit()
+        except Exception as exc:
+            await db.rollback()
+            for path in uploaded_paths:
+                try:
+                    StorageService.delete_file(path)
+                except Exception:
+                    pass
+            logger.error("Failed to commit message with attachments: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to send message with attachments.",
+            )
+
+        logger.info(
+            "Message %s with %d attachments sent in conversation %s by user %s",
+            new_message.id,
+            len(created_attachments),
+            conv.id,
+            user.id,
+        )
+
+        attachments_resp = [
+            MessageAttachmentResponse(
+                id=a.id,
+                message_id=a.message_id,
+                original_filename=a.original_filename,
+                mime_type=a.mime_type,
+                file_size=a.file_size,
+                attachment_type=a.attachment_type,
+                created_at=a.created_at,
+            )
+            for a in created_attachments
+        ]
+
+        return MessageResponse(
+            id=new_message.id,
+            conversation_id=new_message.conversation_id,
+            sender_id=new_message.sender_id,
+            stream_message_id=new_message.stream_message_id,
+            message_type=new_message.message_type,
+            content=new_message.content,
+            attachment_storage_path=new_message.attachment_storage_path,
+            is_read=new_message.is_read,
+            read_at=new_message.read_at,
+            created_at=new_message.created_at,
+            sender_name=sender_name,
+            sender_role=user.role,
+            report_id=None,
+            report_number=None,
+            report_title=None,
+            attachments=attachments_resp,
+        )
+
+    @classmethod
+    async def get_attachment_signed_url(
+        cls,
+        db: AsyncSession,
+        attachment_id: uuid.UUID,
+        user: User,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> AttachmentUrlResponse:
+        """Generate a short-lived (15-min) signed URL for an authorized chat attachment."""
+        stmt = (
+            select(MessageAttachment)
+            .options(
+                selectinload(MessageAttachment.message).options(
+                    selectinload(Message.conversation).options(
+                        selectinload(Conversation.patient),
+                        selectinload(Conversation.dentist),
+                    )
+                )
+            )
+            .where(MessageAttachment.id == attachment_id)
+        )
+        res = await db.execute(stmt)
+        att = res.scalar_one_or_none()
+        if att is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Attachment not found.",
+            )
+
+        msg = att.message
+        conv = msg.conversation
+
+        # Authorization check
+        if user.role == "admin":
+            pass  # Admin oversight
+        elif user.role == "patient":
+            if conv.patient.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Access forbidden: you are not a participant in this conversation.",
+                )
+        elif user.role == "dentist":
+            if conv.dentist.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Access forbidden: you are not a participant in this conversation.",
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden.",
+            )
+
+        signed_url = StorageService.create_signed_url(att.storage_path, expires_in=900)
+        if signed_url is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Storage service is not configured. Cannot generate attachment URL.",
+            )
+
+        audit = AuditLog(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            action="ATTACHMENT_ACCESSED",
+            resource_type="message_attachment",
+            resource_id=str(att.id),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details={
+                "conversation_id": str(conv.id),
+                "message_id": str(msg.id),
+                "storage_path": att.storage_path,
+                "original_filename": att.original_filename,
+            },
+        )
+        db.add(audit)
+        await db.commit()
+
+        return AttachmentUrlResponse(
+            attachment_id=att.id,
+            signed_url=signed_url,
+            expires_in=900,
+            filename=att.original_filename,
+            mime_type=att.mime_type,
+        )
+
+    @classmethod
+    async def share_report_in_conversation(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user: User,
+        data: ReportShareRequest,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> MessageResponse:
+        """Share an existing clinical report in an active conversation. Dentist only."""
+        if user.role != "dentist":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only clinical practitioners (dentists) can share reports in chat.",
+            )
+
+        stmt = (
+            select(Conversation)
+            .options(
+                selectinload(Conversation.patient),
+                selectinload(Conversation.dentist),
+            )
+            .where(Conversation.id == conversation_id)
+        )
+        res = await db.execute(stmt)
+        conv = res.scalar_one_or_none()
+        if conv is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found.",
+            )
+
+        # Dentist participant check
+        if conv.dentist.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden: you are not the dentist in this conversation.",
+            )
+
+        if not conv.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Conversation is archived. Reports cannot be shared.",
+            )
+
+        # Fetch target report with screening
+        stmt_rep = (
+            select(Report)
+            .options(selectinload(Report.screening))
+            .where(Report.id == data.report_id)
+        )
+        res_rep = await db.execute(stmt_rep)
+        report = res_rep.scalar_one_or_none()
+        if report is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Clinical report not found.",
+            )
+
+        # Verify report belongs to the patient in this conversation thread
+        if report.screening.patient_id != conv.patient_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot share a report that belongs to a different patient.",
+            )
+
+        # Verify dentist has clinical access to this report
+        has_access = await ReportService.verify_user_report_access(db, user, report.screening)
+        if not has_access:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Dentist is not authorized to access this report.",
+            )
+
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        note_clean = data.note.strip() if (data.note and data.note.strip()) else ""
+        content_text = note_clean if note_clean else f"Shared Clinical Report: {report.report_number}"
+
+        new_message = Message(
+            id=uuid.uuid4(),
+            conversation_id=conv.id,
+            sender_id=user.id,
+            report_id=report.id,
+            stream_message_id=f"msg_{uuid.uuid4().hex}",
+            message_type="report_share",
+            content=content_text,
+            attachment_storage_path=report.pdf_storage_path,
+            is_read=False,
+            read_at=None,
+            created_at=now_dt,
+        )
+        db.add(new_message)
+
+        conv.last_message_at = now_dt
+        conv.updated_at = now_dt
+
+        audit = AuditLog(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            action="REPORT_SHARED_IN_CHAT",
+            resource_type="message",
+            resource_id=str(new_message.id),
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details={
+                "conversation_id": str(conv.id),
+                "report_id": str(report.id),
+                "report_number": report.report_number,
+                "sender_id": str(user.id),
+            },
+        )
+        db.add(audit)
+
+        sender_name = f"Dr. {user.first_name} {user.last_name}".strip()
+
+        try:
+            await NotificationService.create_notification(
+                db=db,
+                user_id=conv.patient.user_id,
+                notification_type="new_message",
+                title="Clinical Report Shared",
+                message=f"{sender_name} shared clinical report {report.report_number} with you.",
+                action_url=f"/conversations/{conv.id}",
+                suppress_duplicates_window_seconds=0,
+            )
+            await db.commit()
+        except Exception as exc:
+            await db.rollback()
+            logger.error("Failed to commit shared report message: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to share clinical report.",
+            )
+
+        logger.info("Report %s shared in conversation %s by dentist %s", report.id, conv.id, user.id)
+
+        return MessageResponse(
+            id=new_message.id,
+            conversation_id=new_message.conversation_id,
+            sender_id=new_message.sender_id,
+            stream_message_id=new_message.stream_message_id,
+            message_type=new_message.message_type,
+            content=new_message.content,
+            attachment_storage_path=new_message.attachment_storage_path,
+            is_read=new_message.is_read,
+            read_at=new_message.read_at,
+            created_at=new_message.created_at,
+            sender_name=sender_name,
+            sender_role=user.role,
+            report_id=report.id,
+            report_number=report.report_number,
+            report_title=report.report_title,
+            attachments=[],
+        )
+
+    @classmethod
+    async def get_shareable_reports_for_dentist(
+        cls,
+        db: AsyncSession,
+        conversation_id: uuid.UUID,
+        user: User,
+    ) -> List[ShareableReportItem]:
+        """List reports belonging to the patient in this conversation, authorized for the calling dentist."""
+        if user.role != "dentist":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only clinical practitioners (dentists) can view shareable reports.",
+            )
+
+        stmt = (
+            select(Conversation)
+            .options(
+                selectinload(Conversation.patient),
+                selectinload(Conversation.dentist),
+            )
+            .where(Conversation.id == conversation_id)
+        )
+        res = await db.execute(stmt)
+        conv = res.scalar_one_or_none()
+        if conv is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found.",
+            )
+
+        if conv.dentist.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden: you are not the dentist in this conversation.",
+            )
+
+        stmt_reps = (
+            select(Report)
+            .join(Screening, Report.screening_id == Screening.id)
+            .where(
+                Screening.patient_id == conv.patient_id,
+                Screening.is_deleted.is_(False),
+            )
+            .options(selectinload(Report.screening))
+            .order_by(Report.created_at.desc())
+        )
+        res_reps = await db.execute(stmt_reps)
+        reports = res_reps.scalars().all()
+
+        items = []
+        for r in reports:
+            has_access = await ReportService.verify_user_report_access(db, user, r.screening)
+            if has_access:
+                items.append(
+                    ShareableReportItem(
+                        id=r.id,
+                        report_number=r.report_number,
+                        report_title=r.report_title,
+                        created_at=r.created_at,
+                        summary=r.summary,
+                        screening_id=r.screening_id,
+                    )
+                )
+        return items

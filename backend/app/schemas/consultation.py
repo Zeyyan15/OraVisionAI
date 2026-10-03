@@ -106,3 +106,16 @@ class ConsultationListResponse(BaseModel):
     total: int
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class StreamTokenResponse(BaseModel):
+    """Response payload containing short-lived Stream Video authentication details."""
+
+    token: str = Field(description="Short-lived user authentication JWT generated server-side")
+    user_id: str = Field(description="Deterministic Stream user identifier")
+    api_key: str = Field(description="Public Stream application API key")
+    call_id: str = Field(description="Deterministic Stream call identifier")
+    call_type: str = Field(default="default", description="Canonical Stream Video call type")
+    consultation_id: uuid.UUID = Field(description="OraVisionAI consultation entity identifier")
+
+    model_config = ConfigDict(from_attributes=True)

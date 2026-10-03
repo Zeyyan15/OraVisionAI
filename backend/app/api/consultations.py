@@ -23,6 +23,7 @@ from app.schemas.consultation import (
     ConsultationListResponse,
     ConsultationResponse,
     ConsultationStart,
+    StreamTokenResponse,
 )
 from app.services.consultation_service import ConsultationService
 
@@ -231,6 +232,61 @@ async def fail_consultation(
         consultation_id=consultation_id,
         user=current_user,
         data=data,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+# =============================================================================
+# Stream Video Teleconsultation Token Endpoints
+# =============================================================================
+
+
+@router.post(
+    "/consultations/{consultation_id}/stream-token",
+    response_model=StreamTokenResponse,
+    summary="Issue Stream Video authentication token for consultation",
+)
+async def get_consultation_stream_token(
+    consultation_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> StreamTokenResponse:
+    """Issue an authoritative, short-lived Stream Video token for an authorized participant.
+
+    Restricted to the booking patient, assigned dentist, or admin.
+    Returns token, user_id, api_key, call_id, and call_type.
+    """
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return await ConsultationService.get_stream_token_for_consultation(
+        db=db,
+        consultation_id=consultation_id,
+        user=current_user,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.get(
+    "/consultations/{consultation_id}/stream-token",
+    response_model=StreamTokenResponse,
+    summary="Issue Stream Video authentication token for consultation (GET alias)",
+)
+async def get_consultation_stream_token_get(
+    consultation_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> StreamTokenResponse:
+    """GET alias for Stream Video token retrieval."""
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return await ConsultationService.get_stream_token_for_consultation(
+        db=db,
+        consultation_id=consultation_id,
+        user=current_user,
         ip_address=ip_address,
         user_agent=user_agent,
     )

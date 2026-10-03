@@ -36,6 +36,7 @@ export const PatientMessagesPage: React.FC = () => {
     selectConversation,
     loadEarlierMessages,
     sendMessage,
+    sendMessageWithAttachments,
     archiveCurrentConversation,
     reactivateCurrentConversation,
   } = useConversations();
@@ -144,6 +145,7 @@ export const PatientMessagesPage: React.FC = () => {
           {selectedConversation && selectedConversation.is_active && (
             <MessageComposer
               onSendMessage={sendMessage}
+              onSendMessageWithAttachments={sendMessageWithAttachments}
               disabled={!selectedConversation.is_active}
             />
           )}

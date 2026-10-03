@@ -24,12 +24,14 @@ import {
   User,
   Building,
 } from 'lucide-react';
+import { StreamVideoContainer } from './StreamVideoContainer';
 
 interface ConsultationMediaStageProps {
   consultation: ConsultationResponse;
   elapsedSeconds: number;
   onOpenDeviceCheck: () => void;
   isDentist?: boolean;
+  onLeave?: () => void;
 }
 
 export const ConsultationMediaStage: React.FC<ConsultationMediaStageProps> = ({
@@ -37,6 +39,7 @@ export const ConsultationMediaStage: React.FC<ConsultationMediaStageProps> = ({
   elapsedSeconds,
   onOpenDeviceCheck,
   isDentist = false,
+  onLeave,
 }) => {
   const formatDuration = (secs: number) => {
     const hrs = Math.floor(secs / 3600);
@@ -118,19 +121,18 @@ export const ConsultationMediaStage: React.FC<ConsultationMediaStageProps> = ({
         </div>
       </div>
 
-      {/* Honest Media Status Disclosure Banner */}
+      {/* Real Stream Media Status Disclosure Banner */}
       <div className="flex items-start space-x-3 p-3.5 bg-sky-50 border border-sky-200 rounded-xl text-sky-900 text-xs leading-relaxed">
         <Shield className="h-4 w-4 text-sky-600 shrink-0 mt-0.5" />
         <div>
           <span className="font-semibold">Media Architecture Notice: </span>
           {consultation.session_status === 'active' ? (
             <span>
-              Consultation Session Active — Live media streaming gateway pending Stream backend infrastructure authorization.
-              Audio/video transport relies on local hardware readiness verification and direct clinical communication.
+              Consultation Session Active — Encrypted Stream Video gateway connected. Real-time media streaming is active between the verified patient and treating dentist.
             </span>
           ) : consultation.session_status === 'scheduled' ? (
             <span>
-              Consultation Scheduled — Waiting for practitioner to initiate session. Live media streaming gateway pending Stream backend infrastructure authorization.
+              Consultation Scheduled — Pre-join lobby ready. Live media streaming gateway initialized on Stream Singapore infrastructure. Click Join Consultation to connect.
             </span>
           ) : consultation.session_status === 'ended' ? (
             <span>
@@ -145,50 +147,45 @@ export const ConsultationMediaStage: React.FC<ConsultationMediaStageProps> = ({
       </div>
 
       {/* Video / Media Stage Frame */}
-      <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-inner flex flex-col justify-between p-6">
-        {/* Top Controls Overlay */}
-        <div className="flex items-center justify-between text-white/80 z-10">
-          <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs">
-            <div className={`w-2 h-2 rounded-full ${consultation.session_status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-            <span>{consultation.session_status === 'active' ? 'Room Active' : 'Waiting Room'}</span>
+      {consultation.session_status === 'scheduled' || consultation.session_status === 'active' ? (
+        <StreamVideoContainer
+          consultation={consultation}
+          isDentist={isDentist}
+          onLeave={onLeave}
+        />
+      ) : (
+        <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-inner flex flex-col justify-between p-6">
+          {/* Top Controls Overlay */}
+          <div className="flex items-center justify-between text-white/80 z-10">
+            <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs">
+              <div className="w-2 h-2 rounded-full bg-slate-500" />
+              <span>{consultation.session_status === 'ended' ? 'Session Concluded' : 'Session Closed'}</span>
+            </div>
+
+            <div className="text-xs bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg">
+              Privacy-Focused & Authorization-Enforced
+            </div>
           </div>
 
-          <div className="text-xs bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg">
-            Privacy-Focused & Authorization-Enforced
-          </div>
-        </div>
-
-        {/* Center Stage Presentation */}
-        <div className="flex flex-col items-center justify-center my-auto text-center space-y-4">
-          <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center shadow-xl">
-            {consultation.session_status === 'active' ? (
-              <Video className="h-9 w-9 text-emerald-400" />
-            ) : consultation.session_status === 'scheduled' ? (
-              <Clock className="h-9 w-9 text-sky-400 animate-pulse" />
-            ) : (
+          {/* Center Stage Presentation */}
+          <div className="flex flex-col items-center justify-center my-auto text-center space-y-4">
+            <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center shadow-xl">
               <VideoOff className="h-9 w-9 text-slate-500" />
-            )}
-          </div>
+            </div>
 
-          <div className="max-w-md space-y-1.5">
-            <h3 className="text-white font-medium text-base">
-              {consultation.session_status === 'active'
-                ? 'Clinical Evaluation in Progress'
-                : consultation.session_status === 'scheduled'
-                ? (isDentist ? 'Ready to Begin Consultation' : 'Waiting for Dental Practitioner')
-                : 'Session Terminated'}
-            </h3>
-            <p className="text-slate-400 text-xs">
-              {consultation.session_status === 'active'
-                ? 'Active consultation room. Treating dentist may review oral screening images and document clinical findings.'
-                : consultation.session_status === 'scheduled'
-                ? (isDentist
-                    ? 'Review the attached clinical diagnostic panel and click Start Consultation when ready.'
-                    : 'Your treating dentist will initiate the consultation session shortly. Please remain on this page.')
-                : 'This teleconsultation session has ended. Clinical records are preserved in the patient chart.'}
-            </p>
+            <div className="max-w-md space-y-1.5">
+              <h3 className="text-white font-medium text-base">
+                {consultation.session_status === 'ended'
+                  ? 'Consultation Concluded'
+                  : 'Session Closed'}
+              </h3>
+              <p className="text-slate-400 text-xs">
+                {consultation.session_status === 'ended'
+                  ? 'This teleconsultation session has ended. Clinical records are preserved in the patient chart.'
+                  : 'This session has been cancelled or marked as failed.'}
+              </p>
+            </div>
           </div>
-        </div>
 
         {/* Bottom Participant Badges */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 z-10">
@@ -220,6 +217,7 @@ export const ConsultationMediaStage: React.FC<ConsultationMediaStageProps> = ({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

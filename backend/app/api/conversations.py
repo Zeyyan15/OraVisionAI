@@ -17,8 +17,10 @@ from __future__ import annotations
 
 import uuid
 from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import get_current_active_user
@@ -31,10 +33,14 @@ from app.schemas.conversation import (
     ConversationResponse,
 )
 from app.schemas.message import (
+    AttachmentUrlResponse,
+    MessageAttachmentResponse,
     MessageCreate,
     MessageListResponse,
     MessageReadResponse,
     MessageResponse,
+    ReportShareRequest,
+    ShareableReportItem,
 )
 from app.services.conversation_service import ConversationService
 
@@ -296,3 +302,120 @@ async def mark_messages_read(
         ip_address=ip_address,
         user_agent=user_agent,
     )
+
+
+# =============================================================================
+# Phase 34: Chat File Attachments & Report Sharing Endpoints
+# =============================================================================
+
+
+@router.post(
+    "/conversations/{conversation_id}/messages/upload",
+    response_model=MessageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Post a message with file attachments (images / PDFs)",
+)
+async def upload_message_attachments(
+    conversation_id: uuid.UUID,
+    request: Request,
+    files: List[UploadFile] = File(...),
+    content: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> MessageResponse:
+    """Send a message with one or more file attachments (JPEG, PNG, WEBP, PDF up to 10MB each, max 5)."""
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    files_data = []
+    for f in files:
+        b = await f.read()
+        files_data.append((f.filename or "attachment", b, f.content_type or "application/octet-stream"))
+
+    return await ConversationService.send_message_with_attachments(
+        db=db,
+        conversation_id=conversation_id,
+        user=current_user,
+        files=files_data,
+        content=content,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.get(
+    "/messages/attachments/{attachment_id}/url",
+    response_model=AttachmentUrlResponse,
+    summary="Get short-lived signed URL for a chat attachment",
+)
+async def get_attachment_signed_url(
+    attachment_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> AttachmentUrlResponse:
+    """Generate a 15-minute signed URL for downloading or previewing a chat attachment.
+
+    Restricted to conversation participants or administrators.
+    """
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return await ConversationService.get_attachment_signed_url(
+        db=db,
+        attachment_id=attachment_id,
+        user=current_user,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.post(
+    "/conversations/{conversation_id}/share-report",
+    response_model=MessageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Share a clinical report in conversation (Dentist only)",
+)
+async def share_report_in_conversation(
+    conversation_id: uuid.UUID,
+    data: ReportShareRequest,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> MessageResponse:
+    """Share an existing clinical report in an active conversation thread.
+
+    Dentist-only endpoint. Zero PDF duplication in storage.
+    """
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return await ConversationService.share_report_in_conversation(
+        db=db,
+        conversation_id=conversation_id,
+        user=current_user,
+        data=data,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+
+@router.get(
+    "/conversations/{conversation_id}/shareable-reports",
+    response_model=List[ShareableReportItem],
+    summary="List shareable reports for this conversation (Dentist only)",
+)
+async def get_shareable_reports(
+    conversation_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[ShareableReportItem]:
+    """List available clinical reports for the patient in this conversation.
+
+    Restricted to the active dentist participant.
+    """
+    return await ConversationService.get_shareable_reports_for_dentist(
+        db=db,
+        conversation_id=conversation_id,
+        user=current_user,
+    )
+

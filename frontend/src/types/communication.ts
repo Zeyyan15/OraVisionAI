@@ -50,11 +50,44 @@ export interface ConversationQueryParams {
 
 // ============================================================================
 // 2. Message Types (Phase 16)
+// 2. Message Types (Phase 16 & Phase 34)
 // ============================================================================
 
 export interface MessageCreate {
   content: string; // 1 to 4000 characters
   message_type?: 'text';
+}
+
+export interface MessageAttachmentResponse {
+  id: string;
+  message_id: string;
+  original_filename: string;
+  mime_type: string;
+  file_size: number;
+  attachment_type: string;
+  created_at: string;
+}
+
+export interface AttachmentUrlResponse {
+  attachment_id: string;
+  signed_url: string;
+  expires_in: number;
+  filename: string;
+  mime_type: string;
+}
+
+export interface ReportShareRequest {
+  report_id: string;
+  note?: string | null;
+}
+
+export interface ShareableReportItem {
+  id: string;
+  report_number: string;
+  report_title: string;
+  created_at: string;
+  summary?: string | null;
+  screening_id: string;
 }
 
 export interface MessageResponse {
@@ -70,6 +103,10 @@ export interface MessageResponse {
   created_at: string;
   sender_name?: string | null;
   sender_role?: string | null;
+  report_id?: string | null;
+  report_number?: string | null;
+  report_title?: string | null;
+  attachments?: MessageAttachmentResponse[];
 }
 
 export interface MessageListResponse {

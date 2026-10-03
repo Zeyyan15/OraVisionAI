@@ -33,4 +33,4 @@ scipy>=1.14.0
 reportlab>=4.0.0
 
 # --- Stream (Teleconsultation) ------------------------------------------------
-stream-chat>=4.0.0
+getstream>=6.0.0

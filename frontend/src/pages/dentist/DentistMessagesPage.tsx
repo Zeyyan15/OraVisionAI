@@ -34,6 +34,8 @@ export const DentistMessagesPage: React.FC = () => {
     selectConversation,
     loadEarlierMessages,
     sendMessage,
+    sendMessageWithAttachments,
+    appendSharedReportMessage,
     archiveCurrentConversation,
     reactivateCurrentConversation,
   } = useConversations();
@@ -135,12 +137,14 @@ export const DentistMessagesPage: React.FC = () => {
               }
               currentUserId={currentUserId}
               currentRole="dentist"
+              onReportShared={appendSharedReportMessage}
             />
           </div>
 
           {selectedConversation && selectedConversation.is_active && (
             <MessageComposer
               onSendMessage={sendMessage}
+              onSendMessageWithAttachments={sendMessageWithAttachments}
               disabled={!selectedConversation.is_active}
             />
           )}

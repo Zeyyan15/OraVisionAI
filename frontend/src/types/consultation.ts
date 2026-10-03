@@ -50,3 +50,12 @@ export interface ConsultationListResponse {
   consultations?: ConsultationResponse[];
   total: number;
 }
+
+export interface StreamTokenResponse {
+  token: string;
+  user_id: string;
+  api_key: string;
+  call_id: string;
+  call_type: string;
+  consultation_id: string;
+}

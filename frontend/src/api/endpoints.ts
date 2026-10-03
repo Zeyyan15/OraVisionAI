@@ -86,6 +86,14 @@ export const API_PATHS = {
   CONVERSATION_MESSAGE_DETAIL: (conversationId: string, messageId: string) =>
     `/api/conversations/${conversationId}/messages/${messageId}`,
   CONVERSATION_READ: (conversationId: string) => `/api/conversations/${conversationId}/read`,
+  CONVERSATION_UPLOAD_ATTACHMENTS: (conversationId: string) =>
+    `/api/conversations/${conversationId}/messages/upload`,
+  ATTACHMENT_SIGNED_URL: (attachmentId: string) =>
+    `/api/messages/attachments/${attachmentId}/url`,
+  CONVERSATION_SHARE_REPORT: (conversationId: string) =>
+    `/api/conversations/${conversationId}/share-report`,
+  CONVERSATION_SHAREABLE_REPORTS: (conversationId: string) =>
+    `/api/conversations/${conversationId}/shareable-reports`,
 
   // In-App Notifications (Phase 17 & 27)
   NOTIFICATIONS: '/api/notifications',

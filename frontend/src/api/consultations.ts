@@ -18,6 +18,7 @@ import {
   ConsultationCreate,
   ConsultationEnd,
   ConsultationListResponse,
+  StreamTokenResponse,
 } from '../types/consultation';
 
 export const createConsultationForAppointment = async (
@@ -73,6 +74,15 @@ export const failConsultation = async (
 ): Promise<ConsultationResponse> => {
   return apiClient.patch<ConsultationResponse>(
     ENDPOINTS.CONSULTATION_FAIL(consultationId),
+    {}
+  );
+};
+
+export const getConsultationStreamToken = async (
+  consultationId: string
+): Promise<StreamTokenResponse> => {
+  return apiClient.post<StreamTokenResponse>(
+    `${ENDPOINTS.CONSULTATIONS}/${consultationId}/stream-token`,
     {}
   );
 };

@@ -18,6 +18,8 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.conversation import Conversation
+    from app.models.message_attachment import MessageAttachment
+    from app.models.report import Report
     from app.models.user import User
 
 
@@ -40,6 +42,11 @@ class Message(Base):
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+    )
+    report_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("reports.id", ondelete="SET NULL"),
+        nullable=True,
     )
     stream_message_id: Mapped[Optional[str]] = mapped_column(
         String(128),
@@ -75,11 +82,12 @@ class Message(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "message_type IN ('text', 'image', 'screening_share', 'system')",
+            "message_type IN ('text', 'image', 'attachment', 'screening_share', 'report_share', 'system')",
             name="chk_message_type",
         ),
         Index("idx_messages_conversation", "conversation_id", "created_at"),
         Index("idx_messages_sender", "sender_id"),
+        Index("idx_messages_report_id", "report_id"),
     )
 
     # Relationships
@@ -90,5 +98,15 @@ class Message(Base):
     sender: Mapped[User] = relationship(
         "User",
         back_populates="sent_messages",
+    )
+    report: Mapped[Optional[Report]] = relationship(
+        "Report",
+        foreign_keys=[report_id],
+    )
+    attachments: Mapped[list[MessageAttachment]] = relationship(
+        "MessageAttachment",
+        back_populates="message",
+        cascade="all, delete-orphan",
+        order_by="MessageAttachment.created_at.asc()",
     )
 

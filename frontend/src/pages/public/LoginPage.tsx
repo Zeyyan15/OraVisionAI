@@ -10,6 +10,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Input } from '../../components/ui/Input';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Button } from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Alert';
 

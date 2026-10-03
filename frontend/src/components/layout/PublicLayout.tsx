@@ -4,39 +4,44 @@
  */
 
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 export const PublicLayout: React.FC = () => {
+  const { pathname } = useLocation();
+  const isLanding = pathname === '/';
+  const isAuth = ['/login', '/register'].includes(pathname);
+  const isBranded = isLanding || isAuth;
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className={`min-h-screen flex flex-col ${isBranded ? 'bg-[#fcfdfb]' : 'bg-slate-50'}`}>
+      <header className={`border-b ${isBranded ? 'sticky top-0 z-30 border-[#dce8e3] bg-[#fcfdfb]/95 backdrop-blur-md' : 'border-slate-200 bg-white'}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between ${isBranded ? 'h-[76px]' : 'h-16'}`}>
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-clinical-600 font-bold text-white shadow-sm">
-              OV
-            </div>
-            <div>
-              <span className="text-lg font-bold tracking-tight text-slate-900">OraVision</span>
-              <span className="text-lg font-semibold text-clinical-600">AI</span>
-            </div>
+            <img src={logo} alt="OravisionAI" className="h-7 w-auto sm:h-8" />
           </Link>
-          <div className="flex items-center gap-4">
+          {isBranded && (
+            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8 text-xs font-medium text-[#617471]">
+              <Link to="/#demo" className="hover:text-[#087f70] focus-visible:outline-[#087f70]">Watch the demo</Link>
+              <Link to="/login" className="hover:text-[#087f70] focus-visible:outline-[#087f70]">For practitioners</Link>
+            </nav>
+          )}
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link
               to="/login"
-              className="text-sm font-medium text-slate-700 hover:text-clinical-600"
+              className="rounded-lg px-2 py-2 text-xs sm:text-sm font-medium text-slate-700 transition-colors hover:bg-[#edf4eb] hover:text-[#087f70] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#087f70]"
             >
               Sign In
             </Link>
             <Link
               to="/register"
-              className="rounded-lg bg-clinical-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-clinical-700"
+              className={`cut-corner-button px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none ${isBranded ? 'bg-[#087f70] hover:bg-[#06685c]' : 'bg-clinical-600 hover:bg-clinical-700'}`}
             >
               Get Started
             </Link>
           </div>
         </div>
       </header>
-      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <main className={isBranded ? 'flex-1' : 'flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8'}>
         <Outlet />
       </main>
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">

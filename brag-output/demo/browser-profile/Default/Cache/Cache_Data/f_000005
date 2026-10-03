@@ -1,0 +1,505 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/routes/AppRoutes.tsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0fa8ac71"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+let prevRefreshReg;
+let prevRefreshSig;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+import { Routes, Route, Navigate } from "/node_modules/.vite/deps/react-router-dom.js?v=600ef8d5";
+import { ProtectedRoute } from "/src/routes/ProtectedRoute.tsx";
+import { PublicLayout } from "/src/components/layout/PublicLayout.tsx";
+import { PatientShell } from "/src/components/layout/PatientShell.tsx";
+import { DentistShell } from "/src/components/layout/DentistShell.tsx";
+import { AdminShell } from "/src/components/layout/AdminShell.tsx";
+import { LandingPage } from "/src/pages/public/LandingPage.tsx";
+import { LoginPage } from "/src/pages/public/LoginPage.tsx";
+import { RegisterPage } from "/src/pages/public/RegisterPage.tsx";
+import { UnauthorizedPage } from "/src/pages/public/UnauthorizedPage.tsx";
+import { DeactivatedPage } from "/src/pages/public/DeactivatedPage.tsx";
+import { NotFoundPage } from "/src/pages/public/NotFoundPage.tsx";
+import { PatientDashboard } from "/src/pages/patient/PatientDashboard.tsx";
+import { DentistDashboard } from "/src/pages/dentist/DentistDashboard.tsx";
+import { AdminDashboard } from "/src/pages/admin/AdminDashboard.tsx";
+import { AdminDentistVerificationsPage } from "/src/pages/admin/AdminDentistVerificationsPage.tsx";
+import { AdminAuditLogsPage } from "/src/pages/admin/AdminAuditLogsPage.tsx";
+import { AdminScreeningAnalyticsPage } from "/src/pages/admin/AdminScreeningAnalyticsPage.tsx";
+import { AdminAITelemetryPage } from "/src/pages/admin/AdminAITelemetryPage.tsx";
+import { AdminTelehealthAnalyticsPage } from "/src/pages/admin/AdminTelehealthAnalyticsPage.tsx";
+import { AdminAIModelsPage } from "/src/pages/admin/AdminAIModelsPage.tsx";
+import { NewScreeningPage } from "/src/pages/patient/NewScreeningPage.tsx";
+import { ScreeningResultsPage } from "/src/pages/patient/ScreeningResultsPage.tsx";
+import { ScreeningsListPage } from "/src/pages/patient/ScreeningsListPage.tsx";
+import { PatientDentistDirectoryPage } from "/src/pages/patient/PatientDentistDirectoryPage.tsx";
+import { PatientAppointmentsPage } from "/src/pages/patient/PatientAppointmentsPage.tsx";
+import { PatientConsultationsPage } from "/src/pages/patient/PatientConsultationsPage.tsx";
+import { PatientConsultationRoomPage } from "/src/pages/patient/PatientConsultationRoomPage.tsx";
+import { DentistAppointmentsPage } from "/src/pages/dentist/DentistAppointmentsPage.tsx";
+import { DentistScreeningReviewPage } from "/src/pages/dentist/DentistScreeningReviewPage.tsx";
+import { DentistProfilePage } from "/src/pages/dentist/DentistProfilePage.tsx";
+import { DentistConsultationRoomPage } from "/src/pages/dentist/DentistConsultationRoomPage.tsx";
+import { PatientMessagesPage } from "/src/pages/patient/PatientMessagesPage.tsx";
+import { DentistMessagesPage } from "/src/pages/dentist/DentistMessagesPage.tsx";
+import { NotificationsPage } from "/src/pages/shared/NotificationsPage.tsx";
+export const AppRoutes = () => {
+  return /* @__PURE__ */ jsxDEV(Routes, { children: [
+    /* @__PURE__ */ jsxDEV(Route, { element: /* @__PURE__ */ jsxDEV(PublicLayout, {}, void 0, false, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 87,
+      columnNumber: 23
+    }, this), children: [
+      /* @__PURE__ */ jsxDEV(Route, { path: "/", element: /* @__PURE__ */ jsxDEV(LandingPage, {}, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 88,
+        columnNumber: 34
+      }, this) }, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 88,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV(Route, { path: "/login", element: /* @__PURE__ */ jsxDEV(LoginPage, {}, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 89,
+        columnNumber: 39
+      }, this) }, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 89,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV(Route, { path: "/register", element: /* @__PURE__ */ jsxDEV(RegisterPage, {}, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 90,
+        columnNumber: 42
+      }, this) }, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 90,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV(Route, { path: "/unauthorized", element: /* @__PURE__ */ jsxDEV(UnauthorizedPage, {}, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 91,
+        columnNumber: 46
+      }, this) }, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 91,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV(Route, { path: "/deactivated", element: /* @__PURE__ */ jsxDEV(DeactivatedPage, {}, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 92,
+        columnNumber: 45
+      }, this) }, void 0, false, {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 92,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, true, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 87,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV(
+      Route,
+      {
+        path: "/patient",
+        element: /* @__PURE__ */ jsxDEV(ProtectedRoute, { allowedRoles: ["patient"], children: /* @__PURE__ */ jsxDEV(PatientShell, {}, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 100,
+          columnNumber: 13
+        }, this) }, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 99,
+          columnNumber: 9
+        }, this),
+        children: [
+          /* @__PURE__ */ jsxDEV(Route, { index: true, element: /* @__PURE__ */ jsxDEV(Navigate, { to: "/patient/dashboard", replace: true }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 104,
+            columnNumber: 31
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 104,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "dashboard", element: /* @__PURE__ */ jsxDEV(PatientDashboard, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 105,
+            columnNumber: 42
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 105,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "screenings", element: /* @__PURE__ */ jsxDEV(ScreeningsListPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 106,
+            columnNumber: 43
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 106,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "screenings/new", element: /* @__PURE__ */ jsxDEV(NewScreeningPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 107,
+            columnNumber: 47
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 107,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "screenings/:screeningId", element: /* @__PURE__ */ jsxDEV(ScreeningResultsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 108,
+            columnNumber: 56
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 108,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "dentists", element: /* @__PURE__ */ jsxDEV(PatientDentistDirectoryPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 109,
+            columnNumber: 41
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 109,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "appointments", element: /* @__PURE__ */ jsxDEV(PatientAppointmentsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 110,
+            columnNumber: 45
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 110,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "consultations", element: /* @__PURE__ */ jsxDEV(PatientConsultationsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 111,
+            columnNumber: 46
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 111,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "consultations/:consultationId", element: /* @__PURE__ */ jsxDEV(PatientConsultationRoomPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 112,
+            columnNumber: 62
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 112,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "messages", element: /* @__PURE__ */ jsxDEV(PatientMessagesPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 113,
+            columnNumber: 41
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 113,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "messages/:conversationId", element: /* @__PURE__ */ jsxDEV(PatientMessagesPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 114,
+            columnNumber: 57
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 114,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "notifications", element: /* @__PURE__ */ jsxDEV(NotificationsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 115,
+            columnNumber: 46
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 115,
+            columnNumber: 9
+          }, this)
+        ]
+      },
+      void 0,
+      true,
+      {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 96,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV(
+      Route,
+      {
+        path: "/dentist",
+        element: /* @__PURE__ */ jsxDEV(ProtectedRoute, { allowedRoles: ["dentist"], children: /* @__PURE__ */ jsxDEV(DentistShell, {}, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 123,
+          columnNumber: 13
+        }, this) }, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 122,
+          columnNumber: 9
+        }, this),
+        children: [
+          /* @__PURE__ */ jsxDEV(Route, { index: true, element: /* @__PURE__ */ jsxDEV(Navigate, { to: "/dentist/dashboard", replace: true }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 127,
+            columnNumber: 31
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 127,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "dashboard", element: /* @__PURE__ */ jsxDEV(DentistDashboard, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 128,
+            columnNumber: 42
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 128,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "appointments", element: /* @__PURE__ */ jsxDEV(DentistAppointmentsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 129,
+            columnNumber: 45
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 129,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "screenings/:screeningId/review", element: /* @__PURE__ */ jsxDEV(DentistScreeningReviewPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 130,
+            columnNumber: 63
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 130,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "screenings/:screeningId", element: /* @__PURE__ */ jsxDEV(DentistScreeningReviewPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 131,
+            columnNumber: 56
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 131,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "consultations/:consultationId", element: /* @__PURE__ */ jsxDEV(DentistConsultationRoomPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 132,
+            columnNumber: 62
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 132,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "profile", element: /* @__PURE__ */ jsxDEV(DentistProfilePage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 133,
+            columnNumber: 40
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 133,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "messages", element: /* @__PURE__ */ jsxDEV(DentistMessagesPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 134,
+            columnNumber: 41
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 134,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "messages/:conversationId", element: /* @__PURE__ */ jsxDEV(DentistMessagesPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 135,
+            columnNumber: 57
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 135,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "notifications", element: /* @__PURE__ */ jsxDEV(NotificationsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 136,
+            columnNumber: 46
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 136,
+            columnNumber: 9
+          }, this)
+        ]
+      },
+      void 0,
+      true,
+      {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 119,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV(
+      Route,
+      {
+        path: "/admin",
+        element: /* @__PURE__ */ jsxDEV(ProtectedRoute, { allowedRoles: ["admin"], children: /* @__PURE__ */ jsxDEV(AdminShell, {}, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 144,
+          columnNumber: 13
+        }, this) }, void 0, false, {
+          fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+          lineNumber: 143,
+          columnNumber: 9
+        }, this),
+        children: [
+          /* @__PURE__ */ jsxDEV(Route, { index: true, element: /* @__PURE__ */ jsxDEV(Navigate, { to: "/admin/dashboard", replace: true }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 148,
+            columnNumber: 31
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 148,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "dashboard", element: /* @__PURE__ */ jsxDEV(AdminDashboard, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 149,
+            columnNumber: 42
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 149,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "verifications", element: /* @__PURE__ */ jsxDEV(AdminDentistVerificationsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 150,
+            columnNumber: 46
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 150,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "audit-logs", element: /* @__PURE__ */ jsxDEV(AdminAuditLogsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 151,
+            columnNumber: 43
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 151,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "analytics/screenings", element: /* @__PURE__ */ jsxDEV(AdminScreeningAnalyticsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 152,
+            columnNumber: 53
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 152,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "analytics/ai-telemetry", element: /* @__PURE__ */ jsxDEV(AdminAITelemetryPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 153,
+            columnNumber: 55
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 153,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "analytics/telehealth", element: /* @__PURE__ */ jsxDEV(AdminTelehealthAnalyticsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 154,
+            columnNumber: 53
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 154,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "ai-models", element: /* @__PURE__ */ jsxDEV(AdminAIModelsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 155,
+            columnNumber: 42
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 155,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Route, { path: "notifications", element: /* @__PURE__ */ jsxDEV(NotificationsPage, {}, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 156,
+            columnNumber: 46
+          }, this) }, void 0, false, {
+            fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+            lineNumber: 156,
+            columnNumber: 9
+          }, this)
+        ]
+      },
+      void 0,
+      true,
+      {
+        fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+        lineNumber: 140,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV(Route, { element: /* @__PURE__ */ jsxDEV(PublicLayout, {}, void 0, false, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 160,
+      columnNumber: 23
+    }, this), children: /* @__PURE__ */ jsxDEV(Route, { path: "*", element: /* @__PURE__ */ jsxDEV(NotFoundPage, {}, void 0, false, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 161,
+      columnNumber: 34
+    }, this) }, void 0, false, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 161,
+      columnNumber: 9
+    }, this) }, void 0, false, {
+      fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+      lineNumber: 160,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, true, {
+    fileName: "D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx",
+    lineNumber: 85,
+    columnNumber: 5
+  }, this);
+};
+_c = AppRoutes;
+export default AppRoutes;
+var _c;
+$RefreshReg$(_c, "AppRoutes");
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ISSM/OravisionAI/frontend/src/routes/AppRoutes.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,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LE1BQUssaUJBQWdCLFNBQVMsdUJBQUMsdUJBQUQ7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBa0IsS0FBdkQ7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFBMkQ7QUFBQTtBQUFBO0FBQUEsTUFoQjdEO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSxJQWlCQTtBQUFBLElBR0EsdUJBQUMsU0FBTSxTQUFTLHVCQUFDLGtCQUFEO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FBYSxHQUMzQixpQ0FBQyxTQUFNLE1BQUssS0FBSSxTQUFTLHVCQUFDLGtCQUFEO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FBYSxLQUF0QztBQUFBO0FBQUE7QUFBQTtBQUFBLFdBQTBDLEtBRDVDO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FFQTtBQUFBLE9BN0VGO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0E4RUE7QUFFSjtBQUFFQyxLQWxGV0Q7QUFvRmIsZUFBZUE7QUFBVSxJQUFBQztBQUFBLGFBQUFBLElBQUEiLCJuYW1lcyI6WyJSb3V0ZXMiLCJSb3V0ZSIsIk5hdmlnYXRlIiwiUHJvdGVjdGVkUm91dGUiLCJQdWJsaWNMYXlvdXQiLCJQYXRpZW50U2hlbGwiLCJEZW50aXN0U2hlbGwiLCJBZG1pblNoZWxsIiwiTGFuZGluZ1BhZ2UiLCJMb2dpblBhZ2UiLCJSZWdpc3RlclBhZ2UiLCJVbmF1dGhvcml6ZWRQYWdlIiwiRGVhY3RpdmF0ZWRQYWdlIiwiTm90Rm91bmRQYWdlIiwiUGF0aWVudERhc2hib2FyZCIsIkRlbnRpc3REYXNoYm9hcmQiLCJBZG1pbkRhc2hib2FyZCIsIkFkbWluRGVudGlzdFZlcmlmaWNhdGlvbnNQYWdlIiwiQWRtaW5BdWRpdExvZ3NQYWdlIiwiQWRtaW5TY3JlZW5pbmdBbmFseXRpY3NQYWdlIiwiQWRtaW5BSVRlbGVtZXRyeVBhZ2UiLCJBZG1pblRlbGVoZWFsdGhBbmFseXRpY3NQYWdlIiwiQWRtaW5BSU1vZGVsc1BhZ2UiLCJOZXdTY3JlZW5pbmdQYWdlIiwiU2NyZWVuaW5nUmVzdWx0c1BhZ2UiLCJTY3JlZW5pbmdzTGlzdFBhZ2UiLCJQYXRpZW50RGVudGlzdERpcmVjdG9yeVBhZ2UiLCJQYXRpZW50QXBwb2ludG1lbnRzUGFnZSIsIlBhdGllbnRDb25zdWx0YXRpb25zUGFnZSIsIlBhdGllbnRDb25zdWx0YXRpb25Sb29tUGFnZSIsIkRlbnRpc3RBcHBvaW50bWVudHNQYWdlIiwiRGVudGlzdFNjcmVlbmluZ1Jldmlld1BhZ2UiLCJEZW50aXN0UHJvZmlsZVBhZ2UiLCJEZW50aXN0Q29uc3VsdGF0aW9uUm9vbVBhZ2UiLCJQYXRpZW50TWVzc2FnZXNQYWdlIiwiRGVudGlzdE1lc3NhZ2VzUGFnZSIsIk5vdGlmaWNhdGlvbnNQYWdlIiwiQXBwUm91dGVzIiwiX2MiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiQXBwUm91dGVzLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcclxuICogT3JhVmlzaW9uQUkg4oCUIEFwcGxpY2F0aW9uIFJvdXRlIEhpZXJhcmNoeVxyXG4gKlxyXG4gKiBDb25maWd1cmVzOlxyXG4gKiAtIFB1YmxpYyByb3V0ZXMgKC9sb2dpbiwgL3JlZ2lzdGVyLCAvbGFuZGluZywgZXRjLilcclxuICogLSBQcm90ZWN0ZWQgcm9sZSBzaGVsbHMgKC9wYXRpZW50LyosIC9kZW50aXN0LyosIC9hZG1pbi8qKVxyXG4gKiAtIEVycm9yL1N0YXR1cyByb3V0ZXMgKC91bmF1dGhvcml6ZWQsIC9kZWFjdGl2YXRlZCwgNDA0KVxyXG4gKiAtIFBhdGllbnQgc2NyZWVuaW5nIHdvcmtmbG93IChQaGFzZSAyMylcclxuICovXHJcblxyXG5pbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnO1xyXG5pbXBvcnQgeyBSb3V0ZXMsIFJvdXRlLCBOYXZpZ2F0ZSB9IGZyb20gJ3JlYWN0LXJvdXRlci1kb20nO1xyXG5pbXBvcnQgeyBQcm90ZWN0ZWRSb3V0ZSB9IGZyb20gJy4vUHJvdGVjdGVkUm91dGUnO1xyXG5cclxuLy8gTGF5b3V0cyAmIFNoZWxsc1xyXG5pbXBvcnQgeyBQdWJsaWNMYXlvdXQgfSBmcm9tICcuLi9jb21wb25lbnRzL2xheW91dC9QdWJsaWNMYXlvdXQnO1xyXG5pbXBvcnQgeyBQYXRpZW50U2hlbGwgfSBmcm9tICcuLi9jb21wb25lbnRzL2xheW91dC9QYXRpZW50U2hlbGwnO1xyXG5pbXBvcnQgeyBEZW50aXN0U2hlbGwgfSBmcm9tICcuLi9jb21wb25lbnRzL2xheW91dC9EZW50aXN0U2hlbGwnO1xyXG5pbXBvcnQgeyBBZG1pblNoZWxsIH0gZnJvbSAnLi4vY29tcG9uZW50cy9sYXlvdXQvQWRtaW5TaGVsbCc7XHJcblxyXG4vLyBQdWJsaWMgUGFnZXNcclxuaW1wb3J0IHsgTGFuZGluZ1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9wdWJsaWMvTGFuZGluZ1BhZ2UnO1xyXG5pbXBvcnQgeyBMb2dpblBhZ2UgfSBmcm9tICcuLi9wYWdlcy9wdWJsaWMvTG9naW5QYWdlJztcclxuaW1wb3J0IHsgUmVnaXN0ZXJQYWdlIH0gZnJvbSAnLi4vcGFnZXMvcHVibGljL1JlZ2lzdGVyUGFnZSc7XHJcbmltcG9ydCB7IFVuYXV0aG9yaXplZFBhZ2UgfSBmcm9tICcuLi9wYWdlcy9wdWJsaWMvVW5hdXRob3JpemVkUGFnZSc7XHJcbmltcG9ydCB7IERlYWN0aXZhdGVkUGFnZSB9IGZyb20gJy4uL3BhZ2VzL3B1YmxpYy9EZWFjdGl2YXRlZFBhZ2UnO1xyXG5pbXBvcnQgeyBOb3RGb3VuZFBhZ2UgfSBmcm9tICcuLi9wYWdlcy9wdWJsaWMvTm90Rm91bmRQYWdlJztcclxuXHJcbi8vIFNoZWxsIEhvbWUgUGFnZXNcclxuaW1wb3J0IHsgUGF0aWVudERhc2hib2FyZCB9IGZyb20gJy4uL3BhZ2VzL3BhdGllbnQvUGF0aWVudERhc2hib2FyZCc7XHJcbmltcG9ydCB7IERlbnRpc3REYXNoYm9hcmQgfSBmcm9tICcuLi9wYWdlcy9kZW50aXN0L0RlbnRpc3REYXNoYm9hcmQnO1xyXG5pbXBvcnQgeyBBZG1pbkRhc2hib2FyZCB9IGZyb20gJy4uL3BhZ2VzL2FkbWluL0FkbWluRGFzaGJvYXJkJztcclxuaW1wb3J0IHsgQWRtaW5EZW50aXN0VmVyaWZpY2F0aW9uc1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9hZG1pbi9BZG1pbkRlbnRpc3RWZXJpZmljYXRpb25zUGFnZSc7XHJcbmltcG9ydCB7IEFkbWluQXVkaXRMb2dzUGFnZSB9IGZyb20gJy4uL3BhZ2VzL2FkbWluL0FkbWluQXVkaXRMb2dzUGFnZSc7XHJcbmltcG9ydCB7IEFkbWluU2NyZWVuaW5nQW5hbHl0aWNzUGFnZSB9IGZyb20gJy4uL3BhZ2VzL2FkbWluL0FkbWluU2NyZWVuaW5nQW5hbHl0aWNzUGFnZSc7XHJcbmltcG9ydCB7IEFkbWluQUlUZWxlbWV0cnlQYWdlIH0gZnJvbSAnLi4vcGFnZXMvYWRtaW4vQWRtaW5BSVRlbGVtZXRyeVBhZ2UnO1xyXG5pbXBvcnQgeyBBZG1pblRlbGVoZWFsdGhBbmFseXRpY3NQYWdlIH0gZnJvbSAnLi4vcGFnZXMvYWRtaW4vQWRtaW5UZWxlaGVhbHRoQW5hbHl0aWNzUGFnZSc7XHJcbmltcG9ydCB7IEFkbWluQUlNb2RlbHNQYWdlIH0gZnJvbSAnLi4vcGFnZXMvYWRtaW4vQWRtaW5BSU1vZGVsc1BhZ2UnO1xyXG5cclxuLy8gUGF0aWVudCBTY3JlZW5pbmcgUGFnZXMgKFBoYXNlIDIzKVxyXG5pbXBvcnQgeyBOZXdTY3JlZW5pbmdQYWdlIH0gZnJvbSAnLi4vcGFnZXMvcGF0aWVudC9OZXdTY3JlZW5pbmdQYWdlJztcclxuaW1wb3J0IHsgU2NyZWVuaW5nUmVzdWx0c1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9wYXRpZW50L1NjcmVlbmluZ1Jlc3VsdHNQYWdlJztcclxuaW1wb3J0IHsgU2NyZWVuaW5nc0xpc3RQYWdlIH0gZnJvbSAnLi4vcGFnZXMvcGF0aWVudC9TY3JlZW5pbmdzTGlzdFBhZ2UnO1xyXG5cclxuLy8gUGF0aWVudCBQcmFjdGl0aW9uZXIgRGlyZWN0b3J5ICYgQXBwb2ludG1lbnRzXHJcbmltcG9ydCB7IFBhdGllbnREZW50aXN0RGlyZWN0b3J5UGFnZSB9IGZyb20gJy4uL3BhZ2VzL3BhdGllbnQvUGF0aWVudERlbnRpc3REaXJlY3RvcnlQYWdlJztcclxuaW1wb3J0IHsgUGF0aWVudEFwcG9pbnRtZW50c1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9wYXRpZW50L1BhdGllbnRBcHBvaW50bWVudHNQYWdlJztcclxuXHJcbi8vIFBhdGllbnQgVGVsZWNvbnN1bHRhdGlvbiBQYWdlcyAoUGhhc2UgMjUpXHJcbmltcG9ydCB7IFBhdGllbnRDb25zdWx0YXRpb25zUGFnZSB9IGZyb20gJy4uL3BhZ2VzL3BhdGllbnQvUGF0aWVudENvbnN1bHRhdGlvbnNQYWdlJztcclxuaW1wb3J0IHsgUGF0aWVudENvbnN1bHRhdGlvblJvb21QYWdlIH0gZnJvbSAnLi4vcGFnZXMvcGF0aWVudC9QYXRpZW50Q29uc3VsdGF0aW9uUm9vbVBhZ2UnO1xyXG5cclxuLy8gRGVudGlzdCBDbGluaWNhbCBQYWdlcyAoUGhhc2UgMjQgJiAyNSlcclxuaW1wb3J0IHsgRGVudGlzdEFwcG9pbnRtZW50c1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9kZW50aXN0L0RlbnRpc3RBcHBvaW50bWVudHNQYWdlJztcclxuaW1wb3J0IHsgRGVudGlzdFNjcmVlbmluZ1Jldmlld1BhZ2UgfSBmcm9tICcuLi9wYWdlcy9kZW50aXN0L0RlbnRpc3RTY3JlZW5pbmdSZXZpZXdQYWdlJztcclxuaW1wb3J0IHsgRGVudGlzdFByb2ZpbGVQYWdlIH0gZnJvbSAnLi4vcGFnZXMvZGVudGlzdC9EZW50aXN0UHJvZmlsZVBhZ2UnO1xyXG5pbXBvcnQgeyBEZW50aXN0Q29uc3VsdGF0aW9uUm9vbVBhZ2UgfSBmcm9tICcuLi9wYWdlcy9kZW50aXN0L0RlbnRpc3RDb25zdWx0YXRpb25Sb29tUGFnZSc7XHJcblxyXG4vLyBDb21tdW5pY2F0aW9uICYgTm90aWZpY2F0aW9uIFBhZ2VzIChQaGFzZSAyNyAmIDI4KVxyXG5pbXBvcnQgeyBQYXRpZW50TWVzc2FnZXNQYWdlIH0gZnJvbSAnLi4vcGFnZXMvcGF0aWVudC9QYXRpZW50TWVzc2FnZXNQYWdlJztcclxuaW1wb3J0IHsgRGVudGlzdE1lc3NhZ2VzUGFnZSB9IGZyb20gJy4uL3BhZ2VzL2RlbnRpc3QvRGVudGlzdE1lc3NhZ2VzUGFnZSc7XHJcbmltcG9ydCB7IE5vdGlmaWNhdGlvbnNQYWdlIH0gZnJvbSAnLi4vcGFnZXMvc2hhcmVkL05vdGlmaWNhdGlvbnNQYWdlJztcclxuXHJcbmV4cG9ydCBjb25zdCBBcHBSb3V0ZXM6IFJlYWN0LkZDID0gKCkgPT4ge1xyXG4gIHJldHVybiAoXHJcbiAgICA8Um91dGVzPlxyXG4gICAgICB7LyogUHVibGljIExheW91dCBSb3V0ZXMgKi99XHJcbiAgICAgIDxSb3V0ZSBlbGVtZW50PXs8UHVibGljTGF5b3V0IC8+fT5cclxuICAgICAgICA8Um91dGUgcGF0aD1cIi9cIiBlbGVtZW50PXs8TGFuZGluZ1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCIvbG9naW5cIiBlbGVtZW50PXs8TG9naW5QYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiL3JlZ2lzdGVyXCIgZWxlbWVudD17PFJlZ2lzdGVyUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cIi91bmF1dGhvcml6ZWRcIiBlbGVtZW50PXs8VW5hdXRob3JpemVkUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cIi9kZWFjdGl2YXRlZFwiIGVsZW1lbnQ9ezxEZWFjdGl2YXRlZFBhZ2UgLz59IC8+XHJcbiAgICAgIDwvUm91dGU+XHJcblxyXG4gICAgICB7LyogUGF0aWVudCBTaGVsbCAmIFByb3RlY3RlZCBSb3V0ZXMgKi99XHJcbiAgICAgIDxSb3V0ZVxyXG4gICAgICAgIHBhdGg9XCIvcGF0aWVudFwiXHJcbiAgICAgICAgZWxlbWVudD17XHJcbiAgICAgICAgICA8UHJvdGVjdGVkUm91dGUgYWxsb3dlZFJvbGVzPXtbJ3BhdGllbnQnXX0+XHJcbiAgICAgICAgICAgIDxQYXRpZW50U2hlbGwgLz5cclxuICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XHJcbiAgICAgICAgfVxyXG4gICAgICA+XHJcbiAgICAgICAgPFJvdXRlIGluZGV4IGVsZW1lbnQ9ezxOYXZpZ2F0ZSB0bz1cIi9wYXRpZW50L2Rhc2hib2FyZFwiIHJlcGxhY2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJkYXNoYm9hcmRcIiBlbGVtZW50PXs8UGF0aWVudERhc2hib2FyZCAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cInNjcmVlbmluZ3NcIiBlbGVtZW50PXs8U2NyZWVuaW5nc0xpc3RQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwic2NyZWVuaW5ncy9uZXdcIiBlbGVtZW50PXs8TmV3U2NyZWVuaW5nUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cInNjcmVlbmluZ3MvOnNjcmVlbmluZ0lkXCIgZWxlbWVudD17PFNjcmVlbmluZ1Jlc3VsdHNQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiZGVudGlzdHNcIiBlbGVtZW50PXs8UGF0aWVudERlbnRpc3REaXJlY3RvcnlQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiYXBwb2ludG1lbnRzXCIgZWxlbWVudD17PFBhdGllbnRBcHBvaW50bWVudHNQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiY29uc3VsdGF0aW9uc1wiIGVsZW1lbnQ9ezxQYXRpZW50Q29uc3VsdGF0aW9uc1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJjb25zdWx0YXRpb25zLzpjb25zdWx0YXRpb25JZFwiIGVsZW1lbnQ9ezxQYXRpZW50Q29uc3VsdGF0aW9uUm9vbVBhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJtZXNzYWdlc1wiIGVsZW1lbnQ9ezxQYXRpZW50TWVzc2FnZXNQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwibWVzc2FnZXMvOmNvbnZlcnNhdGlvbklkXCIgZWxlbWVudD17PFBhdGllbnRNZXNzYWdlc1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJub3RpZmljYXRpb25zXCIgZWxlbWVudD17PE5vdGlmaWNhdGlvbnNQYWdlIC8+fSAvPlxyXG4gICAgICA8L1JvdXRlPlxyXG5cclxuICAgICAgey8qIERlbnRpc3QgU2hlbGwgJiBQcm90ZWN0ZWQgUm91dGVzICovfVxyXG4gICAgICA8Um91dGVcclxuICAgICAgICBwYXRoPVwiL2RlbnRpc3RcIlxyXG4gICAgICAgIGVsZW1lbnQ9e1xyXG4gICAgICAgICAgPFByb3RlY3RlZFJvdXRlIGFsbG93ZWRSb2xlcz17WydkZW50aXN0J119PlxyXG4gICAgICAgICAgICA8RGVudGlzdFNoZWxsIC8+XHJcbiAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxyXG4gICAgICAgIH1cclxuICAgICAgPlxyXG4gICAgICAgIDxSb3V0ZSBpbmRleCBlbGVtZW50PXs8TmF2aWdhdGUgdG89XCIvZGVudGlzdC9kYXNoYm9hcmRcIiByZXBsYWNlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiZGFzaGJvYXJkXCIgZWxlbWVudD17PERlbnRpc3REYXNoYm9hcmQgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJhcHBvaW50bWVudHNcIiBlbGVtZW50PXs8RGVudGlzdEFwcG9pbnRtZW50c1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJzY3JlZW5pbmdzLzpzY3JlZW5pbmdJZC9yZXZpZXdcIiBlbGVtZW50PXs8RGVudGlzdFNjcmVlbmluZ1Jldmlld1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJzY3JlZW5pbmdzLzpzY3JlZW5pbmdJZFwiIGVsZW1lbnQ9ezxEZW50aXN0U2NyZWVuaW5nUmV2aWV3UGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cImNvbnN1bHRhdGlvbnMvOmNvbnN1bHRhdGlvbklkXCIgZWxlbWVudD17PERlbnRpc3RDb25zdWx0YXRpb25Sb29tUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cInByb2ZpbGVcIiBlbGVtZW50PXs8RGVudGlzdFByb2ZpbGVQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwibWVzc2FnZXNcIiBlbGVtZW50PXs8RGVudGlzdE1lc3NhZ2VzUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cIm1lc3NhZ2VzLzpjb252ZXJzYXRpb25JZFwiIGVsZW1lbnQ9ezxEZW50aXN0TWVzc2FnZXNQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwibm90aWZpY2F0aW9uc1wiIGVsZW1lbnQ9ezxOb3RpZmljYXRpb25zUGFnZSAvPn0gLz5cclxuICAgICAgPC9Sb3V0ZT5cclxuXHJcbiAgICAgIHsvKiBBZG1pbiBTaGVsbCAmIFByb3RlY3RlZCBSb3V0ZXMgKi99XHJcbiAgICAgIDxSb3V0ZVxyXG4gICAgICAgIHBhdGg9XCIvYWRtaW5cIlxyXG4gICAgICAgIGVsZW1lbnQ9e1xyXG4gICAgICAgICAgPFByb3RlY3RlZFJvdXRlIGFsbG93ZWRSb2xlcz17WydhZG1pbiddfT5cclxuICAgICAgICAgICAgPEFkbWluU2hlbGwgLz5cclxuICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XHJcbiAgICAgICAgfVxyXG4gICAgICA+XHJcbiAgICAgICAgPFJvdXRlIGluZGV4IGVsZW1lbnQ9ezxOYXZpZ2F0ZSB0bz1cIi9hZG1pbi9kYXNoYm9hcmRcIiByZXBsYWNlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiZGFzaGJvYXJkXCIgZWxlbWVudD17PEFkbWluRGFzaGJvYXJkIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwidmVyaWZpY2F0aW9uc1wiIGVsZW1lbnQ9ezxBZG1pbkRlbnRpc3RWZXJpZmljYXRpb25zUGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cImF1ZGl0LWxvZ3NcIiBlbGVtZW50PXs8QWRtaW5BdWRpdExvZ3NQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiYW5hbHl0aWNzL3NjcmVlbmluZ3NcIiBlbGVtZW50PXs8QWRtaW5TY3JlZW5pbmdBbmFseXRpY3NQYWdlIC8+fSAvPlxyXG4gICAgICAgIDxSb3V0ZSBwYXRoPVwiYW5hbHl0aWNzL2FpLXRlbGVtZXRyeVwiIGVsZW1lbnQ9ezxBZG1pbkFJVGVsZW1ldHJ5UGFnZSAvPn0gLz5cclxuICAgICAgICA8Um91dGUgcGF0aD1cImFuYWx5dGljcy90ZWxlaGVhbHRoXCIgZWxlbWVudD17PEFkbWluVGVsZWhlYWx0aEFuYWx5dGljc1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJhaS1tb2RlbHNcIiBlbGVtZW50PXs8QWRtaW5BSU1vZGVsc1BhZ2UgLz59IC8+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCJub3RpZmljYXRpb25zXCIgZWxlbWVudD17PE5vdGlmaWNhdGlvbnNQYWdlIC8+fSAvPlxyXG4gICAgICA8L1JvdXRlPlxyXG5cclxuICAgICAgey8qIDQwNCBOb3QgRm91bmQgQ2F0Y2gtQWxsICovfVxyXG4gICAgICA8Um91dGUgZWxlbWVudD17PFB1YmxpY0xheW91dCAvPn0+XHJcbiAgICAgICAgPFJvdXRlIHBhdGg9XCIqXCIgZWxlbWVudD17PE5vdEZvdW5kUGFnZSAvPn0gLz5cclxuICAgICAgPC9Sb3V0ZT5cclxuICAgIDwvUm91dGVzPlxyXG4gICk7XHJcbn07XHJcblxyXG5leHBvcnQgZGVmYXVsdCBBcHBSb3V0ZXM7XHJcbiJdLCJmaWxlIjoiRDovSVNTTS9PcmF2aXNpb25BSS9mcm9udGVuZC9zcmMvcm91dGVzL0FwcFJvdXRlcy50c3gifQ==

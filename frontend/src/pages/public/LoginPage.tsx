@@ -5,9 +5,10 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Lock, ArrowRight } from 'lucide-react';
+import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
+import { AuthLayout } from '../../components/layout/AuthLayout';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Alert';
@@ -44,6 +45,7 @@ export const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setErrorMessage(null);
     setLoading(true);
 
@@ -63,25 +65,19 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md my-auto">
-      <Card>
-        <CardHeader className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-clinical-100 text-clinical-700 mb-2">
-            <Lock className="h-6 w-6" />
+    <AuthLayout mode="login">
+          <div className="auth-form-heading">
+            <span className="auth-heading-icon"><LockKeyhole size={22} strokeWidth={1.5} /></span>
+            <h1>Your care. Your space.</h1>
+            <p>Welcome back. Sign in to continue your oral health journey.</p>
           </div>
-          <CardTitle>Sign In to OraVisionAI</CardTitle>
-          <CardDescription>
-            Enter your account credentials to access your clinical dashboard.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
           {errorMessage && (
             <Alert variant="danger" className="mb-4" onClose={() => setErrorMessage(null)}>
               {errorMessage}
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="auth-form" aria-busy={loading}>
             <Input
               label="Email Address"
               type="email"
@@ -90,36 +86,35 @@ export const LoginPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
               autoComplete="email"
+              disabled={loading}
             />
-            <Input
+            <PasswordInput
               label="Password"
-              type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter your password"
               autoComplete="current-password"
+              disabled={loading}
             />
 
             <Button
               type="submit"
               className="w-full"
+              size="lg"
               loading={loading}
               rightIcon={ArrowRight}
             >
-              Sign In
+              {loading ? 'Signing you in...' : 'Sign in to your account'}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-slate-600">
-            Don't have an account yet?{' '}
-            <Link to="/register" className="font-semibold text-clinical-600 hover:text-clinical-700">
-              Create an account
-            </Link>
+          <div className="auth-switch-account">
+            <span>New to OraVisionAI?</span>
+            <Link to="/register">Create your account <ArrowRight size={14} /></Link>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="auth-purpose-note"><span /> For patients, practitioners, and the people who care.</div>
+    </AuthLayout>
   );
 };
 

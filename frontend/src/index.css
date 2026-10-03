@@ -7,3 +7,32 @@
     @apply bg-slate-50 text-slate-900 selection:bg-clinical-100 selection:text-clinical-900;
   }
 }
+
+/* A straight silhouette with one chamfer at the top right. */
+.cut-corner-button {
+  --corner-cut: 10px;
+  position: relative;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, calc(100% - var(--corner-cut)) 0, 100% var(--corner-cut), 100% 100%, 0 100%);
+}
+
+.cut-corner-small { --corner-cut: 7px; }
+
+/* Continue outlined borders along the diagonal edge. */
+.cut-corner-outline::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  width: calc(var(--corner-cut) * 1.414214);
+  right: calc(var(--corner-cut) * -.207107);
+  top: calc(var(--corner-cut) * .5);
+  border-top: 1px solid;
+  border-color: inherit;
+  transform: rotate(45deg);
+}
+
+/* Keep keyboard focus inside the clipped shape so it stays visible. */
+.cut-corner-button:focus-visible {
+  outline: 2px solid currentColor !important;
+  outline-offset: -5px !important;
+}

@@ -54,9 +54,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={loading}
         className={clsx(
-          'cut-corner-button group inline-flex items-center justify-center font-semibold transition-[background-color,border-color,box-shadow,transform] duration-200 enabled:hover:-translate-y-0.5 enabled:active:translate-y-0 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none',
-          variant === 'outline' && 'cut-corner-outline',
-          size === 'sm' && 'cut-corner-small',
+          'group inline-flex items-center justify-center rounded-lg font-semibold transition-[background-color,border-color,box-shadow,transform] duration-200 enabled:hover:-translate-y-0.5 enabled:active:translate-y-0 enabled:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none',
+          variant === 'primary' && 'cut-corner-button',
           variantStyles[variant],
           sizeStyles[size],
           className,

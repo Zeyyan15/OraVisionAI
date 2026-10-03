@@ -127,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
                 key={item.name}
                 to={item.href}
                 className={({ isActive }) =>
-                  `cut-corner-button flex items-center justify-between px-3 py-2 text-sm font-medium transition-colors ${
+                  `flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-clinical-50 text-clinical-700 font-semibold'
                       : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'

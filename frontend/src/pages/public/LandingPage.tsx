@@ -92,7 +92,7 @@ export const LandingPage: React.FC = () => {
             <p className="hero-description hero-enter" style={{ '--enter-delay': '200ms' } as React.CSSProperties}>Understand your oral health with AI-assisted screening and expert dental review. From the first image to your next step, find clarity with OraVisionAI.</p>
             <div className="hero-actions hero-enter" style={{ '--enter-delay': '300ms' } as React.CSSProperties}>
               <Link to="/register" className="cut-corner-button landing-button landing-button-primary">Start your screening <ArrowUpRight size={19} /></Link>
-              <a href="#demo" className="cut-corner-button cut-corner-outline landing-button landing-button-secondary"><span className="hero-play-icon"><Play size={12} fill="currentColor" /></span> Watch the demo</a>
+              <a href="#demo" className="landing-button landing-button-secondary"><span className="hero-play-icon"><Play size={12} fill="currentColor" /></span> Watch the demo</a>
             </div>
             <div className="hero-reassurance hero-enter" style={{ '--enter-delay': '400ms' } as React.CSSProperties}><span><ShieldCheck size={16} /> Verified practitioner review</span><span><Check size={16} /> Clear, explainable findings</span></div>
             <div className="hero-practitioner hero-enter" style={{ '--enter-delay': '500ms' } as React.CSSProperties}><span className="hero-practitioner-icon"><Stethoscope size={19} /></span><p>Here for your patients? <Link to="/login">Practitioner sign in <ArrowRight size={14} /></Link></p></div>

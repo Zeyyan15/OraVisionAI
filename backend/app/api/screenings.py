@@ -44,12 +44,68 @@ from app.services.patient_service import PatientService
 from app.services.report_service import ReportService
 from app.services.risk_assessment_service import RiskAssessmentService
 from app.services.screening_service import ScreeningService
+from app.services.storage_service import StorageService
 from app.services.xai_service import XAIService
+from app.services.screening_workflow import workflows, CANCELLED
+from app.schemas.screening import ScreeningWorkflowResponse
 
 router = APIRouter(
     prefix="/screenings",
     tags=["screenings"],
 )
+
+
+async def workflow_screening(db, user, screening_id):
+    patient = await PatientService.get_patient_by_user_id(db, user.id)
+    screening = await ScreeningService.get_patient_screening(db, patient.id, screening_id) if patient else None
+    if screening is None:
+        raise HTTPException(status_code=404, detail="Screening not found.")
+    return screening
+
+
+@router.post('/{screening_id}/workflow', response_model=ScreeningWorkflowResponse, status_code=202)
+async def start_screening_workflow(
+    screening_id: uuid.UUID, request: Request, file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db), current_user: User = Depends(require_patient),
+):
+    await enforce_rate_limit(request, scope='ai_run', user_id=current_user.id)
+    screening = await workflow_screening(db, current_user, screening_id)
+    if screening.error_message == CANCELLED:
+        return ScreeningWorkflowResponse(status='cancelled', completed_steps=0, description=CANCELLED)
+    image = await file.read()
+    try:
+        StorageService.validate_image_file(image, file.filename or 'oral.jpg', file.content_type or 'image/jpeg')
+        state = workflows.start(screening_id, screening.patient_id, current_user.id, image, file.filename or 'oral.jpg', file.content_type or 'image/jpeg')
+        return ScreeningWorkflowResponse(**state)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.get('/{screening_id}/workflow', response_model=ScreeningWorkflowResponse)
+async def screening_workflow_status(
+    screening_id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_patient),
+):
+    screening = await workflow_screening(db, current_user, screening_id)
+    state = workflows.status(screening_id)
+    if state:
+        return ScreeningWorkflowResponse(**state)
+    return ScreeningWorkflowResponse(
+        status='cancelled' if screening.error_message == CANCELLED else 'idle', completed_steps=0,
+        description=screening.error_message or 'No screening workflow is running.',
+    )
+
+
+@router.post('/{screening_id}/workflow/cancel', response_model=ScreeningWorkflowResponse)
+async def cancel_screening_workflow(
+    screening_id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_patient),
+):
+    screening = await workflow_screening(db, current_user, screening_id)
+    state = await workflows.cancel(screening_id)
+    if state['status'] == 'cancelled':
+        screening.status = 'failed'  # Existing schema uses failed for interrupted work.
+        screening.error_message = CANCELLED
+        await db.commit()
+    return ScreeningWorkflowResponse(**state)
 
 
 @router.post(

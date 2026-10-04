@@ -8,7 +8,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { AuthLayout } from '../../components/layout/AuthLayout';
-import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Input } from '../../components/ui/Input';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { Button } from '../../components/ui/Button';

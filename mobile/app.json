@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "OraVisionAI",
+    "slug": "oravision-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/app-icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.oravisionai.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#173f38",
+        "foregroundImage": "./assets/app-icon.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.oravisionai.mobile"
+    },
+    "web": {
+      "favicon": "./assets/app-icon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sharing",
+      "expo-dev-client",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Use your camera for oral screening and consultation previews.",
+          "microphonePermission": "Use your microphone during teleconsultations."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose an oral image for your screening.",
+          "cameraPermission": "Take an oral image for your screening.",
+          "microphonePermission": false
+        }
+      ],
+      "@stream-io/video-react-native-sdk",
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "Use your camera for video consultations.",
+          "microphonePermission": "Use your microphone for audio and video consultations."
+        }
+      ],
+      "expo-build-properties",
+      "expo-font"
+    ],
+    "scheme": "oravisionai"
+  }
+}

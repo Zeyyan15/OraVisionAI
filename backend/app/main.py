@@ -31,6 +31,8 @@ async def lifespan(app: FastAPI):
     logger.info("Debug mode: %s", settings.debug)
     initialize_firebase()
     yield
+    from app.services.screening_workflow import workflows
+    await workflows.shutdown()
     await dispose_engine()
     logger.info("OraVisionAI API shutting down")
 

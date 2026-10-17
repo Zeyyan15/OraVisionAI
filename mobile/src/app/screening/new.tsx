@@ -1,5 +1,6 @@
+import { Text } from '../../components/Typography';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, View } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { api, http } from '../../api';

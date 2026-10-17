@@ -35,6 +35,8 @@ import {
   Cpu,
   Clock,
   RefreshCw,
+  ArrowUpRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const ScreeningResultsPage: React.FC = () => {
@@ -143,214 +145,51 @@ export const ScreeningResultsPage: React.FC = () => {
     }
   };
 
+  const primaryImage = screening.images?.find(image => image.is_primary) || screening.images?.[0];
+  const recorded = new Date(screening.screening_created_at);
+  const dateLabel = Number.isNaN(recorded.getTime()) ? 'Date unavailable' : recorded.toLocaleDateString(undefined, {day:'numeric',month:'long',year:'numeric'});
+
   return (
-    <div className='max-w-6xl mx-auto space-y-6'>
-      {/* Navigation & Header Bar */}
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-        <div className='flex items-center gap-3'>
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            onClick={() => navigate('/patient/screenings')}
-            className='shrink-0'
-          >
-            <ArrowLeft className='h-4 w-4 mr-1.5' />
-            All Screenings
-          </Button>
-
-          <div>
-            <div className='flex items-center gap-2'>
-              <h1 className='text-xl font-bold tracking-tight text-slate-900'>
-                Screening Session Results
-              </h1>
-              <Badge
-                variant={
-                  screening.screening_status === 'completed'
-                    ? 'success'
-                    : screening.screening_status === 'processing'
-                    ? 'warning'
-                    : screening.screening_status === 'failed'
-                    ? 'danger'
-                    : 'neutral'
-                }
-              >
-                {screening.screening_status.toUpperCase()}
-              </Badge>
-            </div>
-            <div className='flex items-center gap-3 text-xs text-slate-500 mt-0.5'>
-              <span className='flex items-center gap-1'>
-                <Calendar className='h-3.5 w-3.5' />
-                {new Date(screening.screening_created_at).toLocaleDateString()}
-              </span>
-              <span className='text-slate-400'>Clinical Record</span>
-            </div>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-2 self-start sm:self-auto'>
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            onClick={() => screeningId && fetchScreening(screeningId)}
-            className='text-slate-600'
-          >
-            <RefreshCw className='h-3.5 w-3.5 mr-1.5' />
-            Refresh
-          </Button>
-
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            onClick={handleDelete}
-            className='text-rose-600 hover:bg-rose-50 border-rose-200'
-          >
-            <Trash2 className='h-3.5 w-3.5 mr-1.5' />
-            Delete
-          </Button>
+    <div className='screening-results max-w-6xl mx-auto space-y-6'>
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <button type='button' onClick={() => navigate('/patient/screenings')} className='inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-800'><ArrowLeft className='h-4 w-4' /> All screenings</button>
+        <div className='flex items-center gap-2'>
+          <Button type='button' variant='ghost' size='sm' onClick={() => screeningId && fetchScreening(screeningId)} disabled={loading}><RefreshCw className='mr-1.5 h-3.5 w-3.5' />Refresh</Button>
+          <Button type='button' variant='ghost' size='sm' onClick={handleDelete} aria-label='Delete screening' className='text-slate-400 hover:text-rose-600'><Trash2 className='h-3.5 w-3.5' /></Button>
         </div>
       </div>
+      <header className='space-y-3'>
+        <div className='flex flex-wrap items-center gap-3'><p className='results-eyebrow'>Your oral health record</p><Badge variant={isCompleted ? 'success' : screening.screening_status === 'failed' ? 'danger' : 'neutral'}>{screening.screening_status.replace('_', ' ')}</Badge></div>
+        <h1 className='text-3xl sm:text-4xl font-semibold tracking-tight text-[#173f38]'>Screening results</h1>
+        <p className='flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500'><span className='inline-flex items-center gap-1.5'><Calendar className='h-4 w-4' />{dateLabel}</span><span>{screening.total_images} {screening.total_images === 1 ? 'photograph' : 'photographs'} {isCompleted ? 'analyzed' : 'uploaded'}</span></p>
+      </header>
 
-      {/* Statutory Clinical Decision Support Notice */}
-      <Alert variant='warning' title='Clinical Decision Support Notice'>
-        <div className='text-xs leading-relaxed space-y-1'>
-          <p>
-            The findings below are synthesized by deep learning computer vision algorithms (EfficientNetB0 and YOLO
-            lesion detector) for educational and preliminary screening prioritization. They do{' '}
-            <strong className='font-bold'>NOT</strong> constitute a definitive medical or dental diagnosis, clinical
-            staging, or treatment plan. An in-person clinical examination by a licensed dental professional is required.
-          </p>
+      {error && <Alert variant='danger' title='Unable to complete this action'>{error.message}</Alert>}
+      {screening.screening_status === 'processing' && <Alert variant='info' title='Analysis in progress'><span className='flex items-center gap-2 text-sm'><Clock className='h-4 w-4' />Your results will update as analysis completes.</span></Alert>}
+
+      {isCompleted && primaryPred && <section className='results-summary grid gap-6 p-6 sm:p-8 md:grid-cols-[minmax(0,1fr)_auto]'>
+        <div><p className='text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200'>Leading model finding</p><h2 className='mt-3 text-3xl font-semibold tracking-tight text-white'>{topName}</h2><p className='mt-2 max-w-lg text-sm leading-relaxed text-emerald-100/80'>The category most strongly reflected in this photograph’s model output.</p><a href='#next-steps' className='mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/30 underline-offset-4'>Discuss with a dentist<ArrowUpRight className='h-4 w-4' /></a></div>
+        <div className='flex items-center gap-6 rounded-2xl border border-white/15 bg-white/5 px-6 py-5'>
+          <div><p className='text-xs font-medium text-emerald-200'>Model class score</p><p className='mt-1 text-4xl font-semibold tracking-tight tabular-nums text-white'>{(primaryPred.confidence * 100).toFixed(1)}<span className='ml-1 text-xl text-emerald-200'>%</span></p><p className='mt-2 text-xs text-emerald-100/70'>Not a diagnostic probability</p></div>
+          {primaryPred.inference_duration_ms != null && <div className='hidden sm:block border-l border-white/15 pl-6'><Cpu className='mb-2 h-5 w-5 text-emerald-200' /><p className='text-sm font-medium text-white'>{(primaryPred.inference_duration_ms / 1000).toFixed(1)} s</p><p className='mt-1 text-xs text-emerald-100/70'>Analysis time</p></div>}
         </div>
-      </Alert>
+      </section>}
+      <div className='flex items-start gap-3 rounded-xl border border-amber-200/60 bg-amber-50/60 px-5 py-4'><ShieldCheck className='mt-0.5 h-5 w-5 shrink-0 text-amber-700' /><p className='text-sm leading-relaxed text-slate-600'><strong className='font-semibold text-slate-800'>Screening, not a diagnosis.</strong> These AI findings support preliminary screening. A dentist must examine you to confirm a diagnosis and recommend treatment.</p></div>
 
-      {/* Processing State Banner */}
-      {screening.screening_status === 'processing' && (
-        <Alert variant='info' title='AI Analysis in Progress'>
-          <div className='flex items-center gap-2 text-xs'>
-            <Clock className='h-4 w-4 shrink-0 animate-spin' />
-            <span>
-              The deep learning model is actively evaluating image features. This page will automatically update upon
-              completion.
-            </span>
-          </div>
-        </Alert>
-      )}
-
-      {/* Primary Classification Finding Hero Card */}
-      {isCompleted && primaryPred && (
-        <div className='rounded-xl border border-clinical-200 bg-gradient-to-r from-clinical-50/80 via-white to-clinical-50/40 p-5 shadow-sm'>
-          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
-            <div className='space-y-1'>
-              <div className='flex items-center gap-2'>
-                <span className='text-xs font-bold text-clinical-700 uppercase tracking-wider'>
-                  Primary Computer Vision Finding
-                </span>
-                <Badge variant='info' className='font-mono text-xs'>
-                  {primaryPred.predicted_class}
-                </Badge>
-              </div>
-              <h2 className='text-2xl font-bold text-slate-900 tracking-tight'>
-                {topName}
-              </h2>
-              <p className='text-xs text-slate-500 max-w-xl'>
-                Dominant class activation identified by EfficientNetB0 oral lesion classifier.
-              </p>
-            </div>
-
-            <div className='flex items-center gap-4 bg-white p-3.5 rounded-lg border border-slate-200/80 shadow-xs shrink-0'>
-              <div>
-                <div className='text-[11px] text-slate-400 uppercase font-semibold'>
-                  Model Confidence
-                </div>
-                <div className='text-xl font-mono font-bold text-clinical-700'>
-                  {(primaryPred.confidence * 100).toFixed(1)}%
-                </div>
-                <div className='text-[10px] text-slate-400 font-mono'>
-                  Score: {primaryPred.confidence.toFixed(3)}
-                </div>
-              </div>
-
-              {primaryPred.inference_duration_ms && (
-                <div className='border-l border-slate-100 pl-3.5'>
-                  <div className='text-[11px] text-slate-400 uppercase font-semibold'>
-                    Inference Time
-                  </div>
-                  <div className='text-sm font-mono font-bold text-slate-700 flex items-center gap-1'>
-                    <Cpu className='h-3.5 w-3.5 text-slate-400' />
-                    {primaryPred.inference_duration_ms} ms
-                  </div>
-                  <div className='text-[10px] text-slate-400'>Synchronous</div>
-                </div>
-              )}
-            </div>
-          </div>
+      <nav aria-label='Results sections' className='flex gap-6 overflow-x-auto border-b border-slate-200 text-sm font-medium text-slate-500'><a href='#findings' className='results-section-link'>01 <span>Findings</span></a><a href='#explanations' className='results-section-link'>02 <span>Visual explanation</span></a><a href='#next-steps' className='results-section-link'>03 <span>Next steps</span></a></nav>
+      <section id='findings' className='results-anchor grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]'>
+        <YoloOverlayViewer imageSrc={imageUrl} detections={screening.yolo_detections || []} fileName={primaryImage?.file_name} imageWidth={primaryImage?.image_width} imageHeight={primaryImage?.image_height} />
+        {primaryPred && <ProbabilityDistributionChart probabilities={primaryPred.probabilities || []} predictedCode={topCode} confidence={primaryPred.confidence} />}
+      </section>
+      <section id='explanations' className='results-anchor'><XaiSection xaiResults={screening.xai_results || []} isGenerating={isGeneratingXai} onGenerateMethod={async method => { await generateXai(screening.screening_id, method); }} screeningId={screening.screening_id} /></section>
+      <section id='next-steps' className='results-anchor space-y-5'>
+        <div><p className='results-eyebrow'>Continue your care</p><h2 className='mt-1 text-2xl font-semibold tracking-tight text-[#173f38]'>Your next steps</h2></div>
+        <ClinicalRiskCard riskAssessment={(screening.risk_assessment as any) || null} onRecompute={() => computeRisk(screening.screening_id).then(() => {})} />
+        <div className='grid gap-5 xl:grid-cols-2'>
+          <DentistReviewCard dentistAssessments={screening.dentist_assessments || []} screeningId={screening.screening_id} onRequestReviewSuccess={() => fetchScreening(screening.screening_id)} />
+          <ReportActionCard report={report} isScreeningCompleted={isCompleted} isGenerating={isGeneratingReport} isDownloading={isDownloadingReport} onGenerateReport={async () => { const rep = await generateReport(screening.screening_id); if (rep) await downloadPdf(rep.id, rep.report_number); }} onDownloadReport={(reportId, filename) => downloadPdf(reportId, filename).then(() => {})} />
         </div>
-      )}
-
-      {/* Multi-Modal Two-Column Clinical Grid */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {/* Left Column: YOLO Localization & Explainable AI */}
-        <div className='space-y-6'>
-          {/* Spatial Localization */}
-          <YoloOverlayViewer
-            imageSrc={imageUrl || undefined}
-            detections={screening.yolo_detections || []}
-            fileName={screening.images && screening.images.length > 0 ? screening.images[0].file_name : undefined}
-            imageWidth={screening.images && screening.images.length > 0 ? screening.images[0].image_width : undefined}
-            imageHeight={screening.images && screening.images.length > 0 ? screening.images[0].image_height : undefined}
-          />
-
-          {/* Explainable AI */}
-          <XaiSection
-            xaiResults={(screening.xai_results || []) as any}
-            isGenerating={isGeneratingXai}
-            onGenerateMethod={(method) => generateXai(screening.screening_id, method).then(() => {})}
-            screeningId={screening.screening_id}
-          />
-        </div>
-
-        {/* Right Column: Probabilities, Urgency Tier, Dentist Review & Report */}
-        <div className='space-y-6'>
-          {/* 7-Class Distribution */}
-          {primaryPred && (
-            <ProbabilityDistributionChart
-              probabilities={primaryPred.probabilities || []}
-              predictedCode={topCode}
-              confidence={primaryPred.confidence}
-            />
-          )}
-
-          {/* Clinical Context & Urgency Tier */}
-          <ClinicalRiskCard
-            riskAssessment={(screening.risk_assessment as any) || null}
-            onRecompute={() => computeRisk(screening.screening_id).then(() => {})}
-          />
-
-          {/* Licensed Dentist Clinical Review */}
-          <DentistReviewCard
-            dentistAssessments={screening.dentist_assessments || []}
-            screeningId={screening.screening_id}
-            onRequestReviewSuccess={() => fetchScreening(screening.screening_id)}
-          />
-
-          {/* Clinical Report Action */}
-          <ReportActionCard
-            report={report}
-            isScreeningCompleted={isCompleted}
-            isGenerating={isGeneratingReport}
-            isDownloading={isDownloadingReport}
-            onGenerateReport={async () => {
-              const rep = await generateReport(screening.screening_id);
-              if (rep) {
-                await downloadPdf(rep.id, rep.report_number);
-              }
-            }}
-            onDownloadReport={(reportId, filename) => downloadPdf(reportId, filename).then(() => {})}
-          />
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

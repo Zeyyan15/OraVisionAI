@@ -504,16 +504,10 @@ class StorageService:
                     )
         except httpx.HTTPError as exc:
             logger.error("Supabase Storage upload network error for path %s: %s", storage_path, exc)
-            settings = get_settings()
-            if settings.environment in ("development", "test"):
-                logger.warning(
-                    "Supabase unreachable in %s mode (%s); proceeding with storage reference path: %s",
-                    settings.environment,
-                    exc,
-                    storage_path,
-                )
-                return
-            raise RuntimeError(f"Storage upload failed: {exc}")
+            raise RuntimeError(
+                "Image storage is unreachable. Your upload was not saved. "
+                "Please try again after the storage connection is restored."
+            ) from exc
 
     @staticmethod
     def _download_from_supabase(storage_path: str) -> bytes:
@@ -546,4 +540,7 @@ class StorageService:
                     )
         except httpx.HTTPError as exc:
             logger.error("Supabase Storage download network error for path %s: %s", storage_path, exc)
-            raise RuntimeError(f"Storage download failed: {exc}")
+            raise RuntimeError(
+                "Image storage is unreachable. Analysis cannot retrieve your photograph. "
+                "Please try again after the storage connection is restored."
+            ) from exc

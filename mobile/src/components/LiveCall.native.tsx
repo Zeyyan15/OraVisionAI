@@ -1,5 +1,6 @@
+import { Text } from './Typography';
 import { useEffect, useState, type ComponentType } from 'react';
-import { Text } from 'react-native';
+
 import { isRunningInExpoGo } from 'expo';
 import { Card, Loading, Notice } from './ui';
 import { styles } from '../theme';

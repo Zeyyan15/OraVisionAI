@@ -1,5 +1,6 @@
+import { Text, TextInput } from './Typography';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, AccessibilityInfo, Animated, KeyboardAvoidingView, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, AccessibilityInfo, Animated, KeyboardAvoidingView, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import type { TextInputProps, ViewStyle, StyleProp } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -28,16 +29,29 @@ export function Button({ label, onPress, variant = 'primary', loading = false, d
   loading?: boolean; disabled?: boolean; icon?: React.ComponentProps<typeof Feather>['name']; style?: StyleProp<ViewStyle>; testID?: string;
 }) {
   const primary = variant === 'primary';
-  const ink = primary ? colors.white : variant === 'danger' ? colors.danger : colors.teal;
-  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || loading, busy: loading }} disabled={disabled || loading} onPress={onPress} style={({ pressed }) => [ui.button, primary ? { backgroundColor: colors.teal } : variant === 'outline' ? ui.outline : variant === 'danger' ? { backgroundColor: colors.dangerBg } : { backgroundColor: 'transparent' }, { opacity: disabled || loading ? .55 : pressed ? .8 : 1 }, style]}>
+  const ink = primary ? colors.forest : variant === 'danger' ? colors.danger : colors.teal;
+  const [motion] = useState(() => new Animated.Value(0));
+  const [reduced, setReduced] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled().then(value => { if (alive) setReduced(value); });
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
+    return () => { alive = false; subscription.remove(); motion.stopAnimation(); };
+  }, [motion]);
+  const animate = (value: number) => { Animated.timing(motion, { toValue: disabled || loading ? 0 : value, duration: reduced ? 0 : 160, useNativeDriver: false }).start(); };
+  const background = primary ? colors.turquoise : variant === 'danger' ? colors.dangerBg : variant === 'ghost' ? 'transparent' : colors.field;
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || loading, busy: loading }} disabled={disabled || loading} onPress={onPress} onHoverIn={() => animate(1)} onHoverOut={() => animate(0)} onPressIn={() => animate(2)} onPressOut={() => animate(0)} style={[{ opacity: disabled || loading ? .55 : 1 }, style]}>
+    <Animated.View style={[ui.button, { backgroundColor: motion.interpolate({ inputRange: [0, 1, 2], outputRange: [background, primary ? '#39c9b8' : colors.mint, primary ? '#75dacc' : colors.mint] }), transform: [{ scale: motion.interpolate({ inputRange: [0, 1, 2], outputRange: reduced ? [1, 1, 1] : [1, 1.015, .98] }) }] }]}>
     {loading && <ActivityIndicator size="small" color={ink} />}
     <Text style={[ui.buttonText, { color: ink }]}>{label}</Text>
     {icon && !loading && <Feather name={icon} size={17} color={ink} />}
+    </Animated.View>
   </Pressable>;
 }
 
 export function Field({ label, error, ...props }: TextInputProps & { label: string; error?: string }) {
-  return <View style={{ gap: 7 }}><Text style={ui.label}>{label}</Text><TextInput {...props} accessibilityLabel={label} placeholderTextColor="#a0aea0" style={[ui.input, props.multiline && { minHeight: 110, textAlignVertical: 'top' }, props.style]} />{!!(error) && <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text>}</View>;
+  const [focused, setFocused] = useState(false);
+  return <View style={{ gap: 7 }}><Text style={ui.label}>{label}</Text><TextInput {...props} onFocus={event => { setFocused(true); props.onFocus?.(event); }} onBlur={event => { setFocused(false); props.onBlur?.(event); }} accessibilityLabel={label} placeholderTextColor={colors.muted} style={[ui.input, props.multiline && { minHeight: 110, textAlignVertical: 'top' }, props.style, focused && { borderColor: colors.turquoise }, error && { borderColor: colors.danger }]} />{!!(error) && <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text>}</View>;
 }
 
 export function PasswordField(props: { label?: string; value: string; onChangeText: (value: string) => void; editable?: boolean; newPassword?: boolean }) {
@@ -57,9 +71,9 @@ export function Loading() { return <View style={{ padding: 40, alignItems: 'cent
 export function ResourceState({ loading, error, retry }: { loading: boolean; error: string | null; retry: () => void }) { if (loading) return <Loading />; return error ? <Card><Notice error message={error} /><Button label="Try again" variant="outline" onPress={retry} /></Card> : null; }
 
 const ui = StyleSheet.create({
-  button: { minHeight: 52, minWidth: 0, maxWidth: '100%', flexShrink: 0, paddingHorizontal: 18, paddingVertical: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, borderRadius: 9 },
+  button: { minHeight: 52, minWidth: 0, maxWidth: '100%', flexShrink: 0, paddingHorizontal: 18, paddingVertical: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, borderRadius: 13 },
   outline: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
   buttonText: { fontSize: 13, lineHeight: 20, fontWeight: '600', flexShrink: 1, textAlign: 'center', includeFontPadding: false },
   label: { color: '#526958', fontSize: 12, fontWeight: '500' },
-  input: { minHeight: 49, borderWidth: 1, borderColor: colors.line, borderRadius: 9, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: colors.white, color: colors.ink, fontSize: 14 },
+  input: { minHeight: 51, borderWidth: 2, borderColor: 'transparent', borderRadius: 13, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: colors.field, color: colors.ink, fontSize: 14 },
 });

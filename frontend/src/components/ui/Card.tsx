@@ -10,7 +10,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 export const Card: React.FC<CardProps> = ({ className, children, ...props }) => {
   return (
     <div
-      className={clsx('rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow', className)}
+      className={clsx('rounded-2xl border border-slate-200/70 bg-white shadow-[0_4px_24px_-16px_#123e3a30] transition-shadow', className)}
       {...props}
     >
       {children}
@@ -32,7 +32,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   ...props
 }) => {
   return (
-    <h3 className={clsx('text-lg font-semibold leading-none tracking-tight text-slate-900', className)} {...props}>
+    <h3 className={clsx('text-lg font-bold leading-none tracking-tight text-slate-900', className)} {...props}>
       {children}
     </h3>
   );

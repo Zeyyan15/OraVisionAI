@@ -17,8 +17,10 @@ export class HttpClient {
     if (options.signal?.aborted) controller.abort();
     options.signal?.addEventListener('abort', abort, { once: true });
     const timeout = setTimeout(abort, options.timeoutMs ?? 30000);
+    let tokenReady = false;
     try {
       const token = await this.tokenProvider(retried);
+      tokenReady = true;
       const headers: Record<string, string> = { Accept: 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
       const isForm = options.body instanceof FormData;
@@ -30,7 +32,7 @@ export class HttpClient {
         body: options.body === undefined ? undefined : isForm ? options.body as FormData : JSON.stringify(options.body),
       });
       if (response.status === 401 && !retried && token) {
-        return await this.request<T>(path, method, options, true);
+        return this.request<T>(path, method, options, true);
       }
       if (response.status === 204) return undefined as T;
       const data = await response.json().catch(() => null);
@@ -46,6 +48,12 @@ export class HttpClient {
     } catch (error) {
       if (error instanceof ApiError) throw error;
       if (controller.signal.aborted) throw new Error('The request was interrupted or took too long. Please try again.');
+      // Keep Firebase errors intact so Session can explain expired credentials or auth failures.
+      if (!tokenReady) throw error;
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        const detail = error instanceof Error ? error.message : 'Network request failed';
+        throw new Error(`Cannot reach the server at ${this.baseUrl}. ${detail}. Check your connection and try again.`);
+      }
       throw new Error('Cannot reach the server. Check your connection and try again.');
     } finally {
       clearTimeout(timeout);

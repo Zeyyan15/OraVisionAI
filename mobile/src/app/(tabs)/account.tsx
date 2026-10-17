@@ -1,5 +1,6 @@
+import { Text } from '../../components/Typography';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { api } from '../../api';
 import { useSession } from '../../context/Session';
 import { useResource } from '../../hooks/useResource';

@@ -1,5 +1,6 @@
+import { Text } from '../../components/Typography';
 import React, { useEffect, useState } from 'react';
-import { Modal, Text, View } from 'react-native';
+import { Modal, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import LiveCall from '../../components/LiveCall';
 import { api } from '../../api';

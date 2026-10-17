@@ -1,5 +1,6 @@
+import { Text } from '../../components/Typography';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { api } from '../../api';
 import { useResource } from '../../hooks/useResource';
 import { useSession } from '../../context/Session';

@@ -1,5 +1,6 @@
+import { Text } from '../../components/Typography';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api } from '../../api';
 import { useResource } from '../../hooks/useResource';

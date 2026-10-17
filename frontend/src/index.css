@@ -1,3 +1,8 @@
+@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/PlusJakartaSans-400.ttf') format('truetype'); }
+@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/PlusJakartaSans-500.ttf') format('truetype'); }
+@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/PlusJakartaSans-600.ttf') format('truetype'); }
+@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/PlusJakartaSans-700.ttf') format('truetype'); }
+@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/PlusJakartaSans-800.ttf') format('truetype'); }
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,31 +13,54 @@
   }
 }
 
-/* A straight silhouette with one chamfer at the top right. */
-.cut-corner-button {
-  --corner-cut: 10px;
-  position: relative;
-  border-radius: 0 !important;
-  clip-path: polygon(0 0, calc(100% - var(--corner-cut)) 0, 100% var(--corner-cut), 100% 100%, 0 100%);
+/* Screening results: a consistent reading rhythm for images, evidence and care. */
+@layer components {
+  .results-panel {
+    @apply min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6;
+    box-shadow: 0 3px 18px -12px rgb(23 63 56 / 18%);
+  }
+  .results-panel-heading { @apply flex flex-wrap items-start gap-3 border-b border-slate-100 pb-4; }
+  .results-panel-heading h3 { @apply text-base font-semibold leading-snug text-slate-900; }
+  .results-panel-heading p { @apply mt-1 text-xs leading-relaxed text-slate-500; }
+  .results-icon { @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#087f70]; }
+  .results-chip { @apply inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-500; }
+  .results-footnote { @apply flex items-start gap-2 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500; }
+  .results-eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-[#087f70]; }
+  .results-summary { @apply overflow-hidden rounded-2xl bg-[#173f38]; }
+  .results-section-link { @apply inline-flex shrink-0 items-center gap-2 border-b-2 border-transparent pb-4 pt-1 text-xs text-slate-400 hover:border-[#087f70] focus-visible:border-[#087f70]; }
+  .results-section-link span { @apply text-sm text-slate-700; }
+  .results-anchor { scroll-margin-top: 6rem; }
+  .screening-results button { height: auto; min-height: 2.25rem; }
+  .screening-results button > span { @apply whitespace-normal; }
+  .teleconsultations { @apply min-w-0; }
+  .teleconsultations button > span { @apply whitespace-normal; }
+  .screening-results > section > .rounded-xl,
+  .screening-results #next-steps .grid > .rounded-xl { @apply rounded-2xl border-slate-200/80 p-5 sm:p-6; }
 }
 
-.cut-corner-small { --corner-cut: 7px; }
-
-/* Continue outlined borders along the diagonal edge. */
-.cut-corner-outline::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  width: calc(var(--corner-cut) * 1.414214);
-  right: calc(var(--corner-cut) * -.207107);
-  top: calc(var(--corner-cut) * .5);
-  border-top: 1px solid;
-  border-color: inherit;
-  transform: rotate(45deg);
+/* Shared reference theme also covers forms implemented directly in page markup. */
+body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #eef8f7; }
+#root > .min-h-screen.bg-slate-50 { background-color: #eef8f7; }
+button, input, textarea, select { font-family: inherit; }
+h1, h2, h3 { letter-spacing: -.035em; }
+.cut-corner-button { border-radius: 12px !important; clip-path: none; }
+.cut-corner-outline::after { content: none; }
+#root :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]), textarea, select) {
+  background-color: #f1f5f7; border: 1px solid transparent; border-radius: 12px;
+  min-height: 46px; transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-
-/* Keep keyboard focus inside the clipped shape so it stays visible. */
-.cut-corner-button:focus-visible {
-  outline: 2px solid currentColor !important;
-  outline-offset: -5px !important;
+#root :where(input, textarea, select):focus-visible { outline: none; border-color: #12b5a6; box-shadow: 0 0 0 3px #12b5a629; }
+#root :where(input, textarea, select)[aria-invalid="true"] { border-color: #e05b71; }
+#root :where(input, textarea, select):disabled { opacity: .6; cursor: not-allowed; }
+#root :where(input[type="checkbox"], input[type="radio"]) { accent-color: #087f75; }
+#root :where(button, a[role="button"], .landing-button) { transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+#root button[aria-pressed="true"]:not(.app-button), #root .auth-role-option.is-selected { background-color: #12b5a6; border-color: #12b5a6; color: #123e3a; box-shadow: 0 0 0 3px #d8f5ef; }
+#root .auth-role-option { border-radius: 12px; background-color: #f1f5f7; }
+#root .auth-role-option.is-selected :where(small, svg) { color: #123e3a; }
+#root .auth-form button[type='submit'] { border-radius: 12px; }
+.landing-button-primary { background-color: #12b5a6; color: #123e3a; border-radius: 12px; font-weight: 700; }
+#root button:not(:disabled):not(.app-button):hover { filter: brightness(.96); }
+.landing-button:hover { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  #root :where(button, input, textarea, select, a) { transition: none !important; transform: none !important; }
 }

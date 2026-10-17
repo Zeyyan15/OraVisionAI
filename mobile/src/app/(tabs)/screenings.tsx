@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { Text } from '../../components/Typography';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { api } from '../../api';
 import { useSession } from '../../context/Session';

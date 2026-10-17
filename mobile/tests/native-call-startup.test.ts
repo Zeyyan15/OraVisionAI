@@ -25,6 +25,7 @@ function host(environment: string, missingModule = false) {
     };
     if (name === 'react/jsx-runtime') return { jsx: (type: unknown, props: unknown) => ({ type, props }), jsxs: (type: unknown, props: unknown) => ({ type, props }) };
     if (name === 'react-native') return { Text: component };
+    if (name === './Typography') return { Text: component };
     if (name === 'expo') return { isRunningInExpoGo: () => environment === 'expoGo' };
     if (name === './ui') return { Card: component, Loading: component, Notice: component };
     if (name === '../theme') return { styles: { heading: {} } };

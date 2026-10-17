@@ -14,6 +14,22 @@ test('fetch is invoked without binding the HTTP client as its receiver', async (
   assert.deepEqual(await client.get('/health'),{ok:true});
 });
 
+test('Firebase token failures are preserved rather than reported as backend connection failures', async () => {
+  const failure = Object.assign(new Error('Authentication token expired'), { code: 'auth/user-token-expired' });
+  let fetched = false;
+  const client = new HttpClient('https://api.example.test', async () => { throw failure; }, async () => { fetched = true; return Response.json({}); });
+  await assert.rejects(client.get('/me'), error => error === failure);
+  assert.equal(fetched, false);
+});
+
+test('Firebase refresh failures after a 401 keep their original error', async () => {
+  const failure = Object.assign(new Error('Token refresh failed'), { code: 'auth/network-request-failed' });
+  let calls = 0;
+  const client = new HttpClient('https://api.example.test', async refresh => { if (refresh) throw failure; return 'old-token'; }, async () => { calls++; return new Response('{}', { status: 401 }); });
+  await assert.rejects(client.get('/me'), error => error === failure);
+  assert.equal(calls, 1);
+});
+
 test('unauthorized requests refresh Firebase token once and retain the API payload', async () => {
   const requests: RequestInit[] = []; const refreshes: boolean[] = [];
   const client = new HttpClient('https://api.example.test/', async (refresh) => { refreshes.push(!!refresh); return refresh ? 'fresh-token' : 'old-token'; }, async (input, options) => {

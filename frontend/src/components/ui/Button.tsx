@@ -1,7 +1,6 @@
-/**
- * OraVisionAI — Accessible Button Component
+﻿/**
+ * OraVisionAI â€” Accessible Button Component
  */
-
 import React from 'react';
 import { clsx } from 'clsx';
 import { Loader2 } from 'lucide-react';
@@ -18,17 +17,17 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'border border-transparent bg-[#087f70] text-white hover:bg-[#06685c] focus-visible:ring-[#087f70] shadow-[0_3px_8px_#087f701a] hover:shadow-[0_5px_14px_#087f702b]',
+  primary: 'border border-transparent bg-clinical-500 text-clinical-900 hover:bg-clinical-600 hover:text-white focus-visible:ring-[#087f70] shadow-[0_3px_8px_#087f701a] hover:shadow-[0_5px_14px_#087f702b]',
   secondary: 'border border-transparent bg-slate-800 text-white hover:bg-slate-900 focus-visible:ring-slate-500 shadow-sm',
-  outline: 'border border-slate-300 bg-white text-slate-700 hover:border-[#8caf9e] hover:bg-[#f3f8f4] focus-visible:ring-[#087f70] shadow-sm',
+  outline: 'border border-transparent bg-slate-100 text-slate-700 hover:border-clinical-200 hover:bg-clinical-100 focus-visible:ring-[#087f70] shadow-sm',
   danger: 'bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500 shadow-sm',
   ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-500',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs gap-1.5',
-  md: 'h-10 px-4 text-sm gap-2',
-  lg: 'h-12 px-6 text-base gap-2.5',
+  sm: 'min-h-9 py-2 px-3 text-xs gap-1.5',
+  md: 'min-h-11 py-2.5 px-4 text-sm gap-2',
+  lg: 'min-h-12 py-3 px-6 text-base gap-2.5',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -54,8 +53,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={loading}
         className={clsx(
-          'group inline-flex items-center justify-center rounded-lg font-semibold transition-[background-color,border-color,box-shadow,transform] duration-200 enabled:hover:-translate-y-0.5 enabled:active:translate-y-0 enabled:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none',
-          variant === 'primary' && 'cut-corner-button',
+          'app-button group inline-flex items-center justify-center rounded-xl font-bold transition-[background-color,border-color,box-shadow,transform] duration-200 enabled:hover:-translate-y-0.5 enabled:active:translate-y-0 enabled:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none',
+
           variantStyles[variant],
           sizeStyles[size],
           className,

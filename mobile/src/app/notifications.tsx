@@ -1,5 +1,6 @@
+import { Text } from '../components/Typography';
 import { useState } from 'react';
-import { Text } from 'react-native';
+
 import { api } from '../api';
 import { useResource } from '../hooks/useResource';
 import { Button, Card, Empty, Notice, ResourceState, Screen } from '../components/ui';

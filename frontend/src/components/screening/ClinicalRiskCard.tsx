@@ -36,7 +36,7 @@ export const ClinicalRiskCard: React.FC<ClinicalRiskCardProps> = ({
           <Badge variant='neutral'>Pending Evaluation</Badge>
         </div>
         <p className='text-xs text-slate-500 py-4 text-center'>
-          Automated clinical context triage tier will be synthesized once AI inference is complete.
+          No urgency assessment is available for this screening yet.
         </p>
       </div>
     );

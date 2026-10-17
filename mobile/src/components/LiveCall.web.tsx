@@ -1,5 +1,6 @@
+import { Text } from './Typography';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { CallingState, StreamVideoClient, hasVideo, type Call, type StreamVideoParticipant } from '@stream-io/video-client';
 import { api } from '../api';

@@ -23,6 +23,8 @@ Populate `EXPO_PUBLIC_FIREBASE_*` using the corresponding `VITE_FIREBASE_*` valu
 
 Set `EXPO_PUBLIC_API_URL=http://YOUR_PC_LAN_IP:8000` for a physical phone on the same network. Android emulator: `http://10.0.2.2:8000`. A blank URL infers the Expo development server host; deployed builds must set the existing HTTPS backend URL.
 
+The local web preview uses loopback when opened on localhost, avoiding Chrome's LAN-access permission prompt. Set `EXPO_PUBLIC_WEB_API_URL` to override this when your web preview deliberately uses a different backend. In development, the backend accepts Expo browser origins on ports 8080–8099 for loopback and private LAN hosts.
+
 Start the backend from `backend/`:
 
 ```powershell

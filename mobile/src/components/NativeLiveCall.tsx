@@ -1,5 +1,6 @@
+import { Text } from './Typography';
 import { useCallback, useRef, useState } from 'react';
-import { PermissionsAndroid, Platform, Text, View } from 'react-native';
+import { PermissionsAndroid, Platform, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { CallContent, StreamCall, StreamVideo, StreamVideoClient, ToggleAudioPublishingButton, HangUpCallButton, type Call, type CallControlProps } from '@stream-io/video-react-native-sdk';
 import { api } from '../api';

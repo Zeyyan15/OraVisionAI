@@ -1,0 +1,11 @@
+OraVision AI supports preliminary oral-health screening, with professional clinical oversight.
+
+Patients begin by recording notes and uploading an oral photograph for AI-assisted image analysis.
+
+EfficientNet B zero classifies the image across seven oral conditions. Independently, YOLO localizes visible findings.
+
+Results bring together model confidence, class probabilities, explainable heatmaps, and clinical-risk prioritization. These are screening findings, not a confirmed diagnosis.
+
+Patients request an approved dentist's review. The dentist examines the original image and AI evidence, then records a separate professional assessment and recommendations.
+
+A consolidated report brings the findings together. OraVision AI combines artificial intelligence with clinical oversight, supporting structured oral-health assessment.

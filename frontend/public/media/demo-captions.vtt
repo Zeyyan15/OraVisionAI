@@ -1,0 +1,90 @@
+﻿WEBVTT
+
+1
+00:00:00.350 --> 00:00:03.610
+OraVisionAI supports preliminary oral-health screening,
+
+2
+00:00:03.610 --> 00:00:05.900
+with professional clinical oversight.
+
+3
+00:00:06.170 --> 00:00:08.330
+Patients begin by recording notes
+
+4
+00:00:08.330 --> 00:00:10.010
+and uploading an oral photograph
+
+5
+00:00:10.010 --> 00:00:12.000
+for AI-assisted image analysis.
+
+6
+00:00:12.310 --> 00:00:14.850
+EfficientNetB0 classifies the image
+
+7
+00:00:14.850 --> 00:00:16.850
+across seven oral conditions.
+
+8
+00:00:17.230 --> 00:00:20.550
+Independently, YOLO localizes visible findings.
+
+9
+00:00:20.950 --> 00:00:23.390
+Results bring together model confidence,
+
+10
+00:00:23.390 --> 00:00:26.290
+class probabilities, explainable heatmaps,
+
+11
+00:00:26.290 --> 00:00:28.050
+and clinical-risk prioritization.
+
+12
+00:00:28.350 --> 00:00:30.030
+These are screening findings,
+
+13
+00:00:30.030 --> 00:00:31.850
+not a confirmed diagnosis.
+
+14
+00:00:32.290 --> 00:00:35.000
+Patients request an approved dentist’s review.
+
+15
+00:00:35.350 --> 00:00:37.650
+The dentist examines the original image
+
+16
+00:00:37.650 --> 00:00:39.490
+and AI evidence,
+
+17
+00:00:39.490 --> 00:00:41.790
+then records a separate professional assessment
+
+18
+00:00:41.790 --> 00:00:43.150
+and recommendations.
+
+19
+00:00:43.530 --> 00:00:46.850
+A consolidated report brings the findings together.
+
+20
+00:00:47.310 --> 00:00:50.330
+OraVisionAI combines artificial intelligence
+
+21
+00:00:50.330 --> 00:00:52.090
+with clinical oversight,
+
+22
+00:00:52.090 --> 00:00:54.500
+supporting structured oral-health assessment.
+

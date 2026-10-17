@@ -35,34 +35,34 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
   }, [imageSrc]);
 
   return (
-    <div className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4'>
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100'>
-        <div className='flex items-center gap-2'>
-          <Crosshair className='h-5 w-5 text-clinical-600' />
+    <div className='results-panel flex h-full flex-col space-y-4'>
+      <div className='results-panel-heading'>
+        <div className='flex items-start gap-3'>
+          <span className='results-icon'><Crosshair className='h-5 w-5' /></span>
           <div>
             <h3 className='text-base font-semibold text-slate-900'>
-              Spatial Lesion Localization
+              Photograph & localization
             </h3>
             <p className='text-xs text-slate-500'>
-              Automated region-of-interest findings from the YOLO lesion detector.
+              Regions identified by the YOLO detector.
             </p>
           </div>
         </div>
-        <Badge variant={hasDetections ? 'warning' : 'neutral'}>
+        <Badge className='shrink-0 whitespace-nowrap sm:ml-auto' variant={hasDetections ? 'warning' : 'neutral'}>
           {hasDetections
             ? detections.length + (detections.length === 1 ? ' Region Detected' : ' Regions Detected')
-            : 'No Lesions Localized'}
+            : 'No regions detected'}
         </Badge>
       </div>
 
       {/* Visual Image & Bounding Box Overlay */}
-      <div className='relative overflow-hidden rounded-lg border border-slate-200 bg-slate-900 flex items-center justify-center min-h-[260px] max-h-[460px]'>
+      <div className='relative overflow-hidden rounded-xl border border-slate-200 bg-[#edf2f0] flex flex-1 items-center justify-center min-h-[240px]'>
         {imageSrc && !imgError ? (
-          <div className='relative w-full h-full flex items-center justify-center'>
+          <div className='relative inline-block max-w-full leading-none'>
             <img
               src={imageSrc}
               alt='Oral cavity screening photograph with lesion bounding boxes'
-              className='max-h-[440px] w-auto max-w-full object-contain'
+              className='block max-h-[440px] w-auto max-w-full object-contain'
               onError={() => setImgError(true)}
             />
             {/* Normalized Bounding Boxes Container */}
@@ -76,8 +76,8 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
               {detections.map((det, idx) => {
                 const left = det.bbox.x_min * 100;
                 const top = det.bbox.y_min * 100;
-                const width = Math.max((det.bbox.x_max - det.bbox.x_min) * 100, 2);
-                const height = Math.max((det.bbox.y_max - det.bbox.y_min) * 100, 2);
+                const width = Math.max((det.bbox.x_max - det.bbox.x_min) * 100, 0);
+                const height = Math.max((det.bbox.y_max - det.bbox.y_min) * 100, 0);
 
                 return (
                   <div
@@ -138,9 +138,7 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
 
       {/* Accessible Bounding Coordinates Table */}
       <div className='space-y-2 pt-1'>
-        <h4 className='text-xs font-semibold text-slate-700 uppercase tracking-wider'>
-          Detection Findings & Coordinates
-        </h4>
+        {hasDetections && <h4 className='results-eyebrow'>Detected regions</h4>}
 
         {hasDetections ? (
           <div className='overflow-x-auto rounded-lg border border-slate-100'>
@@ -174,18 +172,16 @@ export const YoloOverlayViewer: React.FC<YoloOverlayViewerProps> = ({
             </table>
           </div>
         ) : (
-          <p className='text-xs text-slate-500 italic p-3 bg-slate-50 rounded-lg'>
-            No focal lesions or mucosal abnormalities were detected in this photograph by the YOLO lesion detector.
+          <p className='text-sm leading-relaxed text-slate-500 p-3 bg-slate-50 rounded-lg'>
+            The detector did not localize a region in this photograph. This does not rule out an oral condition.
           </p>
         )}
       </div>
 
-      <div className='flex items-start gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500'>
+      <div className='results-footnote'>
         <Info className='h-4 w-4 text-slate-400 shrink-0 mt-0.5' />
         <p>
-          <span className='font-semibold text-slate-600'>Spatial Evidence Policy:</span> The YOLO lesion detector
-          identifies localized regions of mucosal variation. Bounding boxes do not assess disease severity, cancer
-          staging, or histopathology.
+          Boxes show model-localized regions, not disease severity or a clinical diagnosis.
         </p>
       </div>
     </div>

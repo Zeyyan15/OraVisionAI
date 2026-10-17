@@ -1,16 +1,7 @@
-/**
- * OraVisionAI - 7-Class Probability Distribution Chart Component (Phase 23)
- *
- * Renders EfficientNetB0 classification scores across all 7 oral lesion categories.
- * Preserves strict semantic discipline: labeled as Model Output / Class Score,
- * avoiding misleading probability or diagnostic claims.
- */
-
-import React from 'react';
+﻿import React from 'react';
+import { BarChart3, Info } from 'lucide-react';
 import { ProbabilityItem } from '../../types/screening';
 import { LESION_CLASSES, LesionClassCode } from '../../types/domain';
-import { Badge } from '../ui/Badge';
-import { Info, Award } from 'lucide-react';
 
 export interface ProbabilityDistributionChartProps {
   probabilities: ProbabilityItem[];
@@ -18,125 +9,34 @@ export interface ProbabilityDistributionChartProps {
   confidence?: number;
 }
 
-export const ProbabilityDistributionChart: React.FC<ProbabilityDistributionChartProps> = ({
-  probabilities,
-  predictedCode,
-  confidence,
-}) => {
-  // Sort descending by model score
-  const sortedItems = [...probabilities].sort((a, b) => b.probability - a.probability);
-
+export const ProbabilityDistributionChart: React.FC<ProbabilityDistributionChartProps> = ({ probabilities }) => {
+  const items = [...probabilities].sort((a, b) => b.probability - a.probability);
   return (
-    <div className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4'>
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100'>
-        <div>
-          <h3 className='text-base font-semibold text-slate-900'>
-            Differential Class Distribution
-          </h3>
-          <p className='text-xs text-slate-500'>
-            Relative model activation scores across the 7-class oral lesion taxonomy.
-          </p>
-        </div>
-        {confidence !== undefined && (
-          <div className='flex items-center gap-2'>
-            <span className='text-xs text-slate-500 font-medium'>Model Confidence:</span>
-            <Badge variant='info' className='font-mono'>
-              {(confidence * 100).toFixed(1)}% Score
-            </Badge>
-          </div>
-        )}
+    <section className='results-panel h-full flex flex-col' aria-label='Model class scores'>
+      <div className='results-panel-heading'>
+        <span className='results-icon'><BarChart3 className='h-5 w-5' /></span>
+        <div><h3>Model class scores</h3><p>How the seven trained categories compare.</p></div>
+        <span className='results-chip ml-auto shrink-0'>7 categories</span>
       </div>
-
-      <div
-        className='space-y-3'
-        role='region'
-        aria-label='7-Class Model Activation Distribution'
-      >
-        <ol className='space-y-2.5 list-none p-0 m-0'>
-          {sortedItems.map((item, index) => {
-            const isTopMatch = predictedCode
-              ? item.class_code === predictedCode
-              : index === 0;
-            const fullClassName =
-              LESION_CLASSES[item.class_code as LesionClassCode] || item.class_name;
-            const scorePercent = Math.min(Math.max(item.probability * 100, 1), 100);
-
-            return (
-              <li
-                key={item.class_code || item.class_name || index}
-                className={'group rounded-lg p-2.5 transition-colors ' +
-                  (isTopMatch
-                    ? 'bg-clinical-50/60 border border-clinical-200/80'
-                    : 'hover:bg-slate-50 border border-transparent')
-                }
-              >
-                <div className='flex items-center justify-between text-xs mb-1.5'>
-                  <div className='flex items-center gap-2'>
-                    <span
-                      className={'inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ' +
-                        (isTopMatch
-                          ? 'bg-clinical-600 text-white'
-                          : 'bg-slate-200 text-slate-600')
-                      }
-                      aria-label={'Rank #' + (index + 1)}
-                    >
-                      {index + 1}
-                    </span>
-                    <Badge
-                      variant={isTopMatch ? 'info' : 'neutral'}
-                      className='font-mono text-[11px] px-1.5 py-0.5'
-                    >
-                      {item.class_code}
-                    </Badge>
-                    <span className={'font-medium ' + (isTopMatch ? 'text-slate-900 font-semibold' : 'text-slate-700')}>
-                      {fullClassName}
-                    </span>
-                    {isTopMatch && (
-                      <span className='inline-flex items-center gap-1 text-[11px] text-clinical-700 font-semibold'>
-                        <Award className='h-3.5 w-3.5' />
-                        Top Finding
-                      </span>
-                    )}
-                  </div>
-                  <div className='flex items-center gap-2 font-mono'>
-                    <span className='text-slate-500 text-[11px]'>
-                      ({(item.probability).toFixed(3)})
-                    </span>
-                    <span className={'font-bold text-xs ' + (isTopMatch ? 'text-clinical-700' : 'text-slate-700')}>
-                      {scorePercent.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-
-                <div className='w-full bg-slate-100 rounded-full h-2 overflow-hidden'>
-                  <div
-                    className={'h-full rounded-full transition-all duration-500 ' +
-                      (isTopMatch ? 'bg-clinical-600' : 'bg-slate-300 group-hover:bg-slate-400')
-                    }
-                    style={{ width: scorePercent + '%' }}
-                    role='progressbar'
-                    aria-valuenow={Math.round(scorePercent)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={fullClassName + ' activation: ' + scorePercent.toFixed(1) + '%'}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-
-      <div className='flex items-start gap-2 pt-3 border-t border-slate-100 text-[11px] text-slate-500'>
-        <Info className='h-4 w-4 text-slate-400 shrink-0 mt-0.5' />
-        <p>
-          <span className='font-semibold text-slate-600'>Epistemic Guidance:</span> Model scores reflect normalized
-          softmax activation outputs across the seven trained oral cavity lesion categories. They do not represent
-          calibrated clinical disease probabilities or a confirmed medical diagnosis.
-        </p>
-      </div>
-    </div>
+      <ol className='flex-1 space-y-1 py-4' aria-label='7-Class Model Activation Distribution'>
+        {items.map((item, index) => {
+          const score = Math.min(100, Math.max(0, item.probability * 100));
+          const name = LESION_CLASSES[item.class_code as LesionClassCode] || item.class_name;
+          const formatted = score > 0 && score < 0.1 ? '<0.1%' : `${score.toFixed(1)}%`;
+          return <li key={item.class_code || item.class_name} className={`rounded-xl px-3 py-3 ${index === 0 ? 'border border-emerald-100 bg-emerald-50/70' : ''}`}>
+            <div className='mb-2 flex items-center gap-3 text-sm'>
+              <span className={`w-5 text-xs tabular-nums ${index === 0 ? 'font-bold text-emerald-700' : 'text-slate-400'}`}>{String(index + 1).padStart(2, '0')}</span>
+              <span className={`min-w-0 flex-1 ${index === 0 ? 'font-semibold text-emerald-950' : 'text-slate-700'}`}>{name}</span>
+              <span className='shrink-0 font-semibold tabular-nums text-slate-900'>{formatted}</span>
+            </div>
+            <div className='ml-8 h-1.5 overflow-hidden rounded-full bg-slate-100' role='meter' aria-label={`${name} model score`} aria-valuenow={score} aria-valuemin={0} aria-valuemax={100} aria-valuetext={formatted}>
+              <div className={`h-full rounded-full ${index === 0 ? 'bg-[#087f70]' : 'bg-slate-300'}`} style={{width:`${score}%`}} />
+            </div>
+          </li>;
+        })}
+      </ol>
+      <div className='results-footnote'><Info className='h-4 w-4 shrink-0' /><p>Scores describe model output, not the likelihood of a disease or a confirmed diagnosis.</p></div>
+    </section>
   );
 };
-
 export default ProbabilityDistributionChart;

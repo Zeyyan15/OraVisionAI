@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { DentistAssessmentSummary } from '../../types/screening';
-import { Stethoscope, AlertCircle, Clock, ShieldCheck, UserPlus, CheckCircle2 } from 'lucide-react';
+import { Stethoscope, AlertCircle, ShieldCheck, UserPlus, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
@@ -91,10 +91,10 @@ export const DentistReviewCard: React.FC<DentistReviewCardProps> = ({
           <Stethoscope className='h-5 w-5 text-clinical-600' />
           <div>
             <h3 className='text-base font-semibold text-slate-900'>
-              Dentist Clinical Assessment
+              Dentist review
             </h3>
             <p className='text-xs text-slate-500'>
-              Authored by a licensed dental practitioner (distinct from AI screening results).
+              A professional assessment of your screening findings.
             </p>
           </div>
         </div>
@@ -107,7 +107,7 @@ export const DentistReviewCard: React.FC<DentistReviewCardProps> = ({
             <Badge variant='neutral'>Awaiting Review</Badge>
           )}
 
-          {screeningId && (
+          {screeningId && hasAssessments && (
             <Button
               type='button'
               size='sm'
@@ -190,13 +190,11 @@ export const DentistReviewCard: React.FC<DentistReviewCardProps> = ({
           ))}
         </div>
       ) : (
-        <div className='rounded-lg border border-dashed border-slate-200 p-6 text-center text-slate-500 space-y-3'>
-          <Clock className='h-8 w-8 text-slate-300 mx-auto' />
-          <h4 className='text-sm font-semibold text-slate-700'>No Dentist Review Submitted Yet</h4>
+        <div className='rounded-xl bg-slate-50 p-6 text-center text-slate-500 space-y-4'>
+          <span className='results-icon mx-auto'><Stethoscope className='h-5 w-5' /></span>
+          <h4 className='text-base font-semibold text-slate-800'>Get a professional perspective</h4>
           <p className='text-xs text-slate-500 max-w-md mx-auto leading-relaxed'>
-            A licensed dental practitioner has not yet submitted an in-person or remote clinical evaluation for this
-            screening session. Once reviewed, clinical notes, diagnosis, and treatment recommendations will appear here.
-            You can request a clinical review from an approved dentist.
+            Share these findings with an approved dentist. Their assessment and recommendations will appear here once submitted.
           </p>
           {screeningId && (
             <Button

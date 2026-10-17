@@ -1,0 +1,61 @@
+{
+  "classification": {
+    "predicted_class": "Mucocele",
+    "predicted_code": "MC",
+    "confidence": 0.7996,
+    "probabilities": [
+      {
+        "class_index": 0,
+        "class_code": "CaS",
+        "class_name": "Canker Sore",
+        "probability": 0.0
+      },
+      {
+        "class_index": 1,
+        "class_code": "CoS",
+        "class_name": "Cold Sore",
+        "probability": 0.0
+      },
+      {
+        "class_index": 2,
+        "class_code": "Gum",
+        "class_name": "Gum Disease",
+        "probability": 0.0003
+      },
+      {
+        "class_index": 3,
+        "class_code": "MC",
+        "class_name": "Mucocele",
+        "probability": 0.7996
+      },
+      {
+        "class_index": 4,
+        "class_code": "OC",
+        "class_name": "Oral Cancer",
+        "probability": 0.0229
+      },
+      {
+        "class_index": 5,
+        "class_code": "OLP",
+        "class_name": "Oral Lichen Planus",
+        "probability": 0.1686
+      },
+      {
+        "class_index": 6,
+        "class_code": "OT",
+        "class_name": "Oral Thrush",
+        "probability": 0.0085
+      }
+    ]
+  },
+  "detections": [],
+  "xai": [
+    {
+      "method": "occlusion_sensitivity",
+      "target_layer": "",
+      "heatmap_storage_path": "occlusion_sensitivity-heat.png",
+      "overlay_image_storage_path": "occlusion_sensitivity-overlay.png"
+    }
+  ],
+  "inference_duration_ms": 3234
+}

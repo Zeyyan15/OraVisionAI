@@ -21,7 +21,7 @@ export const PatientShell: React.FC = () => {
       <Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex flex-1">
         <Sidebar role="patient" isOpen={sidebarOpen} />
-        <main id="main-content" className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
+        <main id="main-content" className="min-w-0 flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
           <Outlet />
         </main>
       </div>

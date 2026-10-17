@@ -37,6 +37,7 @@ export const NewScreeningPage: React.FC = () => {
     deleteSession,
     isCreating,
     isUploading,
+    isInferencing,
     error,
   } = useScreening();
 
@@ -45,6 +46,15 @@ export const NewScreeningPage: React.FC = () => {
   const [createdScreeningId, setCreatedScreeningId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const handleRunAI = async () => {
+    if (!createdScreeningId) return;
+    setActionError(null);
+    const inferenceRes = await runInference(createdScreeningId);
+    if (inferenceRes) {
+      navigate('/patient/screenings/' + createdScreeningId);
+    }
+  };
 
   // Step 1: Create Screening Session
   const handleCreateSession = async (e: React.FormEvent) => {
@@ -71,18 +81,12 @@ export const NewScreeningPage: React.FC = () => {
     // 1. Upload
     const uploadRes = await uploadImage(createdScreeningId, selectedFile);
     if (!uploadRes) {
-      setActionError('Failed to upload image photograph. Please verify file format and size.');
       return;
     }
     setStep(3);
 
     // 2. Run Inference
-    const inferenceRes = await runInference(createdScreeningId);
-    if (inferenceRes) {
-      navigate('/patient/screenings/' + createdScreeningId);
-    } else {
-      setActionError('AI inference encountered an error. You may retry analysis from the session view.');
-    }
+    await handleRunAI();
   };
 
   // Discard / Soft-delete Session
@@ -315,20 +319,24 @@ export const NewScreeningPage: React.FC = () => {
       {step === 3 && (
         <Card className='text-center p-8'>
           <CardContent className='space-y-4 max-w-md mx-auto'>
-            <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-clinical-50 text-clinical-600 animate-pulse mb-2'>
-              <Cpu className='h-8 w-8' />
+            <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-clinical-50 text-clinical-600 mb-2'>
+              {isInferencing ? <Cpu className='h-8 w-8 animate-pulse' /> : <AlertCircle className='h-8 w-8' />}
             </div>
             <h3 className='text-lg font-bold text-slate-900'>
-              Analyzing Oral Photograph
+              {isInferencing ? 'Analyzing Oral Photograph' : 'Analysis could not finish'}
             </h3>
             <p className='text-xs text-slate-500 leading-relaxed'>
-              The dual-stage deep learning pipeline is executing YOLO spatial localization and EfficientNetB0 7-class
-              differential classification synchronously.
+              {isInferencing
+                ? 'Your photograph is being analyzed. Please keep this page open.'
+                : 'You can retry analysis or open your screening session. If your photograph is unavailable, upload it again after the storage connection is restored.'}
             </p>
-            <div className='flex items-center justify-center gap-2 pt-2 text-xs font-semibold text-clinical-700'>
+            {isInferencing ? <div className='flex items-center justify-center gap-2 pt-2 text-xs font-semibold text-clinical-700' role='status'>
               <Loader2 className='h-4 w-4 animate-spin' />
               <span>Processing model activations...</span>
-            </div>
+            </div> : <div className='flex flex-wrap justify-center gap-3 pt-2'>
+              <Button type='button' onClick={handleRunAI}>Retry Analysis</Button>
+              <Button type='button' variant='outline' onClick={() => navigate('/patient/screenings/' + createdScreeningId)}>View Session</Button>
+            </div>}
           </CardContent>
         </Card>
       )}

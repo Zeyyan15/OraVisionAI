@@ -1,0 +1,34 @@
+{
+  "doctors": [
+    {
+      "key": "ayesha",
+      "first_name": "Ayesha",
+      "last_name": "Khan (Demo)",
+      "specialization": "General Dentistry",
+      "clinic_name": "Demo Smile Care Clinic",
+      "years_of_experience": 8,
+      "bio": "Demo practitioner profile for exploring appointments and messaging.",
+      "welcome": "[Demo] Welcome to Smile Care. This conversation is sample data for your app preview."
+    },
+    {
+      "key": "hamza",
+      "first_name": "Hamza",
+      "last_name": "Ali (Demo)",
+      "specialization": "Orthodontics",
+      "clinic_name": "Demo Clear Smile Studio",
+      "years_of_experience": 6,
+      "bio": "Demo orthodontics practitioner for testing the doctor directory and booking screens.",
+      "welcome": "[Demo] Your sample appointment request is listed in Your schedule. You can explore messaging here."
+    },
+    {
+      "key": "sara",
+      "first_name": "Sara",
+      "last_name": "Ahmed (Demo)",
+      "specialization": "Periodontics",
+      "clinic_name": "Demo Oral Wellness Centre",
+      "years_of_experience": 10,
+      "bio": "Demo practitioner profile for previewing oral wellness follow-up workflows.",
+      "welcome": "[Demo] This is a sample follow-up conversation. These records are for preview purposes only."
+    }
+  ]
+}

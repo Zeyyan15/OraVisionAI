@@ -20,6 +20,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { getCurrentUserProfile, syncUserProfile } from '../api/endpoints';
+import { ApiError } from '../api/errors';
 import { UserResponse } from '../types/api';
 
 export interface AuthContextType {
@@ -42,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const isRegisteringRef = useRef<boolean>(false);
 
-  const fetchProfile = useCallback(async (): Promise<UserResponse | null> => {
+  const fetchProfile = useCallback(async (throwOnError = false): Promise<UserResponse | null> => {
     try {
       const profile = await getCurrentUserProfile();
       setUserProfile(profile);
@@ -51,7 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err: unknown) {
       console.error('Failed to sync application user profile:', err);
       setUserProfile(null);
-      setError('Unable to load application user profile.');
+      const message = err instanceof ApiError
+        ? err.message
+        : 'We could not reach the account service. Please try again shortly.';
+      setError(message);
+      if (throwOnError) throw new Error(message);
       return null;
     }
   }, []);
@@ -76,17 +81,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
       const cred = await signInWithEmailAndPassword(auth, email, pass);
       setFirebaseUser(cred.user);
-      const profile = await fetchProfile();
+      const profile = await fetchProfile(true);
       if (!profile) {
-        throw new Error('Authentication succeeded, but application user profile could not be loaded.');
+        throw new Error('We could not load your account. Please try again shortly.');
       }
-      setUserProfile(profile);
       return profile;
     } catch (err: any) {
-      setError(err?.message || 'Login failed. Please check your credentials.');
+      const msg = err?.message || 'Login failed. Please check your credentials.';
+      setError(msg);
       throw err;
     } finally {
       setLoading(false);

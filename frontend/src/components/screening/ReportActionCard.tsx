@@ -38,12 +38,12 @@ export const ReportActionCard: React.FC<ReportActionCardProps> = ({
               Clinical Report (PDF)
             </h3>
             <p className='text-xs text-slate-500'>
-              Compiled archival clinical summary snapshot and printable document.
+              Save a printable copy of your findings and reviews.
             </p>
           </div>
         </div>
         <Badge variant={report ? 'success' : 'neutral'}>
-          {report ? 'Report Available' : 'Not Compiled'}
+          {report ? 'Ready to download' : 'Not generated'}
         </Badge>
       </div>
 
@@ -56,9 +56,6 @@ export const ReportActionCard: React.FC<ReportActionCardProps> = ({
                 <span className='text-sm font-bold text-slate-900'>
                   {report.report_number}
                 </span>
-                <Badge variant='neutral' className='text-[11px] font-mono'>
-                  ReportLab PDF
-                </Badge>
               </div>
               <p className='text-xs text-slate-600 mt-1 font-medium'>
                 {report.report_title || 'Oral Health AI Screening Report'}
@@ -85,22 +82,23 @@ export const ReportActionCard: React.FC<ReportActionCardProps> = ({
               ) : (
                 <>
                   <FileDown className='h-3.5 w-3.5 mr-1.5' />
-                  Download Clinical Report (PDF)
+                  Download PDF
                 </>
               )}
             </Button>
           </div>
 
           <p className='text-[11px] text-slate-500 leading-relaxed border-t border-slate-200/60 pt-2'>
-            This PDF document contains the frozen historical diagnostic snapshot of oral findings, YOLO spatial
-            evidence, clinical context triage score, and any licensed dentist reviews.
+            Includes screening findings, visual evidence, urgency assessment and any available dentist reviews.
           </p>
         </div>
       ) : (
-        <div className='rounded-lg border border-dashed border-slate-200 p-5 text-center space-y-3'>
+        <div className='rounded-xl bg-slate-50 p-6 text-center space-y-4'>
+          <span className='results-icon mx-auto'><FileDown className='h-5 w-5' /></span>
+          <h4 className='text-base font-semibold text-slate-800'>Keep your findings in one place</h4>
           <p className='text-xs text-slate-500 max-w-sm mx-auto'>
             {isScreeningCompleted
-              ? "Compile an official Clinical Report (PDF) snapshot synthesizing this session's multi-modal findings."
+              ? 'Generate a PDF to save for your records or share with your dentist.'
               : 'Clinical report compilation becomes available once AI inference has successfully completed.'}
           </p>
 
@@ -119,7 +117,7 @@ export const ReportActionCard: React.FC<ReportActionCardProps> = ({
             ) : (
               <>
                 <FileText className='h-3.5 w-3.5 mr-1.5' />
-                Generate Clinical Report (PDF)
+                Generate PDF report
               </>
             )}
           </Button>

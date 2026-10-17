@@ -1,0 +1,1 @@
+OraVisionAI brings AI-assisted preliminary oral-health screening, explainable image evidence and professional dentist review into one workflow. A Final Year Project by BS Artificial Intelligence students at Air University, Islamabad. For preliminary screening and clinical decision support, not a definitive medical diagnosis.

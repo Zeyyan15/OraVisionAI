@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {createRequire} from 'node:module';
+const require = createRequire(new URL('../mobile/package.json', import.meta.url));
+const ts = require('typescript');
+const source = fs.readFileSync('mobile/src/app/screening/[id].tsx', 'utf8');
+const compiled = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS, jsx:ts.JsxEmit.ReactJSX, target:ts.ScriptTarget.ES2022}}).outputText;
+const state=[]; let cursor=0; let effects=[]; let first=true;
+let reportReject, reviewResolve;
+const reportPromise=new Promise((resolve,reject)=>{reportReject=reject;});
+const reviewPromise=new Promise(resolve=>{reviewResolve=resolve;});
+const review={images:[],xai_results:[],dentist_assessments:[],screening_created_at:'2026-10-11',primary_prediction:{predicted_class:'Test class',confidence:.5,probabilities:[]}};
+const button=Symbol('Button'); const component=()=>null;
+const api={dentists:async()=>[{id:'d1',first_name:'Ada',last_name:'Test',verification_status:'approved'}],report:()=>reportPromise,requestReview:()=>reviewPromise};
+const jsx=(type,props)=>({type,props}); const exports={};
+vm.runInNewContext(compiled,{exports,require(name){
+ if(name==='react') return {useState(initial){const index=cursor++;if(!(index in state))state[index]=initial;return [state[index],value=>{state[index]=value;}];},useEffect(effect){if(first)effects.push(effect);}};
+ if(name==='react/jsx-runtime')return {jsx,jsxs:jsx,Fragment:Symbol('Fragment')};
+ if(name==='react-native')return {View:component,Image:component,Switch:component,Linking:{openURL:async()=>{}}};
+ if(name==='expo-router')return {useLocalSearchParams:()=>({id:'s1'})};
+ if(name.endsWith('/api'))return {api};
+ if(name.endsWith('/context/Session'))return {useSession:()=>({profile:{role:'patient'}})};
+ if(name.endsWith('/hooks/useResource'))return {useResource:()=>({data:review,loading:false,error:null,refresh:async()=>{}})};
+ if(name.endsWith('/theme'))return {colors:{},styles:{}};
+ if(name.endsWith('/utils/consultation'))return {messageOf:error=>error.message};
+ if(name.endsWith('/Typography'))return {Text:component};
+ if(name.endsWith('/components/ui'))return {Button:button,Card:component,Field:component,Notice:component,ResourceState:component,Screen:component,StatusPill:component};
+ throw new Error(`Unexpected import: ${name}`);
+}});
+function render(){cursor=0;const tree=exports.default();first=false;return tree;}
+function buttons(tree){if(!tree)return [];if(Array.isArray(tree))return tree.flatMap(buttons);return [...(tree.type===button?[tree.props]:[]),...buttons(tree.props?.children)];}
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+let tree=render();effects.forEach(effect=>effect());await tick();tree=render();
+let controls=buttons(tree);controls.find(b=>b.label==='View PDF report').onPress();controls=buttons(render());
+assert.equal(controls.find(b=>b.label==='View PDF report').loading,true);
+assert.equal(controls.find(b=>b.label==='Request review').loading,false);
+assert.equal(controls.filter(b=>b.loading).length,1);
+reportReject(new Error('Report temporarily unavailable'));await tick();
+assert.equal(buttons(render()).filter(b=>b.loading).length,0);
+buttons(render()).find(b=>b.label==='Dr. Ada Test').onPress();
+buttons(render()).find(b=>b.label==='Request review').onPress();controls=buttons(render());
+assert.equal(controls.find(b=>b.label==='Request review').loading,true);
+assert.equal(controls.find(b=>b.label==='View PDF report').loading,false);
+assert.equal(controls.filter(b=>b.loading).length,1);
+reviewResolve({});await tick();assert.equal(buttons(render()).filter(b=>b.loading).length,0);
+console.log('PASS: PDF and review show separate spinners; failures and success clear loading. Synthetic requests only.');

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import datetime
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -82,3 +82,10 @@ class ScreeningDeleteResponse(BaseModel):
     success: bool
     message: str
     screening_id: uuid.UUID
+
+
+class ScreeningWorkflowResponse(BaseModel):
+    status: Literal['running', 'completed', 'cancelled', 'failed', 'idle']
+    completed_steps: int = Field(ge=0, le=3)
+    description: str
+    warnings: List[str] = Field(default_factory=list)

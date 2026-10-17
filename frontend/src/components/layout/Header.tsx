@@ -9,6 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { NotificationBell } from '../notifications/NotificationBell';
+import logo from '../../assets/logo.png';
 
 export interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -32,15 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             </svg>
           </button>
         )}
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-clinical-600 font-bold text-white shadow-sm">
-            OV
-          </div>
-          <div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">OraVision</span>
-            <span className="text-lg font-semibold text-clinical-600">AI</span>
-          </div>
-        </div>
+        <img src={logo} alt="OravisionAI" className="h-8 w-auto" />
       </div>
 
       <div className="flex items-center gap-4">

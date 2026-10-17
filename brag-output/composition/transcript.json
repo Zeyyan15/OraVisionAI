@@ -1,0 +1,638 @@
+[
+  {
+    "id": "w0",
+    "text": "OraVision",
+    "start": 0.0,
+    "end": 0.52
+  },
+  {
+    "id": "w1",
+    "text": "AI",
+    "start": 0.52,
+    "end": 0.88
+  },
+  {
+    "id": "w2",
+    "text": "supports",
+    "start": 0.88,
+    "end": 1.48
+  },
+  {
+    "id": "w3",
+    "text": "preliminary",
+    "start": 1.48,
+    "end": 2.06
+  },
+  {
+    "id": "w4",
+    "text": "oral",
+    "start": 2.06,
+    "end": 2.58
+  },
+  {
+    "id": "w5",
+    "text": "health",
+    "start": 2.58,
+    "end": 2.94
+  },
+  {
+    "id": "w6",
+    "text": "screening",
+    "start": 2.94,
+    "end": 3.26
+  },
+  {
+    "id": "w7",
+    "text": "with",
+    "start": 3.26,
+    "end": 3.82
+  },
+  {
+    "id": "w8",
+    "text": "professional",
+    "start": 3.82,
+    "end": 4.32
+  },
+  {
+    "id": "w9",
+    "text": "clinical",
+    "start": 4.32,
+    "end": 4.76
+  },
+  {
+    "id": "w10",
+    "text": "oversight.",
+    "start": 4.76,
+    "end": 5.34
+  },
+  {
+    "id": "w11",
+    "text": "Patients",
+    "start": 5.82,
+    "end": 6.36
+  },
+  {
+    "id": "w12",
+    "text": "begin",
+    "start": 6.36,
+    "end": 6.64
+  },
+  {
+    "id": "w13",
+    "text": "by",
+    "start": 6.64,
+    "end": 6.9
+  },
+  {
+    "id": "w14",
+    "text": "recording",
+    "start": 6.9,
+    "end": 7.34
+  },
+  {
+    "id": "w15",
+    "text": "notes",
+    "start": 7.34,
+    "end": 7.68
+  },
+  {
+    "id": "w16",
+    "text": "and",
+    "start": 7.68,
+    "end": 7.98
+  },
+  {
+    "id": "w17",
+    "text": "uploading",
+    "start": 7.98,
+    "end": 8.36
+  },
+  {
+    "id": "w18",
+    "text": "an",
+    "start": 8.36,
+    "end": 8.62
+  },
+  {
+    "id": "w19",
+    "text": "oral",
+    "start": 8.62,
+    "end": 8.84
+  },
+  {
+    "id": "w20",
+    "text": "photograph",
+    "start": 8.84,
+    "end": 9.38
+  },
+  {
+    "id": "w21",
+    "text": "for",
+    "start": 9.38,
+    "end": 9.66
+  },
+  {
+    "id": "w22",
+    "text": "AI",
+    "start": 9.66,
+    "end": 9.98
+  },
+  {
+    "id": "w23",
+    "text": "-assisted",
+    "start": 9.98,
+    "end": 10.48
+  },
+  {
+    "id": "w24",
+    "text": "image",
+    "start": 10.48,
+    "end": 10.76
+  },
+  {
+    "id": "w25",
+    "text": "analysis.",
+    "start": 10.76,
+    "end": 11.34
+  },
+  {
+    "id": "w26",
+    "text": "EfficientNet",
+    "start": 11.96,
+    "end": 12.68
+  },
+  {
+    "id": "w27",
+    "text": "B",
+    "start": 12.68,
+    "end": 12.88
+  },
+  {
+    "id": "w28",
+    "text": "zero",
+    "start": 12.88,
+    "end": 13.32
+  },
+  {
+    "id": "w29",
+    "text": "classifies",
+    "start": 13.32,
+    "end": 14.0
+  },
+  {
+    "id": "w30",
+    "text": "the",
+    "start": 14.0,
+    "end": 14.24
+  },
+  {
+    "id": "w31",
+    "text": "image",
+    "start": 14.24,
+    "end": 14.5
+  },
+  {
+    "id": "w32",
+    "text": "across",
+    "start": 14.5,
+    "end": 14.84
+  },
+  {
+    "id": "w33",
+    "text": "seven",
+    "start": 14.84,
+    "end": 15.3
+  },
+  {
+    "id": "w34",
+    "text": "oral",
+    "start": 15.3,
+    "end": 15.6
+  },
+  {
+    "id": "w35",
+    "text": "conditions.",
+    "start": 15.6,
+    "end": 16.26
+  },
+  {
+    "id": "w36",
+    "text": "Independently,",
+    "start": 16.88,
+    "end": 17.74
+  },
+  {
+    "id": "w37",
+    "text": "YOLO",
+    "start": 18.14,
+    "end": 18.42
+  },
+  {
+    "id": "w38",
+    "text": "localizes",
+    "start": 18.42,
+    "end": 19.02
+  },
+  {
+    "id": "w39",
+    "text": "visible",
+    "start": 19.02,
+    "end": 19.42
+  },
+  {
+    "id": "w40",
+    "text": "findings.",
+    "start": 19.42,
+    "end": 19.96
+  },
+  {
+    "id": "w41",
+    "text": "Results",
+    "start": 20.6,
+    "end": 20.94
+  },
+  {
+    "id": "w42",
+    "text": "bring",
+    "start": 20.94,
+    "end": 21.24
+  },
+  {
+    "id": "w43",
+    "text": "together",
+    "start": 21.24,
+    "end": 21.52
+  },
+  {
+    "id": "w44",
+    "text": "model",
+    "start": 21.52,
+    "end": 21.86
+  },
+  {
+    "id": "w45",
+    "text": "confidence,",
+    "start": 21.86,
+    "end": 22.42
+  },
+  {
+    "id": "w46",
+    "text": "class",
+    "start": 23.04,
+    "end": 23.24
+  },
+  {
+    "id": "w47",
+    "text": "probabilities,",
+    "start": 23.24,
+    "end": 23.84
+  },
+  {
+    "id": "w48",
+    "text": "explainable",
+    "start": 24.48,
+    "end": 25.08
+  },
+  {
+    "id": "w49",
+    "text": "heat",
+    "start": 25.08,
+    "end": 25.28
+  },
+  {
+    "id": "w50",
+    "text": "maps,",
+    "start": 25.28,
+    "end": 25.5
+  },
+  {
+    "id": "w51",
+    "text": "and",
+    "start": 25.94,
+    "end": 26.06
+  },
+  {
+    "id": "w52",
+    "text": "clinical",
+    "start": 26.06,
+    "end": 26.34
+  },
+  {
+    "id": "w53",
+    "text": "-risk",
+    "start": 26.34,
+    "end": 26.68
+  },
+  {
+    "id": "w54",
+    "text": "prioritization.",
+    "start": 26.68,
+    "end": 27.52
+  },
+  {
+    "id": "w55",
+    "text": "These",
+    "start": 28.0,
+    "end": 28.16
+  },
+  {
+    "id": "w56",
+    "text": "are",
+    "start": 28.16,
+    "end": 28.3
+  },
+  {
+    "id": "w57",
+    "text": "screening",
+    "start": 28.3,
+    "end": 28.66
+  },
+  {
+    "id": "w58",
+    "text": "findings,",
+    "start": 28.66,
+    "end": 29.42
+  },
+  {
+    "id": "w59",
+    "text": "not",
+    "start": 29.68,
+    "end": 29.88
+  },
+  {
+    "id": "w60",
+    "text": "a",
+    "start": 29.88,
+    "end": 30.02
+  },
+  {
+    "id": "w61",
+    "text": "confirmed",
+    "start": 30.02,
+    "end": 30.56
+  },
+  {
+    "id": "w62",
+    "text": "diagnosis.",
+    "start": 30.56,
+    "end": 31.2
+  },
+  {
+    "id": "w63",
+    "text": "Patients",
+    "start": 31.94,
+    "end": 32.32
+  },
+  {
+    "id": "w64",
+    "text": "request",
+    "start": 32.32,
+    "end": 32.66
+  },
+  {
+    "id": "w65",
+    "text": "an",
+    "start": 32.66,
+    "end": 32.94
+  },
+  {
+    "id": "w66",
+    "text": "approved",
+    "start": 32.94,
+    "end": 33.32
+  },
+  {
+    "id": "w67",
+    "text": "dentist's",
+    "start": 33.32,
+    "end": 34.02
+  },
+  {
+    "id": "w68",
+    "text": "review.",
+    "start": 34.02,
+    "end": 34.28
+  },
+  {
+    "id": "w69",
+    "text": "The",
+    "start": 35.0,
+    "end": 35.12
+  },
+  {
+    "id": "w70",
+    "text": "dentist",
+    "start": 35.12,
+    "end": 35.48
+  },
+  {
+    "id": "w71",
+    "text": "examines",
+    "start": 35.48,
+    "end": 36.28
+  },
+  {
+    "id": "w72",
+    "text": "the",
+    "start": 36.28,
+    "end": 36.44
+  },
+  {
+    "id": "w73",
+    "text": "original",
+    "start": 36.44,
+    "end": 36.86
+  },
+  {
+    "id": "w74",
+    "text": "image",
+    "start": 36.86,
+    "end": 37.3
+  },
+  {
+    "id": "w75",
+    "text": "and",
+    "start": 37.3,
+    "end": 37.78
+  },
+  {
+    "id": "w76",
+    "text": "AI",
+    "start": 37.78,
+    "end": 38.12
+  },
+  {
+    "id": "w77",
+    "text": "evidence,",
+    "start": 38.12,
+    "end": 38.74
+  },
+  {
+    "id": "w78",
+    "text": "then",
+    "start": 39.14,
+    "end": 39.4
+  },
+  {
+    "id": "w79",
+    "text": "records",
+    "start": 39.4,
+    "end": 39.74
+  },
+  {
+    "id": "w80",
+    "text": "a",
+    "start": 39.74,
+    "end": 40.02
+  },
+  {
+    "id": "w81",
+    "text": "separate",
+    "start": 40.02,
+    "end": 40.36
+  },
+  {
+    "id": "w82",
+    "text": "professional",
+    "start": 40.36,
+    "end": 40.86
+  },
+  {
+    "id": "w83",
+    "text": "assessment",
+    "start": 40.86,
+    "end": 41.44
+  },
+  {
+    "id": "w84",
+    "text": "and",
+    "start": 41.44,
+    "end": 41.88
+  },
+  {
+    "id": "w85",
+    "text": "recommendations.",
+    "start": 41.88,
+    "end": 42.52
+  },
+  {
+    "id": "w86",
+    "text": "A",
+    "start": 43.18,
+    "end": 43.44
+  },
+  {
+    "id": "w87",
+    "text": "consolidated",
+    "start": 43.44,
+    "end": 44.08
+  },
+  {
+    "id": "w88",
+    "text": "report",
+    "start": 44.08,
+    "end": 44.62
+  },
+  {
+    "id": "w89",
+    "text": "brings",
+    "start": 44.62,
+    "end": 45.1
+  },
+  {
+    "id": "w90",
+    "text": "the",
+    "start": 45.1,
+    "end": 45.3
+  },
+  {
+    "id": "w91",
+    "text": "findings",
+    "start": 45.3,
+    "end": 45.7
+  },
+  {
+    "id": "w92",
+    "text": "together.",
+    "start": 45.7,
+    "end": 46.2
+  },
+  {
+    "id": "w93",
+    "text": "OraVision",
+    "start": 46.96,
+    "end": 47.54
+  },
+  {
+    "id": "w94",
+    "text": "AI",
+    "start": 47.54,
+    "end": 48.0
+  },
+  {
+    "id": "w95",
+    "text": "combines",
+    "start": 48.0,
+    "end": 48.78
+  },
+  {
+    "id": "w96",
+    "text": "artificial",
+    "start": 48.78,
+    "end": 49.28
+  },
+  {
+    "id": "w97",
+    "text": "intelligence",
+    "start": 49.28,
+    "end": 49.98
+  },
+  {
+    "id": "w98",
+    "text": "with",
+    "start": 49.98,
+    "end": 50.34
+  },
+  {
+    "id": "w99",
+    "text": "clinical",
+    "start": 50.34,
+    "end": 50.72
+  },
+  {
+    "id": "w100",
+    "text": "oversight,",
+    "start": 50.72,
+    "end": 51.3
+  },
+  {
+    "id": "w101",
+    "text": "supporting",
+    "start": 51.74,
+    "end": 52.22
+  },
+  {
+    "id": "w102",
+    "text": "structured",
+    "start": 52.22,
+    "end": 52.86
+  },
+  {
+    "id": "w103",
+    "text": "oral",
+    "start": 52.86,
+    "end": 53.22
+  },
+  {
+    "id": "w104",
+    "text": "health",
+    "start": 53.22,
+    "end": 53.62
+  },
+  {
+    "id": "w105",
+    "text": "assessment.",
+    "start": 53.62,
+    "end": 54.02
+  }
+]

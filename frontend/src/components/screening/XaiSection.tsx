@@ -1,312 +1,84 @@
-/**
- * OraVisionAI - Explainable AI (XAI) Section Component (Phase 23)
- *
- * Implements Primary & Secondary XAI visual explanation controls.
- * Authoritative target layer: block6a_expand_conv.
- * Preserves strict patient privacy: internal storage paths are withheld from clinical content.
- */
-
-import React, { useState, useEffect } from 'react';
-import { XAIResultResponse } from '../../types/screening';
+﻿import React, { useEffect, useState } from 'react';
+import { Sparkles, CheckCircle2, ChevronDown, Info, Image as ImageIcon } from 'lucide-react';
 import { XaiMethod } from '../../types/domain';
-import { Sparkles, Eye, Info, CheckCircle2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { XAIResultResponse } from '../../types/screening';
 import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
 import { getArtifactSignedUrl } from '../../api/screeningEndpoints';
 
 export interface XaiSectionProps {
-  xaiResults: XAIResultResponse[];
+  xaiResults: Array<Pick<XAIResultResponse, 'id' | 'target_layer' | 'is_primary_user_facing' | 'heatmap_storage_path' | 'overlay_image_storage_path'> & { method: string; created_at?: string }>;
   isGenerating?: boolean;
   onGenerateMethod: (method: string) => Promise<void>;
   screeningId?: string;
 }
-
-interface MethodCatalogItem {
-  id: XaiMethod;
-  name: string;
-  category: 'primary' | 'secondary';
-  description: string;
-}
-
-const XAI_METHODS: MethodCatalogItem[] = [
-  {
-    id: 'occlusion_sensitivity',
-    name: 'Occlusion Sensitivity',
-    category: 'primary',
-    description: 'Systematically perturbs image patches to identify regions most critical to model output.',
-  },
-  {
-    id: 'grad_cam',
-    name: 'Grad-CAM',
-    category: 'primary',
-    description: 'Gradient-weighted class activation mapping targeting convolutional layer block6a_expand_conv.',
-  },
-  {
-    id: 'grad_cam_plus_plus',
-    name: 'Grad-CAM++',
-    category: 'secondary',
-    description: 'Higher-order gradient weighting providing finer localization of multi-focal lesions.',
-  },
-  {
-    id: 'layer_cam',
-    name: 'LayerCAM',
-    category: 'secondary',
-    description: 'Multi-scale pixel-level class activation mapping across convolutional feature maps.',
-  },
-  {
-    id: 'score_cam',
-    name: 'Score-CAM',
-    category: 'secondary',
-    description: 'Perturbation-based activation mapping eliminating gradient noise for stable visual evidence.',
-  },
-  {
-    id: 'integrated_gradients',
-    name: 'Integrated Gradients',
-    category: 'secondary',
-    description: 'Axiomatic attribution integrating path gradients from a black baseline reference image.',
-  },
+const methods: { id: XaiMethod; name: string; description: string; advanced?: boolean }[] = [
+  { id:'occlusion_sensitivity', name:'Occlusion Sensitivity', description:'Highlights the patches that most influenced the model when parts of the photograph were hidden.' },
+  { id:'grad_cam', name:'Grad-CAM', description:'Highlights image regions that contributed to the model’s selected class.' },
+  { id:'grad_cam_plus_plus', name:'Grad-CAM++', description:'An alternative gradient-based view of the regions that influenced the model.', advanced:true },
+  { id:'layer_cam', name:'LayerCAM', description:'Explores model attention through local feature activations.', advanced:true },
+  { id:'score_cam', name:'Score-CAM', description:'Uses changes in model scores to visualize influential regions.', advanced:true },
+  { id:'integrated_gradients', name:'Integrated Gradients', description:'Compares image features with a baseline to estimate their contribution.', advanced:true },
 ];
 
-export const XaiSection: React.FC<XaiSectionProps> = ({
-  xaiResults,
-  isGenerating = false,
-  onGenerateMethod,
-  screeningId,
-}) => {
-  const [selectedMethod, setSelectedMethod] = useState<XaiMethod>('occlusion_sensitivity');
-  const [showSecondary, setShowSecondary] = useState(false);
-  const [generatingMethod, setGeneratingMethod] = useState<string | null>(null);
-  const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
-
-  const existingResultMap = new Map<string, XAIResultResponse>();
-  xaiResults.forEach((res) => {
-    existingResultMap.set(res.method, res);
-  });
-
-  const currentResult = existingResultMap.get(selectedMethod);
-  const currentMethodConfig = XAI_METHODS.find((m) => m.id === selectedMethod)!;
-
+export const XaiSection: React.FC<XaiSectionProps> = ({xaiResults,isGenerating=false,onGenerateMethod,screeningId}) => {
+  const [selected, setSelected] = useState<XaiMethod>('occlusion_sensitivity');
+  const [advanced, setAdvanced] = useState(false);
+  const [computing, setComputing] = useState(false);
+  const [url, setUrl] = useState<string | null>(null);
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const [computeError, setComputeError] = useState<string | null>(null);
+  const current = xaiResults.find(result => result.method === selected);
+  const method = methods.find(item => item.id === selected)!;
   useEffect(() => {
-    let isMounted = true;
-    const targetPath = currentResult?.overlay_image_storage_path || currentResult?.heatmap_storage_path;
-    if (screeningId && targetPath) {
-      getArtifactSignedUrl(screeningId, targetPath)
-        .then((res) => {
-          if (isMounted) setArtifactUrl(res.signed_url);
-        })
-        .catch((err) => {
-          console.warn('Could not retrieve XAI signed URL:', err);
-          if (isMounted) setArtifactUrl(null);
-        });
-    } else {
-      setArtifactUrl(null);
-    }
-    return () => {
-      isMounted = false;
-    };
-  }, [screeningId, currentResult?.overlay_image_storage_path, currentResult?.heatmap_storage_path]);
-
-  const handleTriggerCompute = async (method: string) => {
-    setGeneratingMethod(method);
-    try {
-      await onGenerateMethod(method);
-    } finally {
-      setGeneratingMethod(null);
-    }
+    let active = true;
+    setUrl(null); setImageFailed(false);
+    const path = current?.overlay_image_storage_path || current?.heatmap_storage_path;
+    if (screeningId && path) {
+      setLoadingImage(true);
+      getArtifactSignedUrl(screeningId,path).then(result => { if(active) setUrl(result.signed_url); })
+        .catch(() => { if(active) setImageFailed(true); })
+        .finally(() => { if(active) setLoadingImage(false); });
+    } else setLoadingImage(false);
+    return () => { active=false; };
+  },[screeningId,current?.overlay_image_storage_path,current?.heatmap_storage_path]);
+  const generate = async () => {
+    setComputing(true); setComputeError(null);
+    try { await onGenerateMethod(selected); }
+    catch(error) { setComputeError(error instanceof Error ? error.message : 'Could not generate the heatmap. Please try again.'); }
+    finally { setComputing(false); }
   };
-
-  return (
-    <div className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4'>
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100'>
-        <div className='flex items-center gap-2'>
-          <Sparkles className='h-5 w-5 text-clinical-600' />
-          <div>
-            <h3 className='text-base font-semibold text-slate-900'>
-              Explainable AI (XAI) Feature Attribution
-            </h3>
-            <p className='text-xs text-slate-500'>
-              Visual evidence indicating image regions that influenced deep learning activations.
-            </p>
+  const recorded = current?.created_at ? new Date(current.created_at) : null;
+  const validDate = recorded && !Number.isNaN(recorded.getTime());
+  return <section className='results-panel' aria-label='Visual explanations'>
+    <div className='results-panel-heading'>
+      <span className='results-icon'><Sparkles className='h-5 w-5' /></span>
+      <div><h3>What influenced the model?</h3><p>Explore the visual explanation behind your result.</p></div>
+      <span className='results-chip ml-auto hidden sm:inline-flex'>Explainable AI</span>
+    </div>
+    <div className='grid gap-6 pt-6 lg:grid-cols-[260px_minmax(0,1fr)]'>
+      <div className='space-y-5'>
+        <div><p className='results-eyebrow mb-3'>Explanation method</p>
+          <div className='space-y-2' aria-label='Explanation methods'>
+            {methods.filter(item => !item.advanced || advanced).map(item => <button key={item.id} type='button' aria-pressed={selected===item.id} onClick={() => {setSelected(item.id);setComputeError(null);}} className={`flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-3.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${selected===item.id ? 'border-[#087f70] bg-emerald-50 font-semibold text-emerald-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+              {item.name}{xaiResults.some(result=>result.method===item.id) && <CheckCircle2 className='h-4 w-4 shrink-0 text-emerald-600' />}
+            </button>)}
           </div>
+          <button type='button' aria-expanded={advanced} onClick={()=>setAdvanced(!advanced)} className='mt-3 flex items-center gap-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-900'>Advanced methods<ChevronDown className={`h-3.5 w-3.5 ${advanced ? 'rotate-180' : ''}`} /></button>
         </div>
-        <Badge variant='neutral'>
-          Target: <span className='font-mono font-bold ml-1'>block6a_expand_conv</span>
-        </Badge>
+        <div className='rounded-xl bg-slate-50 p-4'><h4 className='text-sm font-semibold text-slate-800'>{method.name}</h4><p className='mt-2 text-sm leading-relaxed text-slate-500'>{method.description}</p></div>
+        <Button type='button' size='sm' onClick={generate} disabled={isGenerating || computing} loading={computing} className='w-full !h-auto min-h-10 py-2'>{computing ? 'Generating explanation…' : current ? 'Regenerate heatmap' : 'Generate heatmap'}</Button>
+        {computeError && <p role='alert' className='text-sm text-rose-700'>{computeError}</p>}
       </div>
-
-      {/* Primary Method Tabs */}
-      <div>
-        <div className='text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2'>
-          Primary Clinical Methods
+      <div className='min-w-0 space-y-3'>
+        <div className='flex flex-wrap items-center justify-between gap-2 text-xs'><span className='font-semibold text-slate-700'>{method.name} · Overlay</span><span className={current ? 'text-emerald-700' : 'text-slate-400'}>{current ? 'Explanation generated' : 'Not generated yet'}</span></div>
+        <div className='flex min-h-64 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-[#edf2f0] lg:min-h-80'>
+          {url && !imageFailed ? <img src={url} alt={`${method.name} feature attribution`} onError={()=>setImageFailed(true)} className='block max-h-[480px] w-full object-contain' /> : <div className='max-w-sm space-y-3 px-6 py-12 text-center'><ImageIcon className='mx-auto h-8 w-8 text-slate-400' /><p className='text-sm font-medium text-slate-600'>{loadingImage ? 'Loading your explanation…' : current ? 'Heatmap preview unavailable' : 'Your heatmap will appear here'}</p><p className='text-xs leading-relaxed text-slate-500'>{current ? 'The saved explanation could not be displayed. Try refreshing the screening.' : 'Choose a method and generate a heatmap to see which regions influenced the model.'}</p></div>}
         </div>
-        <div className='grid grid-cols-2 gap-2'>
-          {XAI_METHODS.filter((m) => m.category === 'primary').map((method) => {
-            const hasComputed = existingResultMap.has(method.id);
-            const isSelected = selectedMethod === method.id;
-
-            return (
-              <button
-                key={method.id}
-                type='button'
-                onClick={() => setSelectedMethod(method.id)}
-                className={'flex items-center justify-between p-3 rounded-lg border text-left transition-all ' +
-                  (isSelected
-                    ? 'border-clinical-600 bg-clinical-50/70 ring-1 ring-clinical-600'
-                    : 'border-slate-200 hover:border-slate-300 bg-slate-50/50')
-                }
-              >
-                <div>
-                  <div className='flex items-center gap-1.5'>
-                    <span className={'text-xs font-bold ' + (isSelected ? 'text-clinical-900' : 'text-slate-800')}>
-                      {method.name}
-                    </span>
-                    {hasComputed && (
-                      <CheckCircle2 className='h-3.5 w-3.5 text-emerald-600' />
-                    )}
-                  </div>
-                  <span className='text-[11px] text-slate-500'>Primary user-facing</span>
-                </div>
-                <Badge variant={hasComputed ? 'success' : 'neutral'} className='text-[10px]'>
-                  {hasComputed ? 'Ready' : 'Not Run'}
-                </Badge>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Secondary Methods Toggle */}
-      <div>
-        <button
-          type='button'
-          onClick={() => setShowSecondary((prev) => !prev)}
-          className='flex items-center justify-between w-full py-2 text-xs font-semibold text-slate-600 hover:text-slate-900'
-        >
-          <span>Advanced Research Methods (Grad-CAM++, LayerCAM, Score-CAM, IG)</span>
-          {showSecondary ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
-        </button>
-
-        {showSecondary && (
-          <div className='grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2'>
-            {XAI_METHODS.filter((m) => m.category === 'secondary').map((method) => {
-              const hasComputed = existingResultMap.has(method.id);
-              const isSelected = selectedMethod === method.id;
-
-              return (
-                <button
-                  key={method.id}
-                  type='button'
-                  onClick={() => setSelectedMethod(method.id)}
-                  className={'p-2 rounded-lg border text-left transition-all ' +
-                    (isSelected
-                      ? 'border-clinical-600 bg-clinical-50/70 ring-1 ring-clinical-600'
-                      : 'border-slate-200 hover:border-slate-300 bg-slate-50/40')
-                  }
-                >
-                  <div className='flex items-center justify-between'>
-                    <span className={'text-xs font-semibold truncate ' + (isSelected ? 'text-clinical-900' : 'text-slate-700')}>
-                      {method.name}
-                    </span>
-                    {hasComputed && <CheckCircle2 className='h-3 w-3 text-emerald-600 shrink-0' />}
-                  </div>
-                  <span className='text-[10px] text-slate-400 block mt-0.5'>
-                    {hasComputed ? 'Computed' : 'Available'}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Selected Method Details & Trigger */}
-      <div className='rounded-lg border border-slate-200 bg-slate-50/60 p-4 space-y-3'>
-        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2'>
-          <div>
-            <div className='flex items-center gap-2'>
-              <h4 className='text-sm font-bold text-slate-900'>{currentMethodConfig.name}</h4>
-              <Badge variant={currentMethodConfig.category === 'primary' ? 'info' : 'neutral'}>
-                {currentMethodConfig.category === 'primary' ? 'Primary' : 'Secondary'}
-              </Badge>
-            </div>
-            <p className='text-xs text-slate-600 mt-1'>{currentMethodConfig.description}</p>
-          </div>
-
-          <Button
-            type='button'
-            variant='primary'
-            size='sm'
-            onClick={() => handleTriggerCompute(selectedMethod)}
-            disabled={isGenerating || generatingMethod === selectedMethod}
-            className='shrink-0'
-          >
-            {generatingMethod === selectedMethod ? (
-              <>
-                <Loader2 className='h-3.5 w-3.5 animate-spin mr-1.5' />
-                Computing...
-              </>
-            ) : currentResult ? (
-              <>
-                <Eye className='h-3.5 w-3.5 mr-1.5' />
-                Recompute Heatmap
-              </>
-            ) : (
-              <>
-                <Sparkles className='h-3.5 w-3.5 mr-1.5' />
-                Generate Heatmap
-              </>
-            )}
-          </Button>
-        </div>
-
-        {currentResult ? (
-          <div className='rounded-md border border-slate-200 bg-white p-3.5 space-y-2 text-xs'>
-            <div className='flex items-center justify-between'>
-              <span className='font-semibold text-emerald-700 flex items-center gap-1.5'>
-                <CheckCircle2 className='h-4 w-4' />
-                Feature Attribution Generated Successfully
-              </span>
-              <span className='text-slate-400 font-mono text-[11px]'>
-                Target: {currentResult.target_layer || 'block6a_expand_conv'}
-              </span>
-            </div>
-            {artifactUrl && (
-              <div className='flex justify-center bg-slate-950 rounded-lg p-2 my-2'>
-                <img
-                  src={artifactUrl}
-                  alt={`${currentMethodConfig.name} feature attribution`}
-                  className='max-h-56 object-contain rounded'
-                />
-              </div>
-            )}
-            <p className='text-slate-600 leading-relaxed text-[11px]'>
-              {artifactUrl
-                ? 'Visual explainability heatmap rendering neural network activation patterns across target layer block6a_expand_conv.'
-                : 'Visual explainability heatmap rendering is pending backend storage proxy infrastructure. Analytical feature attribution weights and gradient parameters have been verified.'}
-            </p>
-            <div className='pt-1 text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-100'>
-              <span>Recorded: {new Date(currentResult.created_at).toLocaleString()}</span>
-              <span>Primary user-facing: {currentResult.is_primary_user_facing ? 'Yes' : 'No'}</span>
-            </div>
-          </div>
-        ) : (
-          <div className='rounded-md border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500'>
-            Click <span className='font-semibold text-slate-700'>&quot;Generate Heatmap&quot;</span> to compute
-            visual feature attributions for {currentMethodConfig.name} on demand.
-          </div>
-        )}
-      </div>
-
-      <div className='flex items-start gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500'>
-        <Info className='h-4 w-4 text-slate-400 shrink-0 mt-0.5' />
-        <p>
-          <span className='font-semibold text-slate-600'>Epistemic Notice:</span> Explainable AI heatmaps indicate
-          which visual regions influenced the neural network&apos;s mathematical activations. They do not constitute
-          histological tissue pathology margins or demonstrate clinical biological causation.
-        </p>
+        <div className='flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500'><span>Color intensity indicates influence on model output.</span>{validDate && <time dateTime={current!.created_at}>Generated {recorded.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}</time>}</div>
       </div>
     </div>
-  );
+    <div className='results-footnote mt-6'><Info className='h-4 w-4 shrink-0' /><p>A heatmap explains model attention. It does not identify disease boundaries or establish a diagnosis.</p></div>
+  </section>;
 };
-
 export default XaiSection;

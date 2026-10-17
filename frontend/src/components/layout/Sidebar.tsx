@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { listDentistVerifications } from '../../api/adminEndpoints';
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileSearch,
@@ -33,6 +33,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
+  const { pathname } = useLocation();
   const patientNav: NavItem[] = [
     { name: 'Dashboard', href: '/patient/dashboard', icon: LayoutDashboard },
     { name: 'New Screening', href: '/patient/screenings/new', icon: PlusCircle },
@@ -85,10 +86,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
   ];
 
   const items = role === 'admin' ? adminNav : role === 'dentist' ? dentistNav : patientNav;
+  const activeHref = items
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-20 flex w-64 flex-col border-r border-slate-200 bg-white pt-16 transition-transform md:static md:translate-x-0 ${
+      className={`fixed bottom-0 left-0 top-16 z-20 flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white transition-transform md:sticky md:bottom-auto md:h-[calc(100dvh-4rem)] md:self-start md:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
       aria-label="Sidebar navigation"
@@ -123,14 +127,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
             }
 
             return (
-              <NavLink
+              <Link
                 key={item.name}
                 to={item.href}
-                className={({ isActive }) =>
-                  `flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-clinical-50 text-clinical-700 font-semibold'
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                aria-current={activeHref === item.href ? 'page' : undefined}
+                className={
+                  `flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                    activeHref === item.href
+                      ? 'bg-clinical-500 text-clinical-900 font-bold shadow-[0_0_0_3px_#d8f5ef]'
+                      : 'text-slate-700 hover:bg-clinical-50 hover:text-clinical-800'
                   }`
                 }
               >
@@ -143,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen = true }) => {
                     {item.badge}
                   </span>
                 )}
-              </NavLink>
+              </Link>
             );
           })}
         </nav>
